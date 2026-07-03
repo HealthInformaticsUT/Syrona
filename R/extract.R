@@ -1032,6 +1032,14 @@ save_dataset <- function(tables, dataset_name, db_path = NA_character_) {
 #' Load a previously saved dataset from CSV.
 #' @param dataset_name Short label (subfolder name under data/sources/).
 #' @return Named list of tibbles.
+#' @examples
+#' \donttest{
+#' base <- tempdir()
+#' file.copy(system.file("extdata", "demo", package = "syrona"), base, recursive = TRUE)
+#' options(syrona.data_dir = file.path(base, "demo"))
+#' d <- load_dataset("demo_population")
+#' names(d)
+#' }
 #' @export
 load_dataset <- function(dataset_name) {
   base <- getOption("syrona.data_dir", ".")

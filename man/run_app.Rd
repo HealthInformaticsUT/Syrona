@@ -22,3 +22,14 @@ The app looks for \code{data/sources/} and \code{data/comparisons/}
 relative to your current working directory. Run this from the directory
 that contains your \code{data/} folder.
 }
+\examples{
+\dontrun{
+# Copy the bundled demo, generate the comparison, then launch the dashboard.
+base <- tempdir()
+file.copy(system.file("extdata", "demo", package = "syrona"), base, recursive = TRUE)
+dir <- file.path(base, "demo")
+options(syrona.data_dir = dir)
+compare_all("demo_population", "demo_selected")
+run_app(data_dir = dir)
+}
+}

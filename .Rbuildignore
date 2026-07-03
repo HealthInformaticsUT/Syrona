@@ -11,3 +11,4 @@
 ^scripts$
 \.DS_Store$
 \.Rhistory$
+^cran-comments\.md$

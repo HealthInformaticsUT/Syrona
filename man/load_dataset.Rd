@@ -15,3 +15,12 @@ Named list of tibbles.
 \description{
 Load a previously saved dataset from CSV.
 }
+\examples{
+\donttest{
+base <- tempdir()
+file.copy(system.file("extdata", "demo", package = "syrona"), base, recursive = TRUE)
+options(syrona.data_dir = file.path(base, "demo"))
+d <- load_dataset("demo_population")
+names(d)
+}
+}

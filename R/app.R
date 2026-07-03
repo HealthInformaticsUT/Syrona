@@ -12,6 +12,16 @@
 #' @param port Port to run the app on (default: auto-select).
 #' @param launch.browser Whether to open a browser window (default: TRUE).
 #' @param ... Additional arguments passed to \code{\link[shiny]{runApp}}.
+#' @examples
+#' \dontrun{
+#' # Copy the bundled demo, generate the comparison, then launch the dashboard.
+#' base <- tempdir()
+#' file.copy(system.file("extdata", "demo", package = "syrona"), base, recursive = TRUE)
+#' dir <- file.path(base, "demo")
+#' options(syrona.data_dir = dir)
+#' compare_all("demo_population", "demo_selected")
+#' run_app(data_dir = dir)
+#' }
 #' @export
 run_app <- function(data_dir = getwd(), port = NULL, launch.browser = TRUE, ...) {
   app_dir <- system.file("shiny", package = "syrona")
