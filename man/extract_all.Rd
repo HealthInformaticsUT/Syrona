@@ -33,7 +33,7 @@ If \code{NULL} (default), extracts the full dataset.}
 Named list of tibbles matching the Syrona schema (invisible).
 }
 \description{
-Extracts stratified prevalence tables from an OMOP CDM database for one or
-more clinical domains. Applies k-anonymity suppression and optionally saves
-results to CSV.
+Derives stratified prevalence tables from the records in an OMOP CDM database
+for one or more clinical domains. Applies k-anonymity suppression and
+optionally saves results to CSV.
 }

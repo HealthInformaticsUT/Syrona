@@ -1121,9 +1121,9 @@ list_datasets <- function() {
 
 #' Run the full source data extraction pipeline.
 #'
-#' Extracts stratified prevalence tables from an OMOP CDM database for one or
-#' more clinical domains. Applies k-anonymity suppression and optionally saves
-#' results to CSV.
+#' Derives stratified prevalence tables from the records in an OMOP CDM database
+#' for one or more clinical domains. Applies k-anonymity suppression and
+#' optionally saves results to CSV.
 #'
 #' @param dataset_name Short label for the dataset (e.g. "EH30", "EstBB").
 #' @param db Either a DuckDB file path (string) or an existing connection
