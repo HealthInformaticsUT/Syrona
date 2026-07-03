@@ -356,7 +356,8 @@ compare_domain <- function(d1, d2, prev_table, domain_label) {
 #'           base, recursive = TRUE)
 #' dir <- file.path(base, "demo")
 #' options(syrona.data_dir = dir)
-#' res <- compare_all("demo_population", "demo_selected")
+#' # One domain keeps the example quick; drop `domains` to compare all three.
+#' res <- compare_all("demo_population", "demo_selected", domains = "conditions")
 #' res$condition_meta_summary
 #' # Then explore interactively: run_app(data_dir = dir)
 #' }
