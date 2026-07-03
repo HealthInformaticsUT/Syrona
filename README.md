@@ -4,48 +4,75 @@ Stratified prevalence comparison across OMOP CDM datasets.
 
 Syrona extracts prevalence tables from OMOP CDM databases (conditions, procedures, drugs), computes log2 prevalence ratios between paired datasets, and synthesizes them via random-effects meta-analysis at multiple aggregation levels.
 
-## Installation
+## Choose your starting point
+
+Pick the scenario that matches you - each links to the relevant vignette.
+
+### A. I just want to see the dashboard with demo data
+
+Clone the repo (the demo datasets ship at the repo root under `data/`),
+then launch the dashboard:
+
+```r
+# In a terminal:
+# git clone https://github.com/MaarjaPajusalu/Syrona.git
+# Then in R:
+setwd("path/to/Syrona")
+library(syrona)
+run_app()
+```
+
+The `data/` folder is excluded from the package build (`.Rbuildignore`), so
+`remotes::install_github` installs the code only. To get the demo data, you
+must clone.
+
+### B. I have my own OMOP CDM and want to compare two cohorts
+
+Install the package and follow the end-to-end walkthrough:
 
 ```r
 # install.packages("remotes")
 remotes::install_github("MaarjaPajusalu/Syrona")
 ```
 
-## Demo data (paper supplement)
+Then read [`vignette("a04_walkthrough", package = "syrona")`](vignettes/a04_walkthrough.Rmd)
+which takes you from "I have a remote OMOP CDM" to "the dashboard is
+showing my comparison" with verification at every step.
 
-Four pre-extracted OMOP datasets and two pre-computed comparisons ship at
-the repo root under `data/` so the dashboard can be launched immediately
-from a clone:
+### C. I already have extracted syrona data
+
+Install the package, point at your data directory, launch:
 
 ```r
-# Clone the repo, then in R:
-setwd("path/to/Syrona")
+remotes::install_github("MaarjaPajusalu/Syrona")
 library(syrona)
+options(syrona.data_dir = "/path/to/your/syrona/data")
 run_app()
 ```
 
-The `data/` folder is excluded from the R package build (`.Rbuildignore`),
-so `remotes::install_github` installs the code only. Installed users who
-want the dashboard with the demo data should clone the repo instead of
-installing, or point `run_app(data_dir = ...)` at their own extracted
-datasets.
+Your data directory must contain `sources/` (extracted datasets) and
+optionally `comparisons/` (pre-computed comparison results).
 
-## Quick start
+## Quick reference
 
 ```r
 library(syrona)
 
 # 1. Connect to an OMOP CDM database
-db <- syrona_connect("path/to/omop.duckdb")
+db <- syrona_connect("path/to/omop.duckdb")           # local DuckDB
+# or
+db <- syrona_connect_pg(host = "localhost", ...)       # PostgreSQL via SSH tunnel
 
 # 2. Extract stratified prevalence tables
 extract_all("Dataset_A", db = db)
+extract_all("Dataset_B", db = db)
 syrona_disconnect(db)
-
-# Repeat for a second database/cohort, then:
 
 # 3. Compare
 compare_all("Dataset_A", "Dataset_B")
+
+# 4. Explore in the dashboard
+run_app()
 ```
 
 ## What it does

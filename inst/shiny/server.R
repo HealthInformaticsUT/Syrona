@@ -941,13 +941,21 @@ function(input, output, session) {
   })
 
   # ── Demography: population pyramids ─────────────────────────────────────────
+  demo_missing_msg <- paste0(
+    "Population demographics are not included in the demo dataset. ",
+    "When you run Syrona against a real OMOP CDM, the extraction produces a ",
+    "demographics table and this population pyramid is shown here."
+  )
+
   output$pyramid_d1 <- renderGirafe({
     cd <- comp_data()
+    validate(need(!is.null(cd$d1$demographics) && nrow(cd$d1$demographics) > 0, demo_missing_msg))
     build_pyramid(cd$d1$demographics, cd$d1_name)
   })
 
   output$pyramid_d2 <- renderGirafe({
     cd <- comp_data()
+    validate(need(!is.null(cd$d2$demographics) && nrow(cd$d2$demographics) > 0, demo_missing_msg))
     build_pyramid(cd$d2$demographics, cd$d2_name)
   })
 

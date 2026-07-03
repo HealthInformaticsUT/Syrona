@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syrona — run the demo</title>
+<style>
+  body{font:15px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1a1a1a;max-width:680px;margin:40px auto;padding:0 20px}
+  h1{font-size:20px;margin:0 0 4px}
+  h2{font-size:15px;margin:34px 0 4px;padding-bottom:4px;border-bottom:2px solid #e5e5e7}
+  p.sub{color:#666;margin:0 0 8px}
+  .tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:#1a1a1a;border-radius:4px;padding:2px 8px;vertical-align:middle}
+  ol{padding-left:20px}
+  li{margin-bottom:14px}
+  pre{background:#f6f6f7;border:1px solid #e5e5e7;border-radius:6px;padding:12px 14px;overflow:auto;font:13px/1.5 SFMono-Regular,Menlo,Consolas,monospace}
+  code{font-family:SFMono-Regular,Menlo,Consolas,monospace}
+  .note{font-size:13px;color:#666}
+</style>
+</head>
+<body>
+  <h1>Run the Syrona demo</h1>
+  <p class="sub">Curated demo dataset &rarr; comparison &rarr; dashboard. Requires R &ge; 4.1.</p>
+
+  <!-- ─────────────── TERMINAL ─────────────── -->
+  <h2><span class="tag">Version: Terminal</span></h2>
+  <p class="sub">Open Terminal and copy-paste each block. You stay at the shell prompt the whole time.</p>
+  <ol>
+    <li><b>Install</b> (once):
+      <pre><code>Rscript -e 'install.packages("syrona")'
+# not on CRAN yet? install from GitHub:
+# Rscript -e 'install.packages("remotes")'
+# Rscript -e 'remotes::install_github("MaarjaPajusalu/Syrona")'</code></pre>
+    </li>
+    <li><b>Run the comparison and launch the dashboard</b> (opens in your browser; press Ctrl+C to stop):
+      <pre><code>Rscript -e '
+library(syrona)
+base <- tempdir()   # or a folder you choose, e.g. base <- path.expand("~/syrona-demo")
+file.copy(system.file("extdata", "demo", package = "syrona"), base, recursive = TRUE)
+dir <- file.path(base, "demo")
+options(syrona.data_dir = dir)
+compare_all("demo_population", "demo_selected")
+run_app(data_dir = dir)
+'</code></pre>
+    </li>
+  </ol>
+
+  <!-- ─────────────── RSTUDIO ─────────────── -->
+  <h2><span class="tag">Version: RStudio</span></h2>
+  <p class="sub">Paste each block into the RStudio Console.</p>
+  <ol>
+    <li><b>Install &amp; load</b> (install once):
+      <pre><code>install.packages("syrona")   # once
+library(syrona)
+
+# not on CRAN yet? install from GitHub instead:
+# install.packages("remotes")
+# remotes::install_github("MaarjaPajusalu/Syrona")</code></pre>
+    </li>
+    <li><b>Copy the bundled demo</b> to a writable folder (the installed copy is read-only):
+      <pre><code>base <- tempdir()   # or a folder you choose, e.g. base <- path.expand("~/syrona-demo")
+file.copy(system.file("extdata", "demo", package = "syrona"), base, recursive = TRUE)
+dir <- file.path(base, "demo")</code></pre>
+    </li>
+    <li><b>Run the comparison workflow</b> (writes <code>data/comparisons/</code>):
+      <pre><code>options(syrona.data_dir = dir)
+compare_all("demo_population", "demo_selected")</code></pre>
+    </li>
+    <li><b>Launch the dashboard:</b>
+      <pre><code>run_app(data_dir = dir)</code></pre>
+    </li>
+  </ol>
+
+  <p class="note">The demo is a curated subset (32 concepts across conditions, procedures, and drugs)
+  of the Est-Health-30 vs Estonian Biobank comparison. <code>demo_population</code> = general sample,
+  <code>demo_selected</code> = biobank-like sample.</p>
+</body>
+</html>

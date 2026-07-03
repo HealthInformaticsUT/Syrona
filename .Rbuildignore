@@ -6,3 +6,8 @@
 ^docs$
 ^_pkgdown\.yml$
 ^\.github$
+^PROJECT\.md$
+^reviewers-reject\.md$
+^scripts$
+\.DS_Store$
+\.Rhistory$

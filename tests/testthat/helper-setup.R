@@ -24,6 +24,7 @@ find_eunomia <- function() {
 #' Get a writable test CDM connection.
 #' Returns a list with con, cdm, tmp_path.
 get_test_db <- function() {
+  skip_on_cran()
   skip_if_not_installed("duckdb")
 
   src <- find_eunomia()

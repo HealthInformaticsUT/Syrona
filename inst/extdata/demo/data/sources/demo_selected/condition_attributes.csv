@@ -1,0 +1,22 @@
+concept_id,relationship,target_concept_id,target_concept_name
+140673,finding_site,4321375,Thyroid structure
+201826,finding_site,4034504,Structure of endocrine system
+315286,clinical_course,4236661,Chronic
+315286,finding_site,4217142,Heart structure
+315286,morphology,42709863,Structural change due to ischemia
+319034,finding_site,4217142,Heart structure
+321042,finding_site,4093357,Cardiac conducting system structure
+321318,finding_site,4217142,Heart structure
+321318,morphology,42709863,Structural change due to ischemia
+435220,clinical_course,4113136,Recurrent
+435243,causative_agent,4302633,Ethanol
+435243,causative_agent,4208951,Ingestible alcohol
+436682,pathology,4204670,Pathological developmental process
+438120,causative_agent,4232572,Opioid receptor agonist
+438409,pathology,4204670,Pathological developmental process
+439776,pathology,4204670,Pathological developmental process
+439846,finding_site,4339094,Left cardiac ventricular structure
+4068155,finding_site,4242112,Atrial structure
+4068155,finding_site,4093357,Cardiac conducting system structure
+4077577,clinical_course,4113136,Recurrent
+44784217,finding_site,4093357,Cardiac conducting system structure

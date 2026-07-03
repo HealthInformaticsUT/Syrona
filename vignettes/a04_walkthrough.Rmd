@@ -1,0 +1,498 @@
+---
+title: "End-to-End Walkthrough"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{a04_walkthrough}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette walks you from "I have a remote OMOP CDM somewhere" to "the
+Syrona dashboard is showing my comparison" in a single sitting. Each step
+ends with a verification check so you know it worked before moving on.
+
+The example scenario: you have a multi-site OMOP CDM and you want to
+compare the patient population at two care sites (e.g. two hospitals
+within the same database). The same flow works for any pair of cohorts.
+
+## Step 0 - Prerequisites
+
+Before you start, make sure you have:
+
+- **R 4.1 or newer** with the `syrona` package installed:
+  ```r
+  remotes::install_github("MaarjaPajusalu/Syrona")
+  ```
+  If you get `HTTP error 401 / Bad credentials`, you likely have a stale
+  `GITHUB_PAT` environment variable that overrides your git credential
+  store. Fix it by running `usethis::edit_r_environ()`, removing (or
+  commenting out) the `GITHUB_PAT=...` line, saving, and restarting R.
+  If the repository is public, no PAT is needed at all.
+- **Read access** to an OMOP CDM database (PostgreSQL or DuckDB).
+- **A writable schema** if your CDM is on PostgreSQL. Cohort tables and
+  some extraction queries need a place to write temp tables. This is
+  typically called `results_<your_user>` and is separate from the
+  read-only `cdm_schema`. If you do not know whether you have a writable
+  schema, see "Finding your schemas" below.
+- **SSH access** to the database host if it lives behind a firewall.
+- **A working directory** where Syrona can write `data/sources/` and
+  `data/comparisons/`. Defaults to `getwd()`.
+
+If you do not have a writable schema, ask your DB admin to create one.
+Without it, `create_caresite_cohort()` and some extractions will fail.
+
+### Finding your schemas
+
+OMOP databases typically have multiple schemas - for example, different
+CDM versions (`ohdsi_cdm_202410`, `ohdsi_cdm_202503`) or per-user
+results schemas. You may not have access to all of them.
+
+To discover what is available, connect to the database with `psql` via
+your SSH tunnel:
+
+```bash
+psql -h localhost -p 5432 -U your_user -d omop
+```
+
+Then, inside the `psql` prompt:
+
+```sql
+-- List all schemas
+\dn
+
+-- See your username
+SELECT current_user;
+
+-- Check which schemas you can read (USAGE) and write to (CREATE)
+SELECT nspname,
+       has_schema_privilege(current_user, nspname, 'USAGE')  AS can_use,
+       has_schema_privilege(current_user, nspname, 'CREATE') AS can_create
+FROM pg_namespace
+WHERE nspname NOT LIKE 'pg_%'
+ORDER BY nspname;
+```
+
+Use a schema where `can_use` is `t` as your `cdm_schema`, and one where
+`can_create` is `t` as your `write_schema`. If no schema is writable,
+ask your DB admin to grant you one.
+
+**Why are there multiple CDM schemas?** Each schema contains the same
+OMOP CDM table structure but with different data - for instance,
+different data refresh dates (`ohdsi_cdm_202410` vs `ohdsi_cdm_202503`),
+different hospital sites, or different access levels. Your user account
+may have read access to some but not all of them. A "permission denied
+for schema" error usually means that schema exists but your account has
+not been granted `USAGE` on it - try a different version, or ask your
+admin.
+
+## Step 1 - Open the SSH tunnel and connect
+
+If your OMOP CDM is remote, open an SSH tunnel in a **separate terminal**
+and leave it running for the rest of the session:
+
+```bash
+ssh -L 5432:localhost:5432 your_user@db-host.example.com
+```
+
+This forwards your local port 5432 to the database server's port 5432.
+While the tunnel is open, your R session can connect to `localhost:5432`
+as if the database were running on your machine.
+
+Then, in R:
+
+```{r, eval=FALSE}
+library(syrona)
+
+db <- syrona_connect_pg(
+  host         = "localhost",        # via the SSH tunnel
+  port         = 5432,
+  dbname       = "omop",
+  user         = "your_user",
+  cdm_schema   = "ohdsi_cdm_202511", # ask your DB admin if unsure
+  write_schema = "results_your_user" # must be writable
+)
+```
+
+If you do not pass `password`, `syrona_connect_pg()` will look in your
+`~/.pgpass` file or the `PGPASSWORD` environment variable. Setting up
+`.pgpass` is the cleanest way to keep credentials out of your R history.
+
+### Verify
+
+```{r, eval=FALSE}
+# A quick row count on person - confirms your connection and schema access
+DBI::dbGetQuery(db$con, "SELECT COUNT(*) FROM ohdsi_cdm_202511.person")
+```
+
+**Note:** `DBI::dbListTables(db$con)` will likely return `character(0)`
+(empty). This is normal - it only looks in the default `public` schema,
+not in your named CDM schema. To list the tables inside your CDM schema,
+use:
+
+```{r, eval=FALSE}
+DBI::dbGetQuery(db$con,
+  "SELECT table_name FROM information_schema.tables
+   WHERE table_schema = 'ohdsi_cdm_202511'
+   ORDER BY table_name")
+```
+
+You should see the standard OMOP tables: `person`, `visit_occurrence`,
+`condition_occurrence`, `procedure_occurrence`, `drug_exposure`, etc.
+
+If the person count query fails with "permission denied for schema",
+your user does not have access to that particular schema version. Run
+the schema discovery queries from "Finding your schemas" above to
+find one you can access.
+
+### For local DuckDB users
+
+If your CDM is a local DuckDB file, replace step 1 with:
+
+```{r, eval=FALSE}
+db <- syrona_connect("path/to/omop.duckdb", read_only = FALSE)
+```
+
+`read_only = FALSE` is needed so you can create cohort tables in the same
+file. Everything else in this walkthrough works identically.
+
+## Step 2 - Explore care sites
+
+`list_care_sites()` shows every care site in the CDM with at least 100
+patients (configurable via `min_patients`). Use it to pick two
+populations to compare:
+
+```{r, eval=FALSE}
+list_care_sites(db$con, cdm_schema = "ohdsi_cdm_202511")
+#> # A tibble: 8 x 3
+#>   care_site_id care_site_name        n_patients
+#>          <int> <chr>                      <int>
+#> 1          101 Central Hospital           45000
+#> 2          205 University Clinic          28000
+#> 3          312 Regional Hospital          15000
+#> ...
+```
+
+Pick two `care_site_id` values you want to compare. For this walkthrough
+we'll use `101` (Central Hospital) and `205` (University Clinic).
+
+## Step 3 - Create two cohorts
+
+A cohort tells Syrona which subset of persons to extract data for, and
+clips events to each person's window in that cohort. For care-site
+comparisons, the window runs from each person's first visit at that
+hospital to their last visit (clipped to their observation period).
+
+```{r, eval=FALSE}
+create_caresite_cohort(
+  con           = db$con,
+  care_site_id  = 101,
+  cohort_id     = 1,
+  cohort_schema = "results_your_user",
+  cdm_schema    = "ohdsi_cdm_202511"
+)
+#> v Cohort 1 (care_site 101): 45000 rows inserted.
+
+create_caresite_cohort(
+  con           = db$con,
+  care_site_id  = 205,
+  cohort_id     = 2,
+  cohort_schema = "results_your_user",
+  cdm_schema    = "ohdsi_cdm_202511"
+)
+#> v Cohort 2 (care_site 205): 28000 rows inserted.
+```
+
+### Verify
+
+```{r, eval=FALSE}
+cohort_summary(db$con, cohort_id = 1, cohort_schema = "results_your_user")
+#> # A tibble: 1 x 5
+#>   cohort_definition_id n_entries n_persons min_start  max_end
+#>                  <int>     <int>     <int> <date>     <date>
+#> 1                    1     45000     45000 2012-01-03 2019-12-28
+
+cohort_summary(db$con, cohort_id = 2, cohort_schema = "results_your_user")
+```
+
+`n_persons` should match the `n_patients` you saw in `list_care_sites()`.
+If it does not, something went wrong - usually a wrong `care_site_id`,
+or `restrict_to_observation = TRUE` (the default) clipped people who
+have visits but no observation period overlap.
+
+## Step 4 - Extract the first cohort
+
+`extract_all()` runs the full Phase 1 pipeline (denominators, demographics,
+death counts, plus prevalence + info + chapters + attributes for each
+selected domain) and writes one folder of CSVs per dataset.
+
+```{r, eval=FALSE}
+extract_all(
+  dataset_name  = "Central_Hospital",
+  db            = db,
+  cohort_id     = 1,
+  cohort_schema = "results_your_user"
+)
+#> i Applying cohort filter (cohort_id = 1)...
+#>
+#> -- Extracting dataset: Central_Hospital [conditions, procedures, drugs] --
+#>
+#> * Extracting denominators (ACHILLES-116)...
+#> * Extracting demographics...
+#> * Extracting death counts (ACHILLES-504)...
+#> * Extracting condition prevalence (ACHILLES-404)...
+#> * Extracting condition info...
+#> * Extracting condition chapters...
+#> * Extracting condition attributes...
+#> * Extracting procedure prevalence...
+#> ...
+#> v Saved to data/sources/Central_Hospital/
+```
+
+How long this takes depends on database size and network latency. A
+single care-site cohort with ~50k patients on a well-tuned PostgreSQL
+typically finishes in a few minutes per domain.
+
+If you only want to test the pipeline first, restrict to one domain:
+
+```{r, eval=FALSE}
+extract_all("Central_Hospital", db = db, cohort_id = 1,
+            cohort_schema = "results_your_user",
+            domains = "conditions")
+```
+
+### Verify
+
+```{r, eval=FALSE}
+list.files("data/sources/Central_Hospital/")
+#>  [1] "_metadata.csv"             "condition_attributes.csv"
+#>  [3] "condition_chapters.csv"    "condition_info.csv"
+#>  [5] "condition_prevalence.csv"  "death_counts.csv"
+#>  [7] "demographics.csv"          "drug_attributes.csv"
+#>  [9] "drug_chapters.csv"         "drug_info.csv"
+#> [11] "drug_prevalence.csv"       "procedure_attributes.csv"
+#> [13] "procedure_chapters.csv"    "procedure_info.csv"
+#> [15] "procedure_prevalence.csv"
+```
+
+You should see 15 CSVs (or fewer if you restricted to a subset of
+domains). The presence of all four `condition_*` files is the quickest
+sanity check that the conditions pipeline ran.
+
+You can also load the extracted dataset back into R immediately:
+
+```{r, eval=FALSE}
+d1 <- load_dataset("Central_Hospital")
+nrow(d1$condition_info)            # number of distinct conditions
+sum(d1$demographics$patient_count) # total F+M persons
+```
+
+## Step 5 - Extract the second cohort
+
+Same call, different `cohort_id` and `dataset_name`:
+
+```{r, eval=FALSE}
+extract_all(
+  dataset_name  = "University_Clinic",
+  db            = db,
+  cohort_id     = 2,
+  cohort_schema = "results_your_user"
+)
+```
+
+### Verify
+
+```{r, eval=FALSE}
+list_datasets()
+#> [1] "Central_Hospital" "University_Clinic"
+```
+
+If both names appear, both extractions completed.
+
+## Step 6 - Compare
+
+`compare_all()` runs Phase 2 (yearly prevalence ratios with confidence
+intervals) and Phase 3 (random-effects meta-analysis at multiple
+aggregation levels) for each domain present in both datasets.
+
+```{r, eval=FALSE}
+compare_all(
+  d1 = "Central_Hospital",
+  d2 = "University_Clinic"
+)
+#> -- Comparing Central_Hospital vs University_Clinic --
+#> * conditions: yearly -> meta_agegroups -> meta_by_sex -> meta_summary
+#> * procedures: yearly -> meta_agegroups -> meta_by_sex -> meta_summary
+#> * drugs: yearly -> meta_agegroups -> meta_by_sex -> meta_summary
+#> v Saved to data/comparisons/Central_Hospital_vs_University_Clinic/
+```
+
+### Verify
+
+```{r, eval=FALSE}
+list.files("data/comparisons/Central_Hospital_vs_University_Clinic/")
+#>  [1] "_metadata.csv"
+#>  [2] "condition_meta_agegroups.csv"
+#>  [3] "condition_meta_by_sex.csv"
+#>  [4] "condition_meta_summary.csv"
+#>  [5] "condition_yearly.csv"
+#>  [6] "drug_meta_agegroups.csv"
+#>  [7] "drug_meta_by_sex.csv"
+#>  [8] "drug_meta_summary.csv"
+#>  [9] "drug_yearly.csv"
+#> [10] "procedure_meta_agegroups.csv"
+#> [11] "procedure_meta_by_sex.csv"
+#> [12] "procedure_meta_summary.csv"
+#> [13] "procedure_yearly.csv"
+
+list_comparisons()
+#> [1] "Central_Hospital_vs_University_Clinic"
+```
+
+You can also peek at the top hits without launching the dashboard:
+
+```{r, eval=FALSE}
+comp <- load_comparison("Central_Hospital", "University_Clinic")
+comp$condition_meta_summary |>
+  dplyr::arrange(dplyr::desc(abs(log2_pr))) |>
+  dplyr::select(concept_name, log2_pr, ci_low, ci_high, fold_diff) |>
+  head(10)
+```
+
+## Step 7 - Launch the dashboard
+
+```{r, eval=FALSE}
+run_app()
+```
+
+You should see a startup message like:
+```
+[syrona] DATA_DIR = /your/working/directory
+```
+followed by the Shiny app opening in your browser.
+
+In the dashboard:
+
+1. The **dataset selector** should list both `Central_Hospital` and
+   `University_Clinic`.
+2. The **comparison selector** should list `Central_Hospital_vs_University_Clinic`.
+3. Pick the comparison and explore the prevalence ratio plots, the
+   chapter breakdowns, and the meta-analysis tables.
+
+If the dashboard launches but the dropdowns are empty, the most common
+cause is a wrong working directory - see Troubleshooting below.
+
+## Step 8 - Cleanup and disconnect
+
+When you are done:
+
+```{r, eval=FALSE}
+# Optional: drop the cohorts you created
+delete_cohort(db$con, cohort_id = 1, cohort_schema = "results_your_user")
+delete_cohort(db$con, cohort_id = 2, cohort_schema = "results_your_user")
+
+# Always disconnect from the database
+syrona_disconnect(db)
+```
+
+Then close the SSH tunnel in your other terminal (Ctrl-C or `exit`).
+
+The CSV files in `data/sources/` and `data/comparisons/` stay on disk -
+you can re-launch `run_app()` any time without re-running extraction.
+
+## Troubleshooting
+
+### `install_github()` fails with "HTTP error 401 / Bad credentials"
+
+A stale `GITHUB_PAT` environment variable is overriding your git
+credential store. Run `usethis::edit_r_environ()`, remove or comment
+out the `GITHUB_PAT=...` line, save, and restart R. If the Syrona
+repository is public, no PAT is needed.
+
+### "Could not connect" / "Connection refused"
+
+The SSH tunnel is not running, or it forwards a different port. Check
+the tunnel terminal is still open and that the port matches `port =`
+in `syrona_connect_pg()`.
+
+### "Permission denied for schema ..."
+
+Your DB user does not have `USAGE` on that schema. This is common when
+the database has multiple CDM schema versions and your account only has
+access to some of them. To find which schemas you can access:
+
+```{r, eval=FALSE}
+DBI::dbGetQuery(db$con,
+  "SELECT nspname,
+          has_schema_privilege(current_user, nspname, 'USAGE') AS can_use,
+          has_schema_privilege(current_user, nspname, 'CREATE') AS can_create
+   FROM pg_namespace
+   WHERE nspname NOT LIKE 'pg_%'
+   ORDER BY nspname")
+```
+
+Use a schema where `can_use` is `TRUE` as your `cdm_schema`. If you
+need write access (for cohort tables), use one where `can_create` is
+`TRUE` as your `write_schema`. If nothing is writable, ask your DB
+admin to grant:
+
+```sql
+GRANT USAGE ON SCHEMA cdm TO your_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA cdm TO your_user;
+GRANT ALL ON SCHEMA results_your_user TO your_user;
+```
+
+### `dbListTables()` returns empty
+
+This is expected. `DBI::dbListTables()` only lists tables in the
+default `public` schema. OMOP tables live in a named schema like
+`ohdsi_cdm_202511`. Use an explicit query instead:
+
+```{r, eval=FALSE}
+DBI::dbGetQuery(db$con,
+  "SELECT table_name FROM information_schema.tables
+   WHERE table_schema = 'ohdsi_cdm_202511'
+   ORDER BY table_name")
+```
+
+### "Cohort 1: 0 rows inserted"
+
+Either the `care_site_id` does not exist, or none of its visits overlap
+with any observation period. Re-run `list_care_sites()` to confirm the
+ID, and try `restrict_to_observation = FALSE` to see if observation
+period clipping is the issue.
+
+### `extract_all()` is very slow
+
+Each extraction step runs a query against the CDM. On a slow network or
+a large CDM, this can take a long time. Run with `domains = "conditions"`
+first as a smoke test, then add `procedures` and `drugs` once you know
+the connection is working.
+
+### Dashboard launches but dropdowns are empty
+
+The dashboard reads from `getOption("syrona.data_dir", ".")`. If you
+launched R from a different working directory than where you extracted
+the data, point Syrona at the right place explicitly:
+
+```{r, eval=FALSE}
+options(syrona.data_dir = "/path/to/folder/that/contains/data/")
+run_app()
+```
+
+Or set the environment variable `SYRONA_DATA_DIR` before starting R.
+
+## What to read next
+
+- [a01_extraction](a01_extraction.html) - all the parameters and
+  per-domain extraction details
+- [a02_comparison](a02_comparison.html) - the meta-analysis cascade and
+  output column reference
+- [a03_cohorts](a03_cohorts.html) - more cohort patterns, including
+  cohorts loaded from local data frames

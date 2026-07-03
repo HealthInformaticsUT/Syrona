@@ -1,0 +1,113 @@
+concept_id,chapter_type,chapter_id,chapter_name,chapter_level,parent_chapter_id
+315286,body_system,134057,Disorder of cardiovascular system,1,NA
+319034,body_system,134057,Disorder of cardiovascular system,1,NA
+321042,body_system,134057,Disorder of cardiovascular system,1,NA
+321318,body_system,134057,Disorder of cardiovascular system,1,NA
+439846,body_system,134057,Disorder of cardiovascular system,1,NA
+4068155,body_system,134057,Disorder of cardiovascular system,1,NA
+44784217,body_system,134057,Disorder of cardiovascular system,1,NA
+140673,body_system,31821,Disorder of endocrine system,1,NA
+201826,body_system,31821,Disorder of endocrine system,1,NA
+315286,body_system,440142,Disorder of mediastinum,1,NA
+319034,body_system,440142,Disorder of mediastinum,1,NA
+321042,body_system,440142,Disorder of mediastinum,1,NA
+321318,body_system,440142,Disorder of mediastinum,1,NA
+439846,body_system,440142,Disorder of mediastinum,1,NA
+4068155,body_system,440142,Disorder of mediastinum,1,NA
+44784217,body_system,440142,Disorder of mediastinum,1,NA
+315286,body_system,4152156,Cardiovascular injury,2,134057
+321318,body_system,4152156,Cardiovascular injury,2,134057
+315286,body_system,4028244,Chronic disease of cardiovascular system,2,134057
+201826,body_system,201820,Diabetes mellitus,2,31821
+140673,body_system,141253,Disorder of thyroid gland,2,31821
+315286,body_system,321588,Heart disease,2,134057
+315286,body_system,321588,Heart disease,2,440142
+319034,body_system,321588,Heart disease,2,134057
+319034,body_system,321588,Heart disease,2,440142
+321042,body_system,321588,Heart disease,2,134057
+321042,body_system,321588,Heart disease,2,440142
+321318,body_system,321588,Heart disease,2,134057
+321318,body_system,321588,Heart disease,2,440142
+439846,body_system,321588,Heart disease,2,134057
+439846,body_system,321588,Heart disease,2,440142
+4068155,body_system,321588,Heart disease,2,134057
+4068155,body_system,321588,Heart disease,2,440142
+44784217,body_system,321588,Heart disease,2,134057
+44784217,body_system,321588,Heart disease,2,440142
+315286,disease_category,443783,Chronic disease,1,NA
+436682,disease_category,435244,Developmental disorder,1,NA
+438409,disease_category,435244,Developmental disorder,1,NA
+439776,disease_category,435244,Developmental disorder,1,NA
+435243,disease_category,37162280,Disorder caused by psychoactive substance,1,NA
+140673,disease_category,4042837,Disorder of neck,1,NA
+315286,disease_category,4028071,Disorder of trunk,1,NA
+319034,disease_category,4028071,Disorder of trunk,1,NA
+321042,disease_category,4028071,Disorder of trunk,1,NA
+321318,disease_category,4028071,Disorder of trunk,1,NA
+439846,disease_category,4028071,Disorder of trunk,1,NA
+4068155,disease_category,4028071,Disorder of trunk,1,NA
+44784217,disease_category,4028071,Disorder of trunk,1,NA
+319034,disease_category,42709887,Hypertensive complication,1,NA
+435220,disease_category,432586,Mental disorder,1,NA
+435243,disease_category,432586,Mental disorder,1,NA
+438120,disease_category,432586,Mental disorder,1,NA
+438409,disease_category,432586,Mental disorder,1,NA
+439776,disease_category,432586,Mental disorder,1,NA
+4077577,disease_category,432586,Mental disorder,1,NA
+201826,disease_category,436670,Metabolic disease,1,NA
+437530,disease_category,436670,Metabolic disease,1,NA
+435220,disease_category,440059,Recurrent disease,1,NA
+4077577,disease_category,440059,Recurrent disease,1,NA
+315286,disease_category,432795,Traumatic or non-traumatic injury,1,NA
+321318,disease_category,432795,Traumatic or non-traumatic injury,1,NA
+315286,disease_category,4152156,Cardiovascular injury,2,432795
+321318,disease_category,4152156,Cardiovascular injury,2,432795
+315286,disease_category,4028244,Chronic disease of cardiovascular system,2,443783
+438409,disease_category,4043545,Developmental mental disorder,2,432586
+439776,disease_category,4043545,Developmental mental disorder,2,432586
+435243,disease_category,36714559,Disorder caused by alcohol,2,37162280
+201826,disease_category,437515,Disorder of carbohydrate metabolism,2,436670
+437530,disease_category,4170226,Disorder of lipoprotein AND/OR lipid metabolism,2,436670
+315286,disease_category,43531056,Disorder of thoracic segment of trunk,2,4028071
+319034,disease_category,43531056,Disorder of thoracic segment of trunk,2,4028071
+321042,disease_category,43531056,Disorder of thoracic segment of trunk,2,4028071
+321318,disease_category,43531056,Disorder of thoracic segment of trunk,2,4028071
+439846,disease_category,43531056,Disorder of thoracic segment of trunk,2,4028071
+4068155,disease_category,43531056,Disorder of thoracic segment of trunk,2,4028071
+44784217,disease_category,43531056,Disorder of thoracic segment of trunk,2,4028071
+140673,disease_category,141253,Disorder of thyroid gland,2,4042837
+319034,disease_category,442604,Hypertensive heart disease,2,42709887
+315286,disease_category,193631,Injury of internal organ,2,432795
+321318,disease_category,193631,Injury of internal organ,2,432795
+315286,disease_category,194526,Injury of trunk,2,432795
+315286,disease_category,194526,Injury of trunk,2,4028071
+321318,disease_category,194526,Injury of trunk,2,432795
+321318,disease_category,194526,Injury of trunk,2,4028071
+435220,disease_category,444100,Mood disorder,2,432586
+4077577,disease_category,444100,Mood disorder,2,432586
+436682,disease_category,45771096,Neurodevelopmental disorder,2,435244
+438409,disease_category,45771096,Neurodevelopmental disorder,2,435244
+439776,disease_category,45771096,Neurodevelopmental disorder,2,435244
+435243,disease_category,4004672,Psychoactive substance use disorder,2,37162280
+435220,disease_category,4098302,Recurrent depression,2,440059
+4077577,disease_category,4098302,Recurrent depression,2,440059
+435243,disease_category,1448778,Substance use disorder,2,432586
+438120,disease_category,1448778,Substance use disorder,2,432586
+140673,icd10_chapter,40474982,"E00-E90. Endocrine, nutritional and metabolic diseases",1,NA
+201826,icd10_chapter,40474982,"E00-E90. Endocrine, nutritional and metabolic diseases",1,NA
+437530,icd10_chapter,40474982,"E00-E90. Endocrine, nutritional and metabolic diseases",1,NA
+435220,icd10_chapter,40474984,F00-F99. Mental and behavioural disorders,1,NA
+435243,icd10_chapter,40474984,F00-F99. Mental and behavioural disorders,1,NA
+436682,icd10_chapter,40474984,F00-F99. Mental and behavioural disorders,1,NA
+438120,icd10_chapter,40474984,F00-F99. Mental and behavioural disorders,1,NA
+438409,icd10_chapter,40474984,F00-F99. Mental and behavioural disorders,1,NA
+439776,icd10_chapter,40474984,F00-F99. Mental and behavioural disorders,1,NA
+4077577,icd10_chapter,40474984,F00-F99. Mental and behavioural disorders,1,NA
+315286,icd10_chapter,40474983,I00-I99. Diseases of the circulatory system,1,NA
+319034,icd10_chapter,40474983,I00-I99. Diseases of the circulatory system,1,NA
+321042,icd10_chapter,40474983,I00-I99. Diseases of the circulatory system,1,NA
+321318,icd10_chapter,40474983,I00-I99. Diseases of the circulatory system,1,NA
+439846,icd10_chapter,40474983,I00-I99. Diseases of the circulatory system,1,NA
+4068155,icd10_chapter,40474983,I00-I99. Diseases of the circulatory system,1,NA
+44784217,icd10_chapter,40474983,I00-I99. Diseases of the circulatory system,1,NA
+321042,icd10_chapter,40474994,"O00-O99. Pregnancy, childbirth and the puerperium",1,NA

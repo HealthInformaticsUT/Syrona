@@ -83,10 +83,24 @@ if (is.null(DATA_DIR)) {
 }
 message("[syrona] DATA_DIR = ", DATA_DIR)
 
+# ── Shipped lookup resolution ────────────────────────────────────────────────
+# Package/CRAN installs carry curated subsets in inst/extdata (found via
+# system.file); dev and flat-shiny fall back to the full files under data/.
+# Both the ICD-10 lookup and the procedure-vocabulary lookups are downsized to
+# the bundled demo concepts for CRAN; the full files remain in data/ for dev.
+syrona_extdata <- function(...) {
+  rel <- file.path(...)
+  p <- system.file("extdata", rel, package = "syrona")
+  if (nzchar(p)) return(p)
+  cand <- file.path("inst", "extdata", rel)   # flat-shiny / source tree
+  if (file.exists(cand)) return(cand)
+  file.path(DATA_DIR, "data", rel)            # dev fallback (full files)
+}
+
 # ── ICD-10 Lookup (SNOMED -> ICD-10 code mapping) ────────────────────────────
 # Built by scripts/build_icd10_lookup.R from OMOP vocabulary tables.
 
-icd10_path <- file.path(DATA_DIR, "data", "icd10_lookup.csv")
+icd10_path <- syrona_extdata("icd10_lookup.csv")
 icd10_lookup <- if (file.exists(icd10_path)) {
   read.csv(icd10_path, stringsAsFactors = FALSE) |> as_tibble()
 } else {
@@ -97,18 +111,16 @@ icd10_lookup <- if (file.exists(icd10_path)) {
 # ── Vocabulary Lookups (procedure enrichment) ────────────────────────────────
 # Adds device, indirect site, and morphology attributes for procedure filtering.
 
-vocab_dir <- file.path(DATA_DIR, "data", "vocabulary")
-
-vocab_device <- if (file.exists(file.path(vocab_dir, "procedure_device_attributes.csv"))) {
-  read.csv(file.path(vocab_dir, "procedure_device_attributes.csv"), stringsAsFactors = FALSE) |> as_tibble()
+vocab_device <- if (file.exists(syrona_extdata("vocabulary", "procedure_device_attributes.csv"))) {
+  read.csv(syrona_extdata("vocabulary", "procedure_device_attributes.csv"), stringsAsFactors = FALSE) |> as_tibble()
 } else NULL
 
-vocab_site_extra <- if (file.exists(file.path(vocab_dir, "procedure_site_extra.csv"))) {
-  read.csv(file.path(vocab_dir, "procedure_site_extra.csv"), stringsAsFactors = FALSE) |> as_tibble()
+vocab_site_extra <- if (file.exists(syrona_extdata("vocabulary", "procedure_site_extra.csv"))) {
+  read.csv(syrona_extdata("vocabulary", "procedure_site_extra.csv"), stringsAsFactors = FALSE) |> as_tibble()
 } else NULL
 
-vocab_morphology <- if (file.exists(file.path(vocab_dir, "procedure_morphology.csv"))) {
-  read.csv(file.path(vocab_dir, "procedure_morphology.csv"), stringsAsFactors = FALSE) |> as_tibble()
+vocab_morphology <- if (file.exists(syrona_extdata("vocabulary", "procedure_morphology.csv"))) {
+  read.csv(syrona_extdata("vocabulary", "procedure_morphology.csv"), stringsAsFactors = FALSE) |> as_tibble()
 } else NULL
 
 # ── Auto-detect Comparisons ──────────────────────────────────────────────────

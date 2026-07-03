@@ -1,0 +1,18 @@
+concept_id,concept_name,concept_code,vocabulary_id,concept_class_id,n_patients_total,n_records_total
+319034,Hypertensive heart disease without congestive heart failure,60899001,SNOMED,Disorder,105810,4209330
+437530,Disorder of lipid metabolism,267431006,SNOMED,Disorder,57459,887773
+201826,Type 2 diabetes mellitus,44054006,SNOMED,Disorder,43071,3269586
+4068155,Atrial arrhythmia,17366009,SNOMED,Disorder,41954,1780000
+321318,Angina pectoris,194828000,SNOMED,Disorder,37277,501355
+44784217,Cardiac arrhythmia,698247007,SNOMED,Disorder,33476,254129
+140673,Hypothyroidism,40930008,SNOMED,Disorder,27687,913997
+439846,Left heart failure,85232009,SNOMED,Disorder,13414,97618
+315286,Chronic ischemic heart disease,413838009,SNOMED,Disorder,13408,59955
+4077577,Moderate recurrent major depression,18818009,SNOMED,Disorder,10634,335321
+435243,Alcohol dependence,66590003,SNOMED,Disorder,8031,62040
+435220,Severe recurrent major depression without psychotic features,36474008,SNOMED,Disorder,3420,127958
+439776,Autism spectrum disorder,35919005,SNOMED,Disorder,2389,24022
+436682,Moderate intellectual disability,61152003,SNOMED,Disorder,1601,49994
+438409,Attention deficit hyperactivity disorder,406506008,SNOMED,Disorder,1429,6051
+321042,Cardiac arrest,410429000,SNOMED,Disorder,1388,1914
+438120,Opioid dependence,75544000,SNOMED,Disorder,800,31168

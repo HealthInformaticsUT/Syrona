@@ -119,7 +119,7 @@ truncate_name <- function(name, max = CONCEPT_NAME_MAX) {
   )
 }
 
-#' Map population weight (%) to a hex color on a log-scale gradient
+#' Map population weight (\%) to a hex color on a log-scale gradient
 #'
 #' Light gray for rare concepts, dark charcoal for common ones.
 #'

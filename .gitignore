@@ -1,14 +1,10 @@
-# R session files
-.RData
+.Rproj.user
 .Rhistory
-.Rproj.user/
-
-# macOS
+.RData
+.Ruserdata
 .DS_Store
-
-# Package build artifacts
-*.tar.gz
-*.Rcheck/
-
-# pkgdown site (rebuilt from source)
-docs/
+# local demo build output (regenerable via data-raw/subset_sources.R)
+data-raw/demo_build/
+NEWS.md
+PROJECT.md
+reviewers-reject.md

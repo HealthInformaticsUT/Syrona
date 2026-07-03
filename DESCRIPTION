@@ -1,18 +1,22 @@
 Package: syrona
 Type: Package
-Title: Stratified Prevalence Comparison Across OMOP CDM Datasets
-Version: 0.1.0
-Authors@R: person("Maarja", "Pajusalu", email = "maarja@maarjapajusalu.ee",
+Title: Stratified Prevalence Comparison Across 'OMOP CDM' Datasets
+Version: 0.2.0
+Authors@R: person("Maarja", "Pajusalu", email = "maarja.pajusalu@ut.ee",
     role = c("aut", "cre"))
-Description: Extracts stratified prevalence tables from OMOP CDM databases
-    (conditions, procedures, drugs), computes log2 prevalence ratios between
-    paired datasets, and synthesizes them via random-effects meta-analysis
-    at multiple aggregation levels (year, age group, sex).
+Description: Extracts stratified prevalence tables from 'OMOP CDM'
+    (Observational Medical Outcomes Partnership Common Data Model) databases
+    (conditions, procedures, and drugs), computes log2 prevalence ratios
+    between paired datasets, and synthesizes them via random-effects
+    meta-analysis at multiple aggregation levels (year, age group, and sex).
+    Between-study variance is estimated with the Paule-Mandel method, as
+    described in Paule and Mandel (1982) <doi:10.6028/jres.087.022>.
 License: MIT + file LICENSE
 URL: https://github.com/MaarjaPajusalu/Syrona
 BugReports: https://github.com/MaarjaPajusalu/Syrona/issues
 Encoding: UTF-8
-RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.1.0)
 Imports:
     dplyr (>= 1.1.0),
     dbplyr (>= 2.3.0),
@@ -30,16 +34,17 @@ Imports:
     scales,
     grDevices,
     stats,
-    readr (>= 2.0.0)
+    readr (>= 2.0.0),
+    meta (>= 6.0.0)
 Suggests:
     testthat (>= 3.0.0),
     duckdb (>= 0.9.0),
     RPostgres,
     CohortConstructor (>= 0.6.0),
-    meta,
     DT,
     shinycssloaders,
     knitr,
     rmarkdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

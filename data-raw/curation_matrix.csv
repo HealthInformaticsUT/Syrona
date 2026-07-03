@@ -1,0 +1,33 @@
+domain,concept_id,concept_code,concept_name,chapter,role,notes
+condition,319034,60899001,Hypertensive heart disease without congestive heart failure,I11,concordant,high-baseline anchor (~12% prev)
+condition,315286,413838009,Chronic ischemic heart disease,I25,over_represented,cardiac over-rep
+condition,4068155,17366009,Atrial arrhythmia,I48,discordant,arrhythmia trio; ratio near parity (paper Table 1)
+condition,44784217,698247007,Cardiac arrhythmia,I49,discordant,residual code; UTH-higher in hospital comparison
+condition,321318,194828000,Angina pectoris,I20,discordant,angina; ratio-sig small-abs (paper Table 1)
+condition,439846,85232009,Left heart failure,I50,under_represented,sicker/acute under-rep in biobank
+condition,321042,410429000,Cardiac arrest,I46,under_represented_sparse,low baseline + under-rep; sparse-cell demo
+condition,438120,75544000,Opioid dependence,F11,under_represented,"FLAGSHIP under-rep (opioid dep, real fold ~0.19)"
+condition,436682,61152003,Moderate intellectual disability,F71,under_represented,intellectual disability under-rep
+condition,435243,66590003,Alcohol dependence,F10,under_represented,alcohol dependence under-rep
+condition,4077577,18818009,Moderate recurrent major depression,F33,over_represented,worried-well over-rep (depression)
+condition,438409,406506008,Attention deficit hyperactivity disorder,F90,over_represented,ADHD over-rep
+condition,439776,35919005,Autism spectrum disorder,F84,concordant,autism ~parity
+condition,435220,36474008,Severe recurrent major depression without psychotic features,F33,high_heterogeneity,ENGINEER age/sex flip -> I2~80%
+condition,201826,44054006,Type 2 diabetes mellitus,E11,concordant,"type-2 diabetes, common concordant (coverage)"
+condition,140673,40930008,Hypothyroidism,E03,over_represented,hypothyroidism mild over (coverage)
+condition,437530,267431006,Disorder of lipid metabolism,E78,over_represented,lipid disorder; links to statins (coverage)
+procedure,4187078,46825001,Electrocardiographic monitoring,,concordant,"ECG monitoring, high-base concordant"
+procedure,4140473,427047002,Holter extended electrocardiographic recording,,concordant,Holter
+procedure,4078793,180325003,Direct current cardioversion,,concordant,DC cardioversion
+procedure,4353741,250980009,Cardioversion,,directional,"cardioversion, one-site-leaning"
+procedure,4230911,40701008,Echocardiography,,over_represented,echocardiography
+procedure,4019824,105376000,Transesophageal echocardiography,,over_represented,"transesophageal echo (paper Table 2, fold 2.02)"
+procedure,40488431,448150008,Interrogation of cardiac pacemaker,,detail_exemplar,pacemaker interrogation (paper Fig 6)
+procedure,4324693,71651007,Mammography,,coding_change_A,general mammography (step-down post-2019)
+procedure,4077697,24623002,Screening mammography,,coding_change_B,screening mammography (appears post-2019; sparse pre)
+drug,1307046,6918,metoprolol,C07,concordant,"metoprolol, high-base (~9%) concordant"
+drug,1332418,17767,amlodipine,C08,concordant,amlodipine
+drug,1510813,301542,rosuvastatin,C10,over_represented,"rosuvastatin (statin), mild over"
+drug,19044883,40001,zopiclone,N05,over_represented,zopiclone; interconnect with F
+drug,781039,596,alprazolam,N05,over_represented,alprazolam
+drug,766814,51272,quetiapine,N05,concordant,quetiapine

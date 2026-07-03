@@ -20,12 +20,12 @@ By default, `extract_all()` extracts data for all persons in the database. But o
 
 Syrona supports OHDSI-standard cohort tables for this. A cohort table has 4 columns:
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `cohort_definition_id` | INTEGER | Which cohort |
-| `subject_id` | INTEGER | person_id |
-| `cohort_start_date` | DATE | When they enter |
-| `cohort_end_date` | DATE | When they exit |
+| Column                 | Type    | Description     |
+|------------------------|---------|-----------------|
+| `cohort_definition_id` | INTEGER | Which cohort    |
+| `subject_id`           | INTEGER | person_id       |
+| `cohort_start_date`    | DATE    | When they enter |
+| `cohort_end_date`      | DATE    | When they exit  |
 
 When you pass a `cohort_id` to `extract_all()`, it restricts extraction to cohort members and clips all events to each person's cohort window.
 
@@ -158,10 +158,10 @@ Clipping ensures that the cohort window doesn't extend beyond the person's known
 
 When `extract_all()` receives a `cohort_id`, it calls `apply_cohort_filter()` which modifies the CDM table references:
 
-- **person**: filtered to cohort members only
-- **observation_period**: clipped to the intersection of observation period and cohort window (affects the ACHILLES-116 denominator)
-- **death**: restricted to deaths within the cohort window
-- **condition_occurrence, procedure_occurrence, drug_exposure**: events restricted to within the cohort window
+-   **person**: filtered to cohort members only
+-   **observation_period**: clipped to the intersection of observation period and cohort window (affects the ACHILLES-116 denominator)
+-   **death**: restricted to deaths within the cohort window
+-   **condition_occurrence, procedure_occurrence, drug_exposure**: events restricted to within the cohort window
 
 This means all downstream extraction functions (denominators, prevalence, chapters, attributes) automatically operate on the filtered population without any changes to their logic.
 
@@ -169,9 +169,9 @@ This means all downstream extraction functions (denominators, prevalence, chapte
 
 The cohort table created by Syrona follows the standard OHDSI schema, so it is compatible with:
 
-- **CohortDiagnostics** - for cohort validation and diagnostics
-- **FeatureExtraction** - for baseline characterization
-- **CohortConstructor** - for matching and cohort operations
+-   **CohortDiagnostics** - for cohort validation and diagnostics
+-   **FeatureExtraction** - for baseline characterization
+-   **CohortConstructor** - for matching and cohort operations
 
 ```{r, eval=FALSE}
 # Example: use CohortConstructor to create a matched control cohort

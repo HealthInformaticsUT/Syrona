@@ -461,10 +461,16 @@ fluidPage(
         tags$ul(
           tags$li(tags$span(class = "term", "Body site"),
                   " \u2014 anatomical location of the procedure",
-                  " (SNOMED \u2018Has direct procedure site\u2019 relationship)."),
+                  " (SNOMED procedure site relationships: direct, indirect, and generic)."),
           tags$li(tags$span(class = "term", "Method"),
                   " \u2014 type of action performed",
-                  " (SNOMED \u2018Has method\u2019 relationship).")
+                  " (SNOMED \u2018Has method\u2019 relationship)."),
+          tags$li(tags$span(class = "term", "Device"),
+                  " \u2014 device used in the procedure",
+                  " (SNOMED device relationships, e.g. \u2018Using device\u2019)."),
+          tags$li(tags$span(class = "term", "Morphology"),
+                  " \u2014 structural change targeted by the procedure",
+                  " (SNOMED procedure morphology relationships).")
         ),
 
         h4("Drugs"),
@@ -548,7 +554,7 @@ fluidPage(
             ),
             tags$tr(
               tags$td("Fold threshold"),
-              tags$td(paste0("A clinical relevance boundary (default: ", FOLD_THRESHOLD,
+              tags$td(paste0("A similarity boundary (default: ", FOLD_THRESHOLD,
                              "). Concepts within 1/", FOLD_THRESHOLD, " to ", FOLD_THRESHOLD,
                              " are considered similar.")),
               tags$td("Shown as dotted lines on plots. Concepts outside this range are flagged as over- or underrepresented.")
@@ -626,7 +632,7 @@ fluidPage(
           "Attribute filters (where available) can be combined freely to narrow concepts.",
           "Domains without relevant attributes (e.g. Drugs) show no attribute filters."),
         p(tags$strong("Sex & Age group filters"), "appear on the Heatmap, Detail, and Full Breakdown tabs.",
-          "They control which demographic strata are included in the meta-analysis, not just which rows are displayed."),
+          "They control which demographic strata are displayed; the pooled meta-analysis is precomputed, so hiding a subgroup does not change the underlying estimates."),
 
         h3("SNOMED CT poly-hierarchy and chapter overlap"),
         p("SNOMED CT is a poly-hierarchical terminology: a concept may have multiple parent concepts",

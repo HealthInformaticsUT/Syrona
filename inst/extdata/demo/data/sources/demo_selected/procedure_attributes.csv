@@ -1,0 +1,15 @@
+concept_id,relationship,target_concept_id,target_concept_name
+4019824,method,4081836,Ultrasound imaging - action
+4019824,procedure_site,4217142,Heart structure
+4077697,method,1073731,Mammographic imaging - action
+4077697,procedure_site,4298444,Breast structure
+4078793,method,4232806,Electrical discharge - action
+4078793,procedure_site,4217142,Heart structure
+4140473,method,4231016,Monitoring - action
+4140473,procedure_site,4217142,Heart structure
+4187078,method,4231016,Monitoring - action
+4187078,procedure_site,4217142,Heart structure
+4230911,method,4081836,Ultrasound imaging - action
+4230911,procedure_site,4217142,Heart structure
+4324693,method,1073731,Mammographic imaging - action
+4324693,procedure_site,4298444,Breast structure

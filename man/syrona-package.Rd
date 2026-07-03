@@ -11,8 +11,21 @@ Extracts stratified prevalence tables from OMOP CDM databases
 paired datasets, and synthesizes them via random-effects meta-analysis
 at multiple aggregation levels (year, age group, sex).
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/MaarjaPajusalu/Syrona}
+  \item Report bugs at \url{https://github.com/MaarjaPajusalu/Syrona/issues}
+}
+
+}
 \author{
-\strong{Maintainer}: Maarja Pajusalu \email{maarja@maarjapajusalu.ee}
+\strong{Maintainer}: Maarja Pajusalu \email{maarja.pajusalu@ut.ee}
+
+Authors:
+\itemize{
+  \item Maarja Pajusalu \email{maarja.pajusalu@ut.ee}
+}
 
 }
 \keyword{internal}

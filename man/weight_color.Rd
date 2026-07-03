@@ -2,7 +2,7 @@
 % Please edit documentation in R/config.R
 \name{weight_color}
 \alias{weight_color}
-\title{Map population weight (%) to a hex color on a log-scale gradient}
+\title{Map population weight (\%) to a hex color on a log-scale gradient}
 \usage{
 weight_color(pct)
 }

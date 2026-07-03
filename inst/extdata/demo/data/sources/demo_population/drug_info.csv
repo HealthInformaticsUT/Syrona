@@ -1,0 +1,7 @@
+concept_id,concept_name,concept_code,vocabulary_id,concept_class_id,n_patients_total,n_records_total
+1307046,metoprolol,6918,RxNorm,Ingredient,89326,2108884
+1332418,amlodipine,17767,RxNorm,Ingredient,76619,1750052
+19044883,zopiclone,40001,RxNorm,Ingredient,63877,752350
+781039,alprazolam,596,RxNorm,Ingredient,55239,452822
+1510813,rosuvastatin,301542,RxNorm,Ingredient,52927,916686
+766814,quetiapine,51272,RxNorm,Ingredient,36197,336035

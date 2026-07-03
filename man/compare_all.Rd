@@ -27,3 +27,17 @@ Named list of domain results (invisible).
 Loads both datasets, runs the 4-step comparison for each domain present
 in both, and optionally saves to CSV.
 }
+\examples{
+\donttest{
+# Run the bundled demo (a curated 32-concept subset) end to end.
+# Copy it to a writable folder first, since the installed copy is read-only.
+base <- tempdir()
+file.copy(system.file("extdata", "demo", package = "syrona"),
+          base, recursive = TRUE)
+dir <- file.path(base, "demo")
+options(syrona.data_dir = dir)
+res <- compare_all("demo_population", "demo_selected")
+res$condition_meta_summary
+# Then explore interactively: run_app(data_dir = dir)
+}
+}

@@ -1,0 +1,10 @@
+concept_id,concept_name,concept_code,vocabulary_id,concept_class_id,n_patients_total,n_records_total
+4187078,Electrocardiographic monitoring,46825001,SNOMED,Procedure,299752,1604529
+4230911,Echocardiography,40701008,SNOMED,Procedure,111370,226934
+4324693,Mammography,71651007,SNOMED,Procedure,71400,162296
+4140473,Holter extended electrocardiographic recording,427047002,SNOMED,Procedure,53801,84834
+4077697,Screening mammography,24623002,SNOMED,Procedure,48200,95541
+4019824,Transesophageal echocardiography,105376000,SNOMED,Procedure,6596,8875
+40488431,Interrogation of cardiac pacemaker,448150008,SNOMED,Procedure,5272,26687
+4353741,Cardioversion,250980009,SNOMED,Procedure,3406,6853
+4078793,Direct current cardioversion,180325003,SNOMED,Procedure,2200,4512

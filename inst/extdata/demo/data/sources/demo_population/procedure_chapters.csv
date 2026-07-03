@@ -1,0 +1,82 @@
+concept_id,chapter_type,chapter_id,chapter_name,chapter_level,parent_chapter_id
+4078793,by_method,4083499,Direct current cardiac shock,1,NA
+4019824,by_method,4297090,Evaluation procedure,1,NA
+4077697,by_method,4297090,Evaluation procedure,1,NA
+4140473,by_method,4297090,Evaluation procedure,1,NA
+4187078,by_method,4297090,Evaluation procedure,1,NA
+4230911,by_method,4297090,Evaluation procedure,1,NA
+4324693,by_method,4297090,Evaluation procedure,1,NA
+4019824,by_method,4078460,Cardiovascular investigation,2,4297090
+4140473,by_method,4078460,Cardiovascular investigation,2,4297090
+4187078,by_method,4078460,Cardiovascular investigation,2,4297090
+4230911,by_method,4078460,Cardiovascular investigation,2,4297090
+4078793,by_method,4078793,Direct current cardioversion,2,4083499
+4019824,by_method,4180938,Imaging,2,4297090
+4077697,by_method,4180938,Imaging,2,4297090
+4230911,by_method,4180938,Imaging,2,4297090
+4324693,by_method,4180938,Imaging,2,4297090
+4077697,by_method,4063579,Screening procedure,2,4297090
+4019824,by_site,36675054,Procedure on body region,1,NA
+4077697,by_site,36675054,Procedure on body region,1,NA
+4078793,by_site,36675054,Procedure on body region,1,NA
+4140473,by_site,36675054,Procedure on body region,1,NA
+4187078,by_site,36675054,Procedure on body region,1,NA
+4230911,by_site,36675054,Procedure on body region,1,NA
+4324693,by_site,36675054,Procedure on body region,1,NA
+4353741,by_site,36675054,Procedure on body region,1,NA
+4019824,by_site,4040390,Procedure on body system,1,NA
+4077697,by_site,4040390,Procedure on body system,1,NA
+4078793,by_site,4040390,Procedure on body system,1,NA
+4140473,by_site,4040390,Procedure on body system,1,NA
+4187078,by_site,4040390,Procedure on body system,1,NA
+4230911,by_site,4040390,Procedure on body system,1,NA
+4324693,by_site,4040390,Procedure on body system,1,NA
+4353741,by_site,4040390,Procedure on body system,1,NA
+4019824,by_site,4040400,Procedure on organ,1,NA
+4077697,by_site,4040400,Procedure on organ,1,NA
+4078793,by_site,4040400,Procedure on organ,1,NA
+4140473,by_site,4040400,Procedure on organ,1,NA
+4187078,by_site,4040400,Procedure on organ,1,NA
+4230911,by_site,4040400,Procedure on organ,1,NA
+4324693,by_site,4040400,Procedure on organ,1,NA
+4353741,by_site,4040400,Procedure on organ,1,NA
+4019824,by_site,4177094,Ultrasound studies by site,1,NA
+4230911,by_site,4177094,Ultrasound studies by site,1,NA
+4077697,by_site,4189705,Breast procedure,2,4040390
+4077697,by_site,4189705,Breast procedure,2,4040400
+4324693,by_site,4189705,Breast procedure,2,4040390
+4324693,by_site,4189705,Breast procedure,2,4040400
+4019824,by_site,4042641,Procedure on cardiovascular system,2,4040390
+4078793,by_site,4042641,Procedure on cardiovascular system,2,4040390
+4140473,by_site,4042641,Procedure on cardiovascular system,2,4040390
+4187078,by_site,4042641,Procedure on cardiovascular system,2,4040390
+4230911,by_site,4042641,Procedure on cardiovascular system,2,4040390
+4353741,by_site,4042641,Procedure on cardiovascular system,2,4040390
+4019824,by_site,4042673,Procedure on heart,2,4040400
+4078793,by_site,4042673,Procedure on heart,2,4040400
+4140473,by_site,4042673,Procedure on heart,2,4040400
+4187078,by_site,4042673,Procedure on heart,2,4040400
+4230911,by_site,4042673,Procedure on heart,2,4040400
+4353741,by_site,4042673,Procedure on heart,2,4040400
+4019824,by_site,4042645,Procedure on mediastinum,2,4040390
+4078793,by_site,4042645,Procedure on mediastinum,2,4040390
+4140473,by_site,4042645,Procedure on mediastinum,2,4040390
+4187078,by_site,4042645,Procedure on mediastinum,2,4040390
+4230911,by_site,4042645,Procedure on mediastinum,2,4040390
+4353741,by_site,4042645,Procedure on mediastinum,2,4040390
+4019824,by_site,4043022,Procedure on trunk,2,36675054
+4077697,by_site,4043022,Procedure on trunk,2,36675054
+4078793,by_site,4043022,Procedure on trunk,2,36675054
+4140473,by_site,4043022,Procedure on trunk,2,36675054
+4187078,by_site,4043022,Procedure on trunk,2,36675054
+4230911,by_site,4043022,Procedure on trunk,2,36675054
+4324693,by_site,4043022,Procedure on trunk,2,36675054
+4353741,by_site,4043022,Procedure on trunk,2,36675054
+4019824,by_site,4032257,Ultrasound procedure on topographic region,2,4177094
+4019824,by_site,4032257,Ultrasound procedure on topographic region,2,36675054
+4230911,by_site,4032257,Ultrasound procedure on topographic region,2,4177094
+4230911,by_site,4032257,Ultrasound procedure on topographic region,2,36675054
+4019824,by_site,4118601,Ultrasound studies of systems,2,4040390
+4019824,by_site,4118601,Ultrasound studies of systems,2,4177094
+4230911,by_site,4118601,Ultrasound studies of systems,2,4040390
+4230911,by_site,4118601,Ultrasound studies of systems,2,4177094

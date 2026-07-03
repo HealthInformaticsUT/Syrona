@@ -1,0 +1,203 @@
+concept_id,icd10_code,icd10_name
+140673,E03,Other hypothyroidism
+140673,E03.8,Other specified hypothyroidism
+140673,E03.9,"Hypothyroidism, unspecified"
+201826,E11,Type 2 diabetes mellitus
+201826,E11.0,Type 2 diabetes mellitus with hyperosmolarity
+201826,E11.0,"Type 2 diabetes mellitus, with coma"
+201826,E11.00,Type 2 diabetes mellitus with hyperosmolarity without nonketotic hyperglycemic-hyperosmolar coma (NKHHC)
+201826,E11.01,Type 2 diabetes mellitus with hyperosmolarity with coma
+201826,E11.1,Type 2 diabetes mellitus with ketoacidosis
+201826,E11.1,"Type 2 diabetes mellitus, with ketoacidosis"
+201826,E11.10,Type 2 diabetes mellitus with ketoacidosis without coma
+201826,E11.11,Type 2 diabetes mellitus with ketoacidosis with coma
+201826,E11.2,Type 2 diabetes mellitus with kidney complications
+201826,E11.2,"Type 2 diabetes mellitus, with renal complications"
+201826,E11.21,Type 2 diabetes mellitus with diabetic nephropathy
+201826,E11.22,Type 2 diabetes mellitus with diabetic chronic kidney disease
+201826,E11.29,Type 2 diabetes mellitus with other diabetic kidney complication
+201826,E11.3,Type 2 diabetes mellitus with ophthalmic complications
+201826,E11.3,"Type 2 diabetes mellitus, with ophthalmic complications"
+201826,E11.31,Type 2 diabetes mellitus with unspecified diabetic retinopathy
+201826,E11.311,Type 2 diabetes mellitus with unspecified diabetic retinopathy with macular edema
+201826,E11.319,Type 2 diabetes mellitus with unspecified diabetic retinopathy without macular edema
+201826,E11.32,Type 2 diabetes mellitus with mild nonproliferative diabetic retinopathy
+201826,E11.329,Type 2 diabetes mellitus with mild nonproliferative diabetic retinopathy without macular edema
+201826,E11.3291,"Type 2 diabetes mellitus with mild nonproliferative diabetic retinopathy without macular edema, right eye"
+201826,E11.3292,"Type 2 diabetes mellitus with mild nonproliferative diabetic retinopathy without macular edema, left eye"
+201826,E11.3293,"Type 2 diabetes mellitus with mild nonproliferative diabetic retinopathy without macular edema, bilateral"
+201826,E11.3299,"Type 2 diabetes mellitus with mild nonproliferative diabetic retinopathy without macular edema, unspecified eye"
+201826,E11.33,Type 2 diabetes mellitus with moderate nonproliferative diabetic retinopathy
+201826,E11.339,Type 2 diabetes mellitus with moderate nonproliferative diabetic retinopathy without macular edema
+201826,E11.3391,"Type 2 diabetes mellitus with moderate nonproliferative diabetic retinopathy without macular edema, right eye"
+201826,E11.3392,"Type 2 diabetes mellitus with moderate nonproliferative diabetic retinopathy without macular edema, left eye"
+201826,E11.3393,"Type 2 diabetes mellitus with moderate nonproliferative diabetic retinopathy without macular edema, bilateral"
+201826,E11.3399,"Type 2 diabetes mellitus with moderate nonproliferative diabetic retinopathy without macular edema, unspecified eye"
+201826,E11.35,Type 2 diabetes mellitus with proliferative diabetic retinopathy
+201826,E11.355,Type 2 diabetes mellitus with stable proliferative diabetic retinopathy
+201826,E11.3551,"Type 2 diabetes mellitus with stable proliferative diabetic retinopathy, right eye"
+201826,E11.3552,"Type 2 diabetes mellitus with stable proliferative diabetic retinopathy, left eye"
+201826,E11.3553,"Type 2 diabetes mellitus with stable proliferative diabetic retinopathy, bilateral"
+201826,E11.3559,"Type 2 diabetes mellitus with stable proliferative diabetic retinopathy, unspecified eye"
+201826,E11.359,Type 2 diabetes mellitus with proliferative diabetic retinopathy without macular edema
+201826,E11.3591,"Type 2 diabetes mellitus with proliferative diabetic retinopathy without macular edema, right eye"
+201826,E11.3592,"Type 2 diabetes mellitus with proliferative diabetic retinopathy without macular edema, left eye"
+201826,E11.3593,"Type 2 diabetes mellitus with proliferative diabetic retinopathy without macular edema, bilateral"
+201826,E11.3599,"Type 2 diabetes mellitus with proliferative diabetic retinopathy without macular edema, unspecified eye"
+201826,E11.36,Type 2 diabetes mellitus with diabetic cataract
+201826,E11.37,"Type 2 diabetes mellitus with diabetic macular edema, resolved following treatment"
+201826,E11.37X1,"Type 2 diabetes mellitus with diabetic macular edema, resolved following treatment, right eye"
+201826,E11.37X2,"Type 2 diabetes mellitus with diabetic macular edema, resolved following treatment, left eye"
+201826,E11.37X3,"Type 2 diabetes mellitus with diabetic macular edema, resolved following treatment, bilateral"
+201826,E11.37X9,"Type 2 diabetes mellitus with diabetic macular edema, resolved following treatment, unspecified eye"
+201826,E11.39,Type 2 diabetes mellitus with other diabetic ophthalmic complication
+201826,E11.4,Type 2 diabetes mellitus with neurological complications
+201826,E11.4,"Type 2 diabetes mellitus, with neurological complications"
+201826,E11.40,"Type 2 diabetes mellitus with diabetic neuropathy, unspecified"
+201826,E11.41,Type 2 diabetes mellitus with diabetic mononeuropathy
+201826,E11.42,Type 2 diabetes mellitus with diabetic polyneuropathy
+201826,E11.43,Type 2 diabetes mellitus with diabetic autonomic (poly)neuropathy
+201826,E11.44,Type 2 diabetes mellitus with diabetic amyotrophy
+201826,E11.49,Type 2 diabetes mellitus with other diabetic neurological complication
+201826,E11.5,Type 2 diabetes mellitus with circulatory complications
+201826,E11.5,"Type 2 diabetes mellitus, with peripheral circulatory complications"
+201826,E11.51,Type 2 diabetes mellitus with diabetic peripheral angiopathy without gangrene
+201826,E11.52,Type 2 diabetes mellitus with diabetic peripheral angiopathy with gangrene
+201826,E11.59,Type 2 diabetes mellitus with other circulatory complications
+201826,E11.6,Type 2 diabetes mellitus with other specified complications
+201826,E11.6,"Type 2 diabetes mellitus, with other specified complications"
+201826,E11.61,Type 2 diabetes mellitus with diabetic arthropathy
+201826,E11.610,Type 2 diabetes mellitus with diabetic neuropathic arthropathy
+201826,E11.618,Type 2 diabetes mellitus with other diabetic arthropathy
+201826,E11.62,Type 2 diabetes mellitus with skin complications
+201826,E11.620,Type 2 diabetes mellitus with diabetic dermatitis
+201826,E11.621,Type 2 diabetes mellitus with foot ulcer
+201826,E11.628,Type 2 diabetes mellitus with other skin complications
+201826,E11.63,Type 2 diabetes mellitus with oral complications
+201826,E11.630,Type 2 diabetes mellitus with periodontal disease
+201826,E11.638,Type 2 diabetes mellitus with other oral complications
+201826,E11.64,Type 2 diabetes mellitus with hypoglycemia
+201826,E11.641,Type 2 diabetes mellitus with hypoglycemia with coma
+201826,E11.649,Type 2 diabetes mellitus with hypoglycemia without coma
+201826,E11.65,Type 2 diabetes mellitus with hyperglycemia
+201826,E11.69,Type 2 diabetes mellitus with other specified complication
+201826,E11.7,"Type 2 diabetes mellitus, with multiple complications"
+201826,E11.8,Type 2 diabetes mellitus with unspecified complications
+201826,E11.8,"Type 2 diabetes mellitus, with unspecified complications"
+201826,E11.9,Type 2 diabetes mellitus without complications
+201826,E11.9,"Type 2 diabetes mellitus, without complications"
+315286,I25,Chronic ischemic heart disease
+315286,I25,Chronic ischaemic heart disease
+315286,I25.8,Other forms of chronic ischemic heart disease
+315286,I25.8,Other forms of chronic ischaemic heart disease
+315286,I25.89,Other forms of chronic ischemic heart disease
+315286,I25.9,"Chronic ischemic heart disease, unspecified"
+315286,I25.9,"Chronic ischaemic heart disease, unspecified"
+319034,I11.9,Hypertensive heart disease without heart failure
+319034,I11.9,Hypertensive heart disease without (congestive) heart failure
+321042,I46,Cardiac arrest
+321042,I46.8,Cardiac arrest due to other underlying condition
+321042,I46.9,"Cardiac arrest, cause unspecified"
+321042,I46.9,"Cardiac arrest, unspecified"
+321042,O08.81,Cardiac arrest following an ectopic and molar pregnancy
+321318,I20,Angina pectoris
+321318,I20.8,Other forms of angina pectoris
+321318,I20.81,Angina pectoris with coronary microvascular dysfunction
+321318,I20.89,Other forms of angina pectoris
+321318,I20.9,"Angina pectoris, unspecified"
+321318,I25.7,Atherosclerosis of coronary artery bypass graft(s) and coronary artery of transplanted heart with angina pectoris
+321318,I25.70,"Atherosclerosis of coronary artery bypass graft(s), unspecified, with angina pectoris"
+321318,I25.708,"Atherosclerosis of coronary artery bypass graft(s), unspecified, with other forms of angina pectoris"
+321318,I25.709,"Atherosclerosis of coronary artery bypass graft(s), unspecified, with unspecified angina pectoris"
+321318,I25.71,Atherosclerosis of autologous vein coronary artery bypass graft(s) with angina pectoris
+321318,I25.718,Atherosclerosis of autologous vein coronary artery bypass graft(s) with other forms of angina pectoris
+321318,I25.719,Atherosclerosis of autologous vein coronary artery bypass graft(s) with unspecified angina pectoris
+321318,I25.72,Atherosclerosis of autologous artery coronary artery bypass graft(s) with angina pectoris
+321318,I25.728,Atherosclerosis of autologous artery coronary artery bypass graft(s) with other forms of angina pectoris
+321318,I25.729,Atherosclerosis of autologous artery coronary artery bypass graft(s) with unspecified angina pectoris
+321318,I25.73,Atherosclerosis of nonautologous biological coronary artery bypass graft(s) with angina pectoris
+321318,I25.738,Atherosclerosis of nonautologous biological coronary artery bypass graft(s) with other forms of angina pectoris
+321318,I25.739,Atherosclerosis of nonautologous biological coronary artery bypass graft(s) with unspecified angina pectoris
+321318,I25.76,Atherosclerosis of bypass graft of coronary artery of transplanted heart with angina pectoris
+321318,I25.768,Atherosclerosis of bypass graft of coronary artery of transplanted heart with other forms of angina pectoris
+321318,I25.769,Atherosclerosis of bypass graft of coronary artery of transplanted heart with unspecified angina pectoris
+321318,I25.79,Atherosclerosis of other coronary artery bypass graft(s) with angina pectoris
+321318,I25.798,Atherosclerosis of other coronary artery bypass graft(s) with other forms of angina pectoris
+321318,I25.799,Atherosclerosis of other coronary artery bypass graft(s) with unspecified angina pectoris
+435220,F33.2,"Major depressive disorder, recurrent severe without psychotic features"
+435220,F33.2,"Recurrent depressive disorder, current episode severe without psychotic symptoms"
+435243,F10.2,Alcohol dependence
+435243,F10.2,"Mental and behavioural disorders due to use of alcohol, Dependence syndrome"
+435243,F10.20,"Alcohol dependence, uncomplicated"
+435243,F10.22,Alcohol dependence with intoxication
+435243,F10.220,"Alcohol dependence with intoxication, uncomplicated"
+435243,F10.221,Alcohol dependence with intoxication delirium
+435243,F10.229,"Alcohol dependence with intoxication, unspecified"
+435243,F10.23,Alcohol dependence with withdrawal
+435243,F10.230,"Alcohol dependence with withdrawal, uncomplicated"
+435243,F10.231,Alcohol dependence with withdrawal delirium
+435243,F10.232,Alcohol dependence with withdrawal with perceptual disturbance
+435243,F10.239,"Alcohol dependence with withdrawal, unspecified"
+435243,F10.24,Alcohol dependence with alcohol-induced mood disorder
+435243,F10.25,Alcohol dependence with alcohol-induced psychotic disorder
+435243,F10.250,Alcohol dependence with alcohol-induced psychotic disorder with delusions
+435243,F10.251,Alcohol dependence with alcohol-induced psychotic disorder with hallucinations
+435243,F10.259,"Alcohol dependence with alcohol-induced psychotic disorder, unspecified"
+435243,F10.26,Alcohol dependence with alcohol-induced persisting amnestic disorder
+435243,F10.27,Alcohol dependence with alcohol-induced persisting dementia
+435243,F10.28,Alcohol dependence with other alcohol-induced disorders
+435243,F10.280,Alcohol dependence with alcohol-induced anxiety disorder
+435243,F10.281,Alcohol dependence with alcohol-induced sexual dysfunction
+435243,F10.282,Alcohol dependence with alcohol-induced sleep disorder
+435243,F10.288,Alcohol dependence with other alcohol-induced disorder
+435243,F10.29,Alcohol dependence with unspecified alcohol-induced disorder
+436682,F71,Moderate intellectual disabilities
+436682,F71,Moderate mental retardation
+436682,F71.0,"Moderate mental retardation, with the statement of no, or minimal, impairment of behaviour"
+436682,F71.1,"Moderate mental retardation, significant impairment of behaviour requiring attention or treatment"
+436682,F71.8,"Moderate mental retardation, other impairments of behaviour"
+436682,F71.9,"Moderate mental retardation, without mention of impairment of behaviour"
+437530,E78,Disorders of lipoprotein metabolism and other lipidemias
+437530,E78,Disorders of lipoprotein metabolism and other lipidaemias
+437530,E78.8,Other disorders of lipoprotein metabolism
+437530,E78.89,Other lipoprotein metabolism disorders
+437530,E78.9,"Disorder of lipoprotein metabolism, unspecified"
+438120,F11.2,Opioid dependence
+438120,F11.2,"Mental and behavioural disorders due to use of opioids, dependence syndrome"
+438120,F11.20,"Opioid dependence, uncomplicated"
+438120,F11.22,Opioid dependence with intoxication
+438120,F11.220,"Opioid dependence with intoxication, uncomplicated"
+438120,F11.221,Opioid dependence with intoxication delirium
+438120,F11.222,Opioid dependence with intoxication with perceptual disturbance
+438120,F11.229,"Opioid dependence with intoxication, unspecified"
+438120,F11.23,Opioid dependence with withdrawal
+438120,F11.24,Opioid dependence with opioid-induced mood disorder
+438120,F11.25,Opioid dependence with opioid-induced psychotic disorder
+438120,F11.250,Opioid dependence with opioid-induced psychotic disorder with delusions
+438120,F11.251,Opioid dependence with opioid-induced psychotic disorder with hallucinations
+438120,F11.259,"Opioid dependence with opioid-induced psychotic disorder, unspecified"
+438120,F11.28,Opioid dependence with other opioid-induced disorder
+438120,F11.281,Opioid dependence with opioid-induced sexual dysfunction
+438120,F11.282,Opioid dependence with opioid-induced sleep disorder
+438120,F11.288,Opioid dependence with other opioid-induced disorder
+438120,F11.29,Opioid dependence with unspecified opioid-induced disorder
+438409,F90,Attention-deficit hyperactivity disorders
+438409,F90,Hyperkinetic disorders
+438409,F90.8,"Attention-deficit hyperactivity disorder, other type"
+438409,F90.8,Other hyperkinetic disorders
+438409,F90.9,"Attention-deficit hyperactivity disorder, unspecified type"
+438409,F90.9,"Hyperkinetic disorder, unspecified"
+439776,F84,Pervasive developmental disorders
+439776,F84.0,Autistic disorder
+439776,F84.8,Other pervasive developmental disorders
+439776,F84.9,"Pervasive developmental disorder, unspecified"
+439846,I50.1,"Left ventricular failure, unspecified"
+439846,I50.1,Left ventricular failure
+4068155,I48,Atrial fibrillation and flutter
+4068155,I48.9,Unspecified atrial fibrillation and atrial flutter
+4068155,I48.9,"Atrial fibrillation and atrial flutter, unspecified"
+4077577,F33.1,"Major depressive disorder, recurrent, moderate"
+4077577,F33.1,"Recurrent depressive disorder, current episode moderate"
+44784217,I49,Other cardiac arrhythmias
+44784217,I49.8,Other specified cardiac arrhythmias
+44784217,I49.9,"Cardiac arrhythmia, unspecified"
