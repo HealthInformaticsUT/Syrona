@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-Phase 1 extracts stratified prevalence tables from an OMOP CDM database. The main entry point is `extract_all()`, which runs the full pipeline for one or more clinical domains.
+Phase 1 derives stratified prevalence tables from the records in an OMOP CDM database. The main entry point is `extract_all()`, which runs the full pipeline for one or more clinical domains.
 
 Each domain produces 4 tables:
 
