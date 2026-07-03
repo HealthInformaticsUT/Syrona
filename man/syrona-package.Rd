@@ -6,8 +6,8 @@
 \alias{syrona-package}
 \title{syrona: Stratified prevalence comparison across OMOP CDM datasets}
 \description{
-Extracts stratified prevalence tables from OMOP CDM databases
-(conditions, procedures, drugs), computes log2 prevalence ratios between
+Derives stratified prevalence tables from the condition, procedure, and drug
+records in OMOP CDM databases, computes log2 prevalence ratios between
 paired datasets, and synthesizes them via random-effects meta-analysis
 at multiple aggregation levels (year, age group, sex).
 }
