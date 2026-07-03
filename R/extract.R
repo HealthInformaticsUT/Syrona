@@ -1,6 +1,6 @@
 # ── Source data extraction ────────────────────────────────────────────────────
 #
-# Functions that pull stratified prevalence tables out of an OMOP CDM database
+# Functions that pull data out of an OMOP CDM database
 # using CDMConnector + dplyr. Each `extract_*` function maps to one table in
 # the Syrona schema (see docs/technical/SCHEMA.md).
 #

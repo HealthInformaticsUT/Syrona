@@ -1,10 +1,5 @@
 # ── CDM connection helpers ────────────────────────────────────────────────────
 #
-# Thin wrappers around CDMConnector::cdmFromCon for DuckDB and PostgreSQL.
-# Each helper returns a list with two slots: `con` (the raw DBI connection)
-# and `cdm` (a CDMConnector reference). Downstream extractors expect this
-# shape so the same code paths work across both backends.
-#
 # `write_schema` is exposed as a first-class argument because production
 # OMOP CDMs are typically read-only; cohort and temp tables must be written
 # to a separate results schema.

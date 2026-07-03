@@ -1,6 +1,8 @@
 ATC
+ATLAS
 CDM
 CDMConnector
+Capr
 CohortConstructor
 CohortContrast
 CohortDiagnostics
@@ -15,6 +17,7 @@ Mandel
 OHDSI
 OMOP
 Paule
+PheValuator
 Pre
 RxNorm
 SNOMED
@@ -34,6 +37,8 @@ icd
 jres
 ln
 omopgenerics
+phenotype
+phenotyping
 pre
 pval
 runnable

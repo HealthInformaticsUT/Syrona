@@ -121,8 +121,9 @@ db <- syrona_connect_pg(
 ```
 
 If you do not pass `password`, `syrona_connect_pg()` will look in your
-`~/.pgpass` file or the `PGPASSWORD` environment variable. Setting up
-`.pgpass` is the cleanest way to keep credentials out of your R history.
+`~/.pgpass` file or the `PGPASSWORD` environment variable (which you can
+set in `~/.Renviron`). Setting up `.pgpass` is the cleanest way to keep
+credentials out of your R history.
 
 ### Verify
 

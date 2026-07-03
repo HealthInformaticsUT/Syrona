@@ -31,21 +31,13 @@ Plus two shared tables: `demographics` (birth year x sex) and `death_counts` (de
 
 ## Connecting to a database
 
-### DuckDB (local files)
+Syrona connects through `CDMConnector`. A production OMOP CDM is normally a PostgreSQL database, so `syrona_connect_pg()` is the main entry point; `syrona_connect()` opens a local DuckDB file (for example an Eunomia or Synthea test dataset).
+
+### PostgreSQL database
 
 ```{r, eval=FALSE}
 library(syrona)
 
-# Read-only (default) - safe for shared databases
-db <- syrona_connect("path/to/omop.duckdb")
-
-# Writable - needed if you want to create cohort tables in the same DB
-db <- syrona_connect("path/to/omop.duckdb", read_only = FALSE)
-```
-
-### PostgreSQL
-
-```{r, eval=FALSE}
 # Direct connection
 db <- syrona_connect_pg(
   host = "db-server.example.com",
@@ -65,7 +57,19 @@ db <- syrona_connect_pg(
 )
 ```
 
+**Credentials.** You can pass `password = "..."` directly, but it is cleaner to omit it and let RPostgres read the password from a `~/.pgpass` file or the `PGPASSWORD` environment variable — for example, set `PGPASSWORD=...` in your `~/.Renviron`. This keeps the password out of your R scripts and command history.
+
 The `write_schema` parameter tells CDMConnector where it can create temporary tables. This is required for cohort operations and some extraction queries. On PostgreSQL, this is typically a user-specific results schema.
+
+### DuckDB (local files)
+
+```{r, eval=FALSE}
+# Read-only (default) - safe for shared databases
+db <- syrona_connect("path/to/omop.duckdb")
+
+# Writable - needed if you want to create cohort tables in the same DB
+db <- syrona_connect("path/to/omop.duckdb", read_only = FALSE)
+```
 
 ## Running extraction
 
@@ -88,12 +92,6 @@ tables <- extract_all("Dataset_A", db = db, domains = "drugs")
 
 # Conditions + procedures (no drugs)
 tables <- extract_all("Dataset_A", db = db, domains = c("conditions", "procedures"))
-```
-
-### Without saving to disk
-
-```{r, eval=FALSE}
-tables <- extract_all("Dataset_A", db = db, save = FALSE)
 ```
 
 ### Shorthand: pass a DuckDB path directly

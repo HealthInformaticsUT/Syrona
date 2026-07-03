@@ -27,11 +27,11 @@ The output is a set of CSV tables that can be explored in the Syrona dashboard o
 ## How it differs from other OHDSI tools
 
 | Tool | Purpose |
-|-----------------------------|-------------------------------------------|
+|----|----|
 | ACHILLES | Profile a single database (aggregate statistics) |
 | CohortDiagnostics | Validate cohort definitions (incidence, attrition) |
 | CohortContrast | Feature selection: target vs control within one database |
-| **Syrona** | **Compare the same population across different databases/sites** |
+| **Syrona** | **Compare 2 datasets (cohorts, sites) by prevalences of the 3 domains (diagnoses, procedures, drugs)** |
 
 Syrona is designed for multi-site comparisons where you want to understand how prevalence patterns differ between institutions, countries, or data sources.
 
@@ -57,16 +57,17 @@ remotes::install_github("HealthInformaticsUT/syrona")
 ```{r, eval=FALSE}
 library(syrona)
 
-# Local DuckDB file (read-only by default)
-db <- syrona_connect("path/to/omop.duckdb")
-
-# PostgreSQL (e.g. via SSH tunnel)
+# PostgreSQL (the typical production CDM; e.g. via SSH tunnel).
+# Omit `password` and set PGPASSWORD in ~/.Renviron, or use ~/.pgpass.
 db <- syrona_connect_pg(
   dbname = "omop",
   user = "analyst",
   cdm_schema = "cdm",
   write_schema = "results_analyst"
 )
+
+# Or a local DuckDB file (read-only by default)
+db <- syrona_connect("path/to/omop.duckdb")
 ```
 
 ### 2. Extract a dataset

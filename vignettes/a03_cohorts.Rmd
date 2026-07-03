@@ -29,6 +29,17 @@ Syrona supports OHDSI-standard cohort tables for this. A cohort table has 4 colu
 
 When you pass a `cohort_id` to `extract_all()`, it restricts extraction to cohort members and clips all events to each person's cohort window.
 
+## Defining a cohort
+
+Following the OHDSI convention, a cohort is *"a set of persons who satisfy one or more inclusion criteria for a duration of time"* ([The Book of OHDSI, Cohorts](https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html)). Each person's membership is bounded by a **cohort window**: `cohort_start_date` (entry / index date) to `cohort_end_date` (exit — typically the end of a persistence window or of the observation period).
+
+For Syrona, this **window is the key**: `extract_all(cohort_id = ...)` keeps only the cohort's `subject_id`s and clips each person's records *and* their observation-period denominator to `[cohort_start_date, cohort_end_date]`. The same person can therefore contribute different prevalence depending on the window you define — the window is how you scope a comparison in time (for example, restricting a care-site comparison to 2015–2022, or to a fixed follow-up interval after an index event).
+
+Syrona does not author rule-based phenotype definitions itself; it **consumes** any OHDSI-standard cohort table. You have two options:
+
+1.  **Use Syrona's built-in care-site generator** (below) — the one cohort type Syrona builds itself, populated server-side via `INSERT ... SELECT` (the SQL approach described in the Book of OHDSI).
+2.  **Bring a cohort from any OHDSI tool** — a rule-based definition from ATLAS or [Capr](https://ohdsi.github.io/Capr/), a cohort built with [CohortConstructor](https://ohdsi.github.io/CohortConstructor/), a probabilistic PheValuator cohort, or a hand-built data frame (see *Cohorts from data frames*, below). As long as the result is the standard four-column cohort table, `extract_all(cohort_id = ...)` can use it.
+
 ## Care-site cohorts
 
 The most common use case: compare hospitals within the same OMOP CDM database.

@@ -52,15 +52,6 @@ This loads both datasets, runs the 4-step pipeline for each domain present in bo
 compare_all("Hospital_A", "Hospital_B", domains = "conditions")
 ```
 
-### Without saving
-
-```{r, eval=FALSE}
-results <- compare_all("Hospital_A", "Hospital_B", save = FALSE)
-names(results)
-#> [1] "condition_yearly" "condition_meta_agegroups"
-#> [3] "condition_meta_by_sex" "condition_meta_summary"
-```
-
 ## Step-by-step usage
 
 You can also run each step individually for more control:
