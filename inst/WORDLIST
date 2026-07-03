@@ -10,6 +10,7 @@ Ctrl
 DerSimonian
 DuckDB
 EstBB
+Eunomia
 FeatureExtraction
 Hostname
 ICD
@@ -19,8 +20,11 @@ OMOP
 Paule
 PheValuator
 Pre
+RPostgres
 RxNorm
 SNOMED
+Synthea
+Syrona's
 Unmapped
 Walkthrough
 agegroups
@@ -40,6 +44,7 @@ omopgenerics
 phenotype
 phenotyping
 pre
+prevalences
 pval
 runnable
 schemas
