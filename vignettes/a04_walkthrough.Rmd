@@ -28,7 +28,7 @@ Before you start, make sure you have:
 
 - **R 4.1 or newer** with the `syrona` package installed:
   ```r
-  remotes::install_github("MaarjaPajusalu/Syrona")
+  remotes::install_github("HealthInformaticsUT/Syrona")
   ```
   If you get `HTTP error 401 / Bad credentials`, you likely have a stale
   `GITHUB_PAT` environment variable that overrides your git credential

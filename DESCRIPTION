@@ -12,8 +12,8 @@ Description: Derives stratified prevalence tables from the condition,
     Between-study variance is estimated with the Paule-Mandel method, as
     described in Paule and Mandel (1982) <doi:10.6028/jres.087.022>.
 License: MIT + file LICENSE
-URL: https://github.com/MaarjaPajusalu/Syrona
-BugReports: https://github.com/MaarjaPajusalu/Syrona/issues
+URL: https://github.com/HealthInformaticsUT/Syrona
+BugReports: https://github.com/HealthInformaticsUT/Syrona/issues
 Encoding: UTF-8
 Language: en-US
 Depends:

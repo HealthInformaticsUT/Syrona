@@ -14,8 +14,8 @@ at multiple aggregation levels (year, age group, sex).
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/MaarjaPajusalu/Syrona}
-  \item Report bugs at \url{https://github.com/MaarjaPajusalu/Syrona/issues}
+  \item \url{https://github.com/HealthInformaticsUT/Syrona}
+  \item Report bugs at \url{https://github.com/HealthInformaticsUT/Syrona/issues}
 }
 
 }

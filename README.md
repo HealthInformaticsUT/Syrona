@@ -15,7 +15,7 @@ then launch the dashboard:
 
 ```r
 # In a terminal:
-# git clone https://github.com/MaarjaPajusalu/Syrona.git
+# git clone https://github.com/HealthInformaticsUT/Syrona.git
 # Then in R:
 setwd("path/to/Syrona")
 library(syrona)
@@ -32,7 +32,7 @@ Install the package and follow the end-to-end walkthrough:
 
 ```r
 # install.packages("remotes")
-remotes::install_github("MaarjaPajusalu/Syrona")
+remotes::install_github("HealthInformaticsUT/Syrona")
 ```
 
 Then read [`vignette("a04_walkthrough", package = "syrona")`](vignettes/a04_walkthrough.Rmd)
@@ -44,7 +44,7 @@ showing my comparison" with verification at every step.
 Install the package, point at your data directory, launch:
 
 ```r
-remotes::install_github("MaarjaPajusalu/Syrona")
+remotes::install_github("HealthInformaticsUT/Syrona")
 library(syrona)
 options(syrona.data_dir = "/path/to/your/syrona/data")
 run_app()
