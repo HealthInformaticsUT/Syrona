@@ -81,7 +81,7 @@ run_app()
 
 2. **Compare** (Phase 2) - pair two datasets, match strata, compute log2 prevalence ratios with confidence intervals.
 
-3. **Meta-analyse** (Phase 3) - synthesize per-stratum estimates via random-effects meta-analysis (Paule-Mandel tau) across years, age groups, and sexes.
+3. **Meta-analyze** (Phase 3) - synthesize per-stratum estimates via random-effects meta-analysis (Paule-Mandel tau) across years, age groups, and sexes.
 
 ## Domains
 
