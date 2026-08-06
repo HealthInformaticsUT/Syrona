@@ -5,6 +5,6 @@
 .DS_Store
 # local demo build output (regenerable via data-raw/subset_sources.R)
 data-raw/demo_build/
-NEWS.md
+# internal working docs - not shipped (both are also in .Rbuildignore)
 PROJECT.md
 reviewers-reject.md
