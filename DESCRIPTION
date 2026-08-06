@@ -1,11 +1,11 @@
 Package: syrona
 Type: Package
-Title: Stratified Prevalence Comparison Across 'OMOP CDM' Datasets
-Version: 0.2.0
+Title: Stratified Prevalence Comparison Across OMOP CDM Datasets
+Version: 0.2.1
 Authors@R: person("Maarja", "Pajusalu", email = "maarja.pajusalu@ut.ee",
     role = c("aut", "cre"))
 Description: Derives stratified prevalence tables from the condition,
-    procedure, and drug records in 'OMOP CDM' (Observational Medical Outcomes
+    procedure, and drug records in OMOP CDM (Observational Medical Outcomes
     Partnership Common Data Model) databases, computes log2 prevalence ratios
     between paired datasets, and synthesizes them via random-effects
     meta-analysis at multiple aggregation levels (year, age group, and sex).

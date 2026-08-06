@@ -48,6 +48,8 @@ COLOR_WEIGHT_HI     <- "#2D2D2D"
 #' as variables. Used by the Shiny dashboard's global.R.
 #'
 #' @param envir Environment to load into (default: caller's environment).
+#' @return No return value, called for its side effect of assigning the design
+#'   tokens as variables in \code{envir}.
 #' @export
 load_syrona_theme <- function(envir = parent.frame()) {
   tokens <- list(

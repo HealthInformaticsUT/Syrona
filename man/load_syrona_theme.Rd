@@ -9,6 +9,10 @@ load_syrona_theme(envir = parent.frame())
 \arguments{
 \item{envir}{Environment to load into (default: caller's environment).}
 }
+\value{
+No return value, called for its side effect of assigning the design
+  tokens as variables in \code{envir}.
+}
 \description{
 Makes color constants, thresholds, and other design tokens available
 as variables. Used by the Shiny dashboard's global.R.

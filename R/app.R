@@ -12,15 +12,18 @@
 #' @param port Port to run the app on (default: auto-select).
 #' @param launch.browser Whether to open a browser window (default: TRUE).
 #' @param ... Additional arguments passed to \code{\link[shiny]{runApp}}.
+#' @return No return value, called for its side effect of launching the Shiny
+#'   dashboard.
 #' @examples
-#' \dontrun{
 #' # Copy the bundled demo, generate the comparison, then launch the dashboard.
-#' base <- tempdir()
-#' file.copy(system.file("extdata", "demo", package = "syrona"), base, recursive = TRUE)
-#' dir <- file.path(base, "demo")
-#' options(syrona.data_dir = dir)
-#' compare_all("demo_population", "demo_selected")
-#' run_app(data_dir = dir)
+#' if (interactive()) {
+#'   base <- tempdir()
+#'   file.copy(system.file("extdata", "demo", package = "syrona"), base, recursive = TRUE)
+#'   dir <- file.path(base, "demo")
+#'   old <- options(syrona.data_dir = dir)
+#'   compare_all("demo_population", "demo_selected")
+#'   run_app(data_dir = dir)
+#'   options(old)
 #' }
 #' @export
 run_app <- function(data_dir = getwd(), port = NULL, launch.browser = TRUE, ...) {
@@ -30,8 +33,10 @@ run_app <- function(data_dir = getwd(), port = NULL, launch.browser = TRUE, ...)
          call. = FALSE)
   }
 
-  # Store the user's data directory so global.R can find the data
-  options(syrona.data_dir = normalizePath(data_dir, mustWork = TRUE))
+  # Store the user's data directory so global.R can find the data,
+  # restoring the user's previous setting when run_app() exits.
+  old_opts <- options(syrona.data_dir = normalizePath(data_dir, mustWork = TRUE))
+  on.exit(options(old_opts), add = TRUE)
 
   args <- list(appDir = app_dir, launch.browser = launch.browser, ...)
   if (!is.null(port)) args$port <- port

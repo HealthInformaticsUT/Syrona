@@ -80,6 +80,8 @@ syrona_connect_pg <- function(host = "localhost",
 #'
 #' @param db Connection list returned by \code{syrona_connect} or
 #'   \code{syrona_connect_pg}.
+#' @return No return value, called for its side effect of closing the database
+#'   connection.
 #' @export
 syrona_disconnect <- function(db) {
   DBI::dbDisconnect(db$con)

@@ -10,6 +10,10 @@ syrona_disconnect(db)
 \item{db}{Connection list returned by \code{syrona_connect} or
 \code{syrona_connect_pg}.}
 }
+\value{
+No return value, called for its side effect of closing the database
+  connection.
+}
 \description{
 Disconnect from an OMOP CDM database.
 }
