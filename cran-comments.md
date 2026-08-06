@@ -5,8 +5,7 @@ This is a new submission.
 ## Test environments
 
 * local: macOS (aarch64), R 4.6.0
-* win-builder: R-devel
-* R-hub: (linux, windows, macos)
+* win-builder: R Under development (unstable) (2026-07-26 r90304 ucrt)
 
 ## R CMD check results
 
