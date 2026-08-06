@@ -6,7 +6,7 @@ points raised in the CRAN review of 2026-08-06.
 ## Test environments
 
 * local: macOS (aarch64), R 4.6.0
-* win-builder: R Under development (unstable) (2026-07-26 r90304 ucrt)
+* win-builder: R Under development (unstable) (2026-08-05 r90355 ucrt)
 
 ## R CMD check results
 
@@ -15,8 +15,18 @@ points raised in the CRAN review of 2026-08-06.
 * checking CRAN incoming feasibility ... NOTE
   Maintainer: 'Maarja Pajusalu <maarja.pajusalu@ut.ee>'
   New submission
+  Possibly misspelled words in DESCRIPTION:
+    CDM (3:53, 8:41)
+    Mandel (12:56, 13:28)
+    OMOP (3:48, 8:36)
+    Paule (12:50, 13:18)
 
-The note is the standard new-submission note.
+This is the standard new-submission note. The flagged words are spelled
+correctly: OMOP and CDM are the acronyms of the Observational Medical Outcomes
+Partnership Common Data Model, expanded on first use in the Description, and
+Paule and Mandel are the surnames of the authors of the cited method. The
+single quotes that previously kept OMOP and CDM out of this note were removed
+at the reviewer's request.
 
 ## Notes for reviewers
 
