@@ -38,9 +38,12 @@ Syrona is designed for multi-site comparisons where you want to understand how p
 ## Installation
 
 ```{r, eval=FALSE}
-# From GitHub:
+# From CRAN:
+install.packages("syrona")
+
+# Development version from GitHub:
 # install.packages("remotes")
-remotes::install_github("HealthInformaticsUT/syrona")
+remotes::install_github("HealthInformaticsUT/Syrona")
 ```
 
 ### Dependencies
@@ -66,7 +69,7 @@ db <- syrona_connect_pg(
   write_schema = "results_analyst"
 )
 
-# Or a local DuckDB file (read-only by default)
+# Or a local DuckDB file
 db <- syrona_connect("path/to/omop.duckdb")
 ```
 

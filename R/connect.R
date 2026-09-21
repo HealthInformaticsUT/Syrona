@@ -6,18 +6,20 @@
 
 #' Connect to a DuckDB OMOP CDM.
 #'
-#' Opens a DuckDB file and creates a CDMConnector reference. By default the
-#' connection is read-only; set \code{read_only = FALSE} if you need to write
-#' cohort tables or temp tables into the database.
+#' Opens a DuckDB file and creates a CDMConnector reference. The file is
+#' opened writable, because CDMConnector validates a CDM by writing a small
+#' probe table, so a read-only DuckDB connection cannot create a CDM reference.
+#' Syrona only writes temporary and cohort tables; your OMOP data is not
+#' modified.
 #'
 #' @param db_path Path to the DuckDB file.
 #' @param cdm_schema Schema containing OMOP CDM tables (default \code{"main"}).
 #' @param write_schema Schema for writing temp/cohort tables.
 #'   Defaults to \code{cdm_schema}. Set to a different schema if the CDM
 #'   schema is read-only (common in production setups).
-#' @param read_only Logical. Open DuckDB in read-only mode? Default \code{TRUE}.
-#'   Set to \code{FALSE} when you need to create cohort tables or use
-#'   \code{omopgenerics::insertTable}.
+#' @param read_only Logical. Open DuckDB in read-only mode? Default
+#'   \code{FALSE}. Setting it to \code{TRUE} makes the connection fail,
+#'   because CDMConnector needs to write a probe table.
 #' @return A list with components:
 #'   \describe{
 #'     \item{con}{DBI connection object.}
@@ -27,7 +29,7 @@
 syrona_connect <- function(db_path,
                            cdm_schema = "main",
                            write_schema = cdm_schema,
-                           read_only = TRUE) {
+                           read_only = FALSE) {
   rlang::check_installed("duckdb", reason = "to connect to DuckDB databases")
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = db_path, read_only = read_only)
   cdm <- CDMConnector::cdmFromCon(

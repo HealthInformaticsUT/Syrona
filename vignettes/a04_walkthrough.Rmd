@@ -28,13 +28,8 @@ Before you start, make sure you have:
 
 - **R 4.1 or newer** with the `syrona` package installed:
   ```r
-  remotes::install_github("HealthInformaticsUT/Syrona")
+  install.packages("syrona")
   ```
-  If you get `HTTP error 401 / Bad credentials`, you likely have a stale
-  `GITHUB_PAT` environment variable that overrides your git credential
-  store. Fix it by running `usethis::edit_r_environ()`, removing (or
-  commenting out) the `GITHUB_PAT=...` line, saving, and restarting R.
-  If the repository is public, no PAT is needed at all.
 - **Read access** to an OMOP CDM database (PostgreSQL or DuckDB).
 - **A writable schema** if your CDM is on PostgreSQL. Cohort tables and
   some extraction queries need a place to write temp tables. This is
@@ -157,10 +152,10 @@ find one you can access.
 If your CDM is a local DuckDB file, replace step 1 with:
 
 ```{r, eval=FALSE}
-db <- syrona_connect("path/to/omop.duckdb", read_only = FALSE)
+db <- syrona_connect("path/to/omop.duckdb")
 ```
 
-`read_only = FALSE` is needed so you can create cohort tables in the same
+The file is opened writable, so you can create cohort tables in the same
 file. Everything else in this walkthrough works identically.
 
 ## Step 2 - Explore care sites
@@ -411,10 +406,10 @@ you can re-launch `run_app()` any time without re-running extraction.
 
 ### `install_github()` fails with "HTTP error 401 / Bad credentials"
 
-A stale `GITHUB_PAT` environment variable is overriding your git
-credential store. Run `usethis::edit_r_environ()`, remove or comment
-out the `GITHUB_PAT=...` line, save, and restart R. If the Syrona
-repository is public, no PAT is needed.
+Only relevant if you install the development version from GitHub. An
+expired `GITHUB_PAT` in your `.Renviron` is being sent to GitHub. The
+repository is public and needs no token: run `usethis::edit_r_environ()`,
+delete the `GITHUB_PAT=...` line, save, and restart R.
 
 ### "Could not connect" / "Connection refused"
 

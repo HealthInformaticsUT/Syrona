@@ -57,19 +57,17 @@ db <- syrona_connect_pg(
 )
 ```
 
-**Credentials.** You can pass `password = "..."` directly, but it is cleaner to omit it and let RPostgres read the password from a `~/.pgpass` file or the `PGPASSWORD` environment variable — for example, set `PGPASSWORD=...` in your `~/.Renviron`. This keeps the password out of your R scripts and command history.
+**Credentials.** You can pass `password = "..."` directly, but it is cleaner to omit it and let RPostgres read the password from a `~/.pgpass` file or the `PGPASSWORD` environment variable - for example, set `PGPASSWORD=...` in your `~/.Renviron`. This keeps the password out of your R scripts and command history.
 
 The `write_schema` parameter tells CDMConnector where it can create temporary tables. This is required for cohort operations and some extraction queries. On PostgreSQL, this is typically a user-specific results schema.
 
 ### DuckDB (local files)
 
 ```{r, eval=FALSE}
-# Read-only (default) - safe for shared databases
 db <- syrona_connect("path/to/omop.duckdb")
-
-# Writable - needed if you want to create cohort tables in the same DB
-db <- syrona_connect("path/to/omop.duckdb", read_only = FALSE)
 ```
+
+The file is opened writable, because CDMConnector validates the CDM by writing a small probe table. Syrona only writes temporary and cohort tables; your OMOP data is not modified. If the file is shared, work on a copy.
 
 ## Running extraction
 

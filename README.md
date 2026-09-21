@@ -10,29 +10,26 @@ Pick the scenario that matches you - each links to the relevant vignette.
 
 ### A. I just want to see the dashboard with demo data
 
-Clone the repo (the demo datasets ship at the repo root under `data/`),
-then launch the dashboard:
+Install from CRAN. The demo data ships inside the package, so no clone is
+needed:
 
 ```r
-# In a terminal:
-# git clone https://github.com/HealthInformaticsUT/Syrona.git
-# Then in R:
-setwd("path/to/Syrona")
+install.packages("syrona")
 library(syrona)
-run_app()
-```
 
-The `data/` folder is excluded from the package build (`.Rbuildignore`), so
-`remotes::install_github` installs the code only. To get the demo data, you
-must clone.
+dir <- file.path(tempdir(), "demo")
+file.copy(system.file("extdata", "demo", package = "syrona"), tempdir(), recursive = TRUE)
+options(syrona.data_dir = dir)
+compare_all("demo_population", "demo_selected")
+run_app(data_dir = dir)
+```
 
 ### B. I have my own OMOP CDM and want to compare two cohorts
 
 Install the package and follow the end-to-end walkthrough:
 
 ```r
-# install.packages("remotes")
-remotes::install_github("HealthInformaticsUT/Syrona")
+install.packages("syrona")
 ```
 
 Then read [`vignette("a04_walkthrough", package = "syrona")`](vignettes/a04_walkthrough.Rmd)
@@ -44,7 +41,7 @@ showing my comparison" with verification at every step.
 Install the package, point at your data directory, launch:
 
 ```r
-remotes::install_github("HealthInformaticsUT/Syrona")
+install.packages("syrona")
 library(syrona)
 options(syrona.data_dir = "/path/to/your/syrona/data")
 run_app()
@@ -52,6 +49,20 @@ run_app()
 
 Your data directory must contain `sources/` (extracted datasets) and
 optionally `comparisons/` (pre-computed comparison results).
+
+### Development version
+
+The latest version from GitHub:
+
+```r
+# install.packages("remotes")
+remotes::install_github("HealthInformaticsUT/Syrona")
+```
+
+If this fails with `HTTP error 401 / Bad credentials`, an expired
+`GITHUB_PAT` in your `.Renviron` is being sent to GitHub. The repository is
+public and needs no token: run `usethis::edit_r_environ()`, delete the
+`GITHUB_PAT=...` line, save, and restart R.
 
 ## Quick reference
 

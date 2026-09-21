@@ -1,3 +1,18 @@
+# syrona 0.2.2
+
+## Bug fixes
+* `syrona_connect()` now defaults to `read_only = FALSE`. The previous default
+  of `TRUE` always failed, because CDMConnector validates a CDM by writing a
+  probe table. This also fixes `extract_all()` when `db` is a DuckDB file path.
+
+## Documentation
+* README and vignettes install from CRAN; the GitHub install is listed as the
+  development version.
+* README demo instructions use the bundled demo data instead of a repository
+  clone.
+* Removed the `read_only = TRUE` examples and the claim that connections are
+  read-only by default.
+
 # syrona 0.2.1
 
 ## CRAN review fixes

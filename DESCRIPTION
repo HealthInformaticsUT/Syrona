@@ -1,7 +1,7 @@
 Package: syrona
 Type: Package
 Title: Stratified Prevalence Comparison Across OMOP CDM Datasets
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: person("Maarja", "Pajusalu", email = "maarja.pajusalu@ut.ee",
     role = c("aut", "cre"))
 Description: Derives stratified prevalence tables from the condition,
