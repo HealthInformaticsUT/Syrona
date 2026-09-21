@@ -13,6 +13,7 @@ corrected. There are no other functional changes.
 ## Test environments
 
 * local: macOS (aarch64), R 4.6.0
+* win-builder: R-devel (2026-09-21)
 
 ## R CMD check results
 
