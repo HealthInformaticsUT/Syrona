@@ -46,8 +46,15 @@ READ_ONLY_ARGS <- list(read_only = TRUE, write_schema = NULL)
 
 #' Read-only DuckDB copy of GiBleed, connected with syrona_connect().
 #' Returns a list with con, cdm, tmp_path.
-get_test_db <- function() {
+#' `prepare` is an optional function(con) run on a writable copy first
+#' (for example add_visit_link_fixture); the copy is then opened read-only.
+get_test_db <- function(prepare = NULL) {
   tmp_path <- copy_gibleed()
+  if (!is.null(prepare)) {
+    con <- DBI::dbConnect(duckdb::duckdb(), dbdir = tmp_path)
+    prepare(con)
+    DBI::dbDisconnect(con, shutdown = TRUE)
+  }
   db <- do.call(syrona_connect, c(list(db_path = tmp_path), READ_ONLY_ARGS))
   db$tmp_path <- tmp_path
   db
@@ -99,14 +106,14 @@ pg_settings <- function(role) {
 #' PostgreSQL test connection through syrona_connect_pg().
 #' role "reader": read-only on the CDM, no write schema.
 #' role "owner":  owns every schema and table, write schema "results".
-get_test_pg <- function(role = c("reader", "owner")) {
+get_test_pg <- function(role = c("reader", "owner"), cdm_schema = NULL) {
   role <- match.arg(role)
   skip_on_cran()
   skip_if_not_installed("RPostgres")
   s <- pg_settings(role)
   syrona_connect_pg(
     host = s$host, dbname = s$dbname, user = s$user, password = s$password,
-    cdm_schema = s$cdm_schema,
+    cdm_schema = if (is.null(cdm_schema)) s$cdm_schema else cdm_schema,
     write_schema = if (role == "owner") s$write_schema else NULL
   )
 }
@@ -159,4 +166,58 @@ expect_known_gibleed <- function(tables) {
   for (nm in names(tables)) {
     expect_equal(nrow(tables[[nm]]), KNOWN_GIBLEED[[nm]], label = paste("rows in", nm))
   }
+}
+
+# ── Visit-link fixture for care-site tests ───────────────────────────────────
+# GiBleed has no care sites, and most of its event visit ids point to no visit.
+# 890 persons have visits. This adds care site 101 (visits of the first 600 of
+# them by person_id) and 102 (the other 290), plus one person with a visit at each site and condition events linked
+# to both: odd condition_occurrence_id -> the visit at 101, even -> the visit
+# at 102, the smallest id -> no visit. Drug events of site 102's persons get no
+# visit link, so site 102 has no linked drug events.
+add_visit_link_fixture <- function(con) {
+  DBI::dbExecute(con, "INSERT INTO care_site (care_site_id, care_site_name) VALUES (101, 'Hospital A'), (102, 'Hospital B')")
+  DBI::dbExecute(con, "UPDATE visit_occurrence SET care_site_id = 101 WHERE person_id IN
+                        (SELECT DISTINCT person_id FROM visit_occurrence ORDER BY person_id LIMIT 600)")
+  DBI::dbExecute(con, "UPDATE visit_occurrence SET care_site_id = 102 WHERE person_id IN
+                        (SELECT DISTINCT person_id FROM visit_occurrence ORDER BY person_id OFFSET 600)")
+  mixed <- DBI::dbGetQuery(con, "SELECT v.person_id FROM visit_occurrence v GROUP BY 1 HAVING count(*) >= 2
+                                 ORDER BY (SELECT count(*) FROM condition_occurrence c WHERE c.person_id = v.person_id) DESC,
+                                          v.person_id LIMIT 1")$person_id
+  visits <- DBI::dbGetQuery(con, sprintf("SELECT visit_occurrence_id FROM visit_occurrence
+                                          WHERE person_id = %d ORDER BY visit_start_date, visit_occurrence_id LIMIT 2", mixed))$visit_occurrence_id
+  DBI::dbExecute(con, sprintf("UPDATE visit_occurrence SET care_site_id = 101 WHERE visit_occurrence_id = %d", visits[1]))
+  DBI::dbExecute(con, sprintf("UPDATE visit_occurrence SET care_site_id = 102 WHERE visit_occurrence_id = %d", visits[2]))
+  DBI::dbExecute(con, sprintf("UPDATE condition_occurrence SET visit_occurrence_id =
+                                 CASE WHEN condition_occurrence_id %% 2 = 1 THEN %d ELSE %d END WHERE person_id = %d",
+                              visits[1], visits[2], mixed))
+  DBI::dbExecute(con, sprintf("UPDATE condition_occurrence SET visit_occurrence_id = NULL WHERE condition_occurrence_id =
+                                 (SELECT min(condition_occurrence_id) FROM condition_occurrence WHERE person_id = %d)", mixed))
+  DBI::dbExecute(con, "UPDATE drug_exposure SET visit_occurrence_id = NULL WHERE person_id IN
+                        (SELECT person_id FROM visit_occurrence WHERE care_site_id = 102)")
+  invisible(mixed)
+}
+
+#' The one person with visits at both fixture sites.
+fixture_mixed_person <- function(con) {
+  DBI::dbGetQuery(con, "SELECT person_id FROM visit_occurrence WHERE care_site_id = 101
+                        INTERSECT SELECT person_id FROM visit_occurrence WHERE care_site_id = 102")$person_id
+}
+
+# ── Table fingerprints ───────────────────────────────────────────────────────
+# One fingerprint per table: rows, column names, and an md5 of the table's
+# content sorted by all columns (numbers rounded to 8 significant digits).
+table_fingerprints <- function(tables) {
+  lapply(tables[order(names(tables))], function(t) {
+    df <- as.data.frame(t)
+    df[] <- lapply(df, function(v) {
+      if (inherits(v, "integer64")) v <- as.numeric(v)
+      if (is.numeric(v)) signif(v, 8) else as.character(v)
+    })
+    if (nrow(df) > 0) df <- df[do.call(order, unname(df)), , drop = FALSE]
+    path <- tempfile(fileext = ".csv")
+    on.exit(unlink(path))
+    utils::write.csv(df, path, row.names = FALSE)
+    list(rows = nrow(df), columns = names(df), md5 = unname(tools::md5sum(path)))
+  })
 }

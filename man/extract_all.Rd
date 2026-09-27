@@ -10,7 +10,8 @@ extract_all(
   domains = c("conditions", "procedures", "drugs"),
   cohort_id = NULL,
   cohort_schema = NULL,
-  save = TRUE
+  save = TRUE,
+  care_site_id = NULL
 )
 }
 \arguments{
@@ -28,6 +29,13 @@ If \code{NULL} (default), extracts the full dataset.}
 \item{cohort_schema}{Schema containing the cohort table.}
 
 \item{save}{If \code{TRUE} (default), saves CSV to \code{data/sources/<dataset_name>/}.}
+
+\item{care_site_id}{One \code{care_site_id} (a hospital or clinic). If given,
+the dataset covers the persons with at least one visit at that care site,
+over their whole observation period, and only the events recorded at a
+visit there (linked through \code{visit_occurrence_id}). Events with no
+visit link are left out. Cannot be combined with \code{cohort_id}.
+\code{\link{list_care_sites}} lists the care sites.}
 }
 \value{
 Named list of tibbles matching the Syrona schema (invisible).

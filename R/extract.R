@@ -98,6 +98,75 @@ apply_cohort_filter <- function(db, cohort_id, cohort_schema = NULL) {
   db
 }
 
+# ── Care-site filtering ─────────────────────────────────────────────────────
+
+#' Restrict CDM table references to one care site.
+#'
+#' Keeps persons with at least one visit at the care site, their whole
+#' observation period and death records, and only the events whose
+#' \code{visit_occurrence_id} is a visit at that care site. Events with no
+#' visit link are dropped. All filtering runs in the database.
+#'
+#' @param db Connection list (from \code{syrona_connect}).
+#' @param care_site_id One \code{care_site_id}.
+#' @param domains Domains that will be extracted. A note is shown for each one
+#'   with no events linked to the care site.
+#' @param call The user-facing function named in errors.
+#' @return Modified \code{db} list with filtered CDM table references. Its
+#'   attribute \code{empty_domains} names the requested domains with no events
+#'   linked to the care site.
+#' @keywords internal
+apply_care_site_filter <- function(db, care_site_id,
+                                   domains = c("conditions", "procedures", "drugs"),
+                                   call = rlang::caller_env()) {
+  # An integer compares directly with the id column in SQL
+  if (abs(care_site_id) <= .Machine$integer.max) care_site_id <- as.integer(care_site_id)
+
+  site_visits <- db$cdm$visit_occurrence |>
+    dplyr::filter(.data$care_site_id == !!care_site_id) |>
+    dplyr::select("visit_occurrence_id", "person_id")
+  site_persons <- site_visits |> dplyr::distinct(.data$person_id)
+
+  n_visits <- as.numeric(site_visits |> dplyr::tally() |> dplyr::pull(n))
+  if (n_visits == 0) {
+    cli::cli_abort(c(
+      "Care site {care_site_id} has no visits.",
+      "i" = "{.code list_care_sites(db$con, cdm_schema = \"...\")} lists the care sites and their patient counts. Use the same {.arg cdm_schema} as when connecting."
+    ), call = call)
+  }
+  n_persons <- as.numeric(site_persons |> dplyr::tally() |> dplyr::pull(n))
+  cli::cli_alert_info("Care site {care_site_id}: {n_visits} visits, {n_persons} persons.")
+
+  for (t in c("person", "observation_period", "death")) {
+    db$cdm[[t]] <- db$cdm[[t]] |>
+      dplyr::semi_join(site_persons, by = "person_id")
+  }
+
+  event_tables <- c(conditions = "condition_occurrence",
+                    procedures = "procedure_occurrence",
+                    drugs      = "drug_exposure")
+  event_labels <- c(conditions = "condition", procedures = "procedure", drugs = "drug")
+  empty_domains <- character(0)
+  for (d in names(event_tables)) {
+    t <- event_tables[[d]]
+    db$cdm[[t]] <- db$cdm[[t]] |>
+      dplyr::semi_join(site_visits |> dplyr::select("visit_occurrence_id"),
+                       by = "visit_occurrence_id")
+    if (d %in% domains) {
+      n_events <- as.numeric(db$cdm[[t]] |> dplyr::tally() |> dplyr::pull(n))
+      if (n_events == 0) {
+        empty_domains <- c(empty_domains, d)
+        cli::cli_alert_warning(
+          "No {event_labels[[d]]} events are linked to visits at care site {care_site_id}, so the {d} tables are empty."
+        )
+      }
+    }
+  }
+
+  attr(db, "empty_domains") <- empty_domains
+  db
+}
+
 # ── Shared extractors ───────────────────────────────────────────────────────
 
 #' Extract the ACHILLES-116 denominator: persons observed per year x sex x age group.
@@ -998,7 +1067,8 @@ apply_k_anonymity <- function(tables, k = K_ANONYMITY) {
 #' @param dataset_name Short label for the dataset.
 #' @param db_path Database path (stored in metadata).
 #' @keywords internal
-save_dataset <- function(tables, dataset_name, db_path = NA_character_) {
+save_dataset <- function(tables, dataset_name, db_path = NA_character_,
+                         care_site_id = NULL) {
   base <- getOption("syrona.data_dir", ".")
   out_dir <- file.path(base, SOURCES_DIR, dataset_name)
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
@@ -1019,6 +1089,7 @@ save_dataset <- function(tables, dataset_name, db_path = NA_character_) {
     age_clamp_max = AGE_CLAMP_MAX,
     k_anonymity = K_ANONYMITY
   )
+  if (!is.null(care_site_id)) metadata$care_site_id <- care_site_id
   utils::write.csv(metadata, file.path(out_dir, "_metadata.csv"), row.names = FALSE)
 
   for (name in names(tables)) {
@@ -1135,17 +1206,39 @@ list_datasets <- function() {
 #'   If \code{NULL} (default), extracts the full dataset.
 #' @param cohort_schema Schema containing the cohort table.
 #' @param save If \code{TRUE} (default), saves CSV to \code{data/sources/<dataset_name>/}.
+#' @param care_site_id One \code{care_site_id} (a hospital or clinic). If given,
+#'   the dataset covers the persons with at least one visit at that care site,
+#'   over their whole observation period, and only the events recorded at a
+#'   visit there (linked through \code{visit_occurrence_id}). Events with no
+#'   visit link are left out. Cannot be combined with \code{cohort_id}.
+#'   \code{\link{list_care_sites}} lists the care sites.
 #' @return Named list of tibbles matching the Syrona schema (invisible).
 #' @export
 extract_all <- function(dataset_name, db,
                         domains = c("conditions", "procedures", "drugs"),
                         cohort_id = NULL, cohort_schema = NULL,
-                        save = TRUE) {
+                        save = TRUE, care_site_id = NULL) {
   stopifnot(
     is.character(dataset_name), length(dataset_name) == 1, nchar(dataset_name) > 0,
     !grepl("[/\\\\]", dataset_name)
   )
   domains <- match.arg(domains, c("conditions", "procedures", "drugs"), several.ok = TRUE)
+
+  if (!is.null(care_site_id)) {
+    if (!is.numeric(care_site_id) || length(care_site_id) != 1 ||
+        is.na(care_site_id) || care_site_id != round(care_site_id)) {
+      cli::cli_abort(c(
+        "{.arg care_site_id} must be one whole number.",
+        "i" = "Extract one care site per call, for example {.code care_site_id = 101}."
+      ))
+    }
+    if (!is.null(cohort_id)) {
+      cli::cli_abort(c(
+        "Use either {.arg cohort_id} or {.arg care_site_id}, not both.",
+        "i" = "{.arg cohort_id} filters to a cohort, {.arg care_site_id} to the visits at one care site."
+      ))
+    }
+  }
 
   own_connection <- FALSE
   if (is.character(db)) {
@@ -1156,6 +1249,10 @@ extract_all <- function(dataset_name, db,
     db_path <- NA_character_
   }
   if (own_connection) on.exit(syrona_disconnect(db))
+
+  if (!is.null(care_site_id)) {
+    db <- apply_care_site_filter(db, care_site_id, domains)
+  }
 
   if (!is.null(cohort_id)) {
     cli::cli_alert_info("Applying cohort filter (cohort_id = {cohort_id})...")
@@ -1220,7 +1317,7 @@ extract_all <- function(dataset_name, db,
   tables$denominator <- denom_df
 
   if (save) {
-    save_dataset(tables, dataset_name, db_path)
+    save_dataset(tables, dataset_name, db_path, care_site_id)
   }
 
   msgs <- sprintf("Dataset '%s':", dataset_name)
@@ -1237,5 +1334,9 @@ extract_all <- function(dataset_name, db,
               nrow(tables$drug_info), nrow(tables$drug_rare),
               nrow(tables$drug_prevalence)))
   cli::cli_alert_success(paste(c("Done.", msgs), collapse = "\n"))
+  labels <- c(conditions = "condition", procedures = "procedure", drugs = "drug")
+  for (d in attr(db, "empty_domains")) {
+    cli::cli_alert_warning("No {labels[[d]]} events are linked to visits at care site {care_site_id}.")
+  }
   invisible(tables)
 }

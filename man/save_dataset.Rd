@@ -4,7 +4,12 @@
 \alias{save_dataset}
 \title{Save extracted tables to CSV.}
 \usage{
-save_dataset(tables, dataset_name, db_path = NA_character_)
+save_dataset(
+  tables,
+  dataset_name,
+  db_path = NA_character_,
+  care_site_id = NULL
+)
 }
 \arguments{
 \item{tables}{Named list of tibbles.}

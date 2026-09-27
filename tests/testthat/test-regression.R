@@ -2,23 +2,6 @@
 # tests/testthat/_snaps/regression.md the first time a test runs, and every
 # later run must reproduce it exactly.
 
-# One fingerprint per table: rows, column names, and an md5 of the table's
-# content sorted by all columns (numbers rounded to 8 significant digits).
-table_fingerprints <- function(tables) {
-  lapply(tables[order(names(tables))], function(t) {
-    df <- as.data.frame(t)
-    df[] <- lapply(df, function(v) {
-      if (inherits(v, "integer64")) v <- as.numeric(v)
-      if (is.numeric(v)) signif(v, 8) else as.character(v)
-    })
-    if (nrow(df) > 0) df <- df[do.call(order, unname(df)), , drop = FALSE]
-    path <- tempfile(fileext = ".csv")
-    on.exit(unlink(path))
-    utils::write.csv(df, path, row.names = FALSE)
-    list(rows = nrow(df), columns = names(df), md5 = unname(tools::md5sum(path)))
-  })
-}
-
 test_that("extract_all() on GiBleed reproduces its value snapshot", {
   db <- get_test_db()
   on.exit(cleanup_test_db(db))
