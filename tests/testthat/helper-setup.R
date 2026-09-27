@@ -1,8 +1,7 @@
 # ── Test helpers: Eunomia GiBleed on DuckDB and PostgreSQL ────────────────────
 #
-# Every database test connects through Syrona's own connect functions, so the
-# tests exercise the path users take. Each DuckDB test works on a temporary
-# copy of GiBleed, never on the original file.
+# Every database test connects through Syrona's own connect functions. Each
+# DuckDB test works on a temporary copy of GiBleed.
 #
 #   get_test_db()        read-only DuckDB copy, for extraction tests
 #   get_test_db_write()  writable DuckDB copy with a "results" schema, for cohort tests
@@ -13,7 +12,7 @@
 #
 # Database tests are skipped on CRAN and when no test database is configured.
 # Locally, set SYRONA_TEST_DB (DuckDB) and SYRONA_TEST_PG_* (PostgreSQL) in
-# ~/.Renviron. Before a release they must run with 0 skipped.
+# ~/.Renviron.
 
 # Path to a known GiBleed DuckDB
 EUNOMIA_PATHS <- c(
@@ -42,10 +41,7 @@ copy_gibleed <- function() {
 }
 
 # ── Connection settings in one place ─────────────────────────────────────────
-# Read-only, without a write schema: extraction needs no write access. Passed
-# explicitly while the package defaults still open the database writable.
-# Once read-only is the default, this becomes an empty list, so the tests run
-# on the plain defaults.
+# Read-only, without a write schema.
 READ_ONLY_ARGS <- list(read_only = TRUE, write_schema = NULL)
 
 #' Read-only DuckDB copy of GiBleed, connected with syrona_connect().
@@ -101,8 +97,8 @@ pg_settings <- function(role) {
 }
 
 #' PostgreSQL test connection through syrona_connect_pg().
-#' role "reader": read-only on the CDM, no write schema (a well set up production server).
-#' role "owner":  owns every schema and table, write schema "results" (the worst case).
+#' role "reader": read-only on the CDM, no write schema.
+#' role "owner":  owns every schema and table, write schema "results".
 get_test_pg <- function(role = c("reader", "owner")) {
   role <- match.arg(role)
   skip_on_cran()
@@ -118,8 +114,7 @@ get_test_pg <- function(role = c("reader", "owner")) {
 # ── Snapshot: every table in a schema with its row count ─────────────────────
 
 #' Returns a data frame (table, rows), sorted by table name. Works on DuckDB and
-#' PostgreSQL. Compare a snapshot before and after an operation with
-#' expect_identical() to prove nothing was written.
+#' PostgreSQL.
 snapshot_schema <- function(con, schema) {
   tabs <- DBI::dbGetQuery(con, sprintf(
     "SELECT table_name FROM information_schema.tables
@@ -148,10 +143,7 @@ add_caresite_fixture <- function(con) {
 }
 
 # ── Known answers: extract_all() on GiBleed, save = FALSE ────────────────────
-# Recorded with syrona 0.2.1 on 2026-09-25, identical on DuckDB and PostgreSQL.
-# Rows per returned table. A change here must be intended and explained in
-# NEWS.md (for example k = 5 suppression of denominator and demographics).
-# Any other change is a regression.
+# Rows per returned table, recorded with syrona 0.2.1 on DuckDB and PostgreSQL.
 KNOWN_GIBLEED <- list(
   condition_prevalence = 2926, condition_info = 78, condition_chapters = 78,
   condition_attributes = 0, condition_rare = 38,
