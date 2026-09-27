@@ -1,7 +1,6 @@
 test_that("insert_cohort creates a valid cohort table via omopgenerics", {
-  skip_if_not_installed("duckdb")
-
-  db <- get_test_db()
+  # Cohort tests need a writable copy with a separate write schema.
+  db <- get_test_db_write()
   on.exit(cleanup_test_db(db))
 
   # Get real person_ids + their observation periods so dates are valid
@@ -29,9 +28,8 @@ test_that("insert_cohort creates a valid cohort table via omopgenerics", {
 })
 
 test_that("create_cohort_table + delete_cohort round-trip works", {
-  skip_if_not_installed("duckdb")
-
-  db <- get_test_db()
+  # Cohort tests need a writable copy with a separate write schema.
+  db <- get_test_db_write()
   on.exit(cleanup_test_db(db))
 
   # Create cohort table
