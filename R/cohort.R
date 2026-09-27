@@ -1,15 +1,8 @@
 # ── OHDSI cohort helpers ──────────────────────────────────────────────────────
 #
 # Functions for creating and managing OHDSI-standard cohort tables.
-# Two creation paths are provided:
-#
-#   1. `create_caresite_cohort()` issues a server-side INSERT ... SELECT.
-#      Used for care-site cohorts where pulling patient-level data into R
-#      would be prohibitively expensive on large databases.
-#
-#   2. `insert_cohort()` uploads a local data frame via
-#      `omopgenerics::insertTable()`. Used when cohort membership has
-#      already been computed in R (e.g. from a CSV or programmatic rule).
+# `create_caresite_cohort()` issues a server-side INSERT ... SELECT, so
+# patient-level data never has to be pulled into R.
 #
 # All cohort tables follow the standard OHDSI 4-column schema:
 #   cohort_definition_id  INTEGER
@@ -199,54 +192,6 @@ create_caresite_cohort <- function(con,
   )
 
   paste(cte, body)
-}
-
-# ── Cohort from data frame (omopgenerics) ──────────────────────────────────
-
-#' Insert a cohort from a local data frame.
-#'
-#' Uploads a data frame to the database via \code{omopgenerics::insertTable}
-#' and marks it as a cohort table with \code{omopgenerics::newCohortTable}.
-#' Use this when cohort membership has already been computed locally
-#' (e.g. from a CSV or programmatic cohort definition).
-#'
-#' Requires that the CDM connection was created with a \code{writeSchema}.
-#'
-#' @param cdm A CDM reference (from \code{syrona_connect()$cdm}).
-#' @param cohort_df Data frame with columns: \code{cohort_definition_id},
-#'   \code{subject_id}, \code{cohort_start_date}, \code{cohort_end_date}.
-#' @param name Name for the cohort table in the database (default \code{"cohort"}).
-#' @return Updated CDM reference with the cohort table attached.
-#' @export
-insert_cohort <- function(cdm, cohort_df, name = "cohort") {
-  required_cols <- c("cohort_definition_id", "subject_id",
-                     "cohort_start_date", "cohort_end_date")
-  missing <- setdiff(required_cols, names(cohort_df))
-  if (length(missing) > 0) {
-    cli::cli_abort("Missing required columns: {.val {missing}}")
-  }
-
-  # Ensure correct types
-  cohort_df <- cohort_df |>
-    dplyr::mutate(
-      cohort_definition_id = as.integer(.data$cohort_definition_id),
-      subject_id = as.integer(.data$subject_id),
-      cohort_start_date = as.Date(.data$cohort_start_date),
-      cohort_end_date = as.Date(.data$cohort_end_date)
-    )
-
-  cdm <- omopgenerics::insertTable(
-    cdm = cdm,
-    name = name,
-    table = as.data.frame(cohort_df),
-    overwrite = TRUE
-  )
-  cdm[[name]] <- omopgenerics::newCohortTable(cdm[[name]])
-
-  cli::cli_alert_success(
-    "Inserted {nrow(cohort_df)} rows into cohort table {.val {name}}."
-  )
-  cdm
 }
 
 # ── Cohort utilities ────────────────────────────────────────────────────────

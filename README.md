@@ -116,6 +116,5 @@ extract_all("Hospital_A", db = db, cohort_id = 1, cohort_schema = "results")
 ## Dependencies
 
 - [CDMConnector](https://CRAN.R-project.org/package=CDMConnector) (>= 2.0.0)
-- [omopgenerics](https://CRAN.R-project.org/package=omopgenerics) (>= 1.3.0)
 - [meta](https://CRAN.R-project.org/package=meta) (for meta-analysis)
 - [duckdb](https://CRAN.R-project.org/package=duckdb) (for local databases)

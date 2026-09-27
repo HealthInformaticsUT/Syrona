@@ -49,7 +49,6 @@ remotes::install_github("HealthInformaticsUT/Syrona")
 ### Dependencies
 
 -   [CDMConnector](https://CRAN.R-project.org/package=CDMConnector) (\>= 2.0.0) for database access
--   [omopgenerics](https://CRAN.R-project.org/package=omopgenerics) (\>= 1.3.0) for cohort table operations
 -   [meta](https://CRAN.R-project.org/package=meta) for random-effects meta-analysis
 -   [duckdb](https://CRAN.R-project.org/package=duckdb) for local DuckDB files
 

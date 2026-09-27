@@ -49,7 +49,6 @@ reference:
     desc: OHDSI cohort operations
     contents:
       - create_caresite_cohort
-      - insert_cohort
       - apply_cohort_filter
       - cohort_summary
       - delete_cohort
@@ -75,3 +74,6 @@ reference:
       - format_pval
       - truncate_name
       - weight_color
+  - title: Defunct
+    contents:
+      - syrona-defunct

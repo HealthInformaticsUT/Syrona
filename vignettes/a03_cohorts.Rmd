@@ -38,7 +38,7 @@ For Syrona, this **window is the key**: `extract_all(cohort_id = ...)` keeps onl
 Syrona does not author rule-based phenotype definitions itself; it **consumes** any OHDSI-standard cohort table. You have two options:
 
 1.  **Use Syrona's built-in care-site generator** (below) - the one cohort type Syrona builds itself, populated server-side via `INSERT ... SELECT` (the SQL approach described in the Book of OHDSI).
-2.  **Bring a cohort from any OHDSI tool** - a rule-based definition from ATLAS or [Capr](https://ohdsi.github.io/Capr/), a cohort built with [CohortConstructor](https://ohdsi.github.io/CohortConstructor/), a probabilistic PheValuator cohort, or a hand-built data frame (see *Cohorts from data frames*, below). As long as the result is the standard four-column cohort table, `extract_all(cohort_id = ...)` can use it.
+2.  **Bring a cohort from any OHDSI tool** - a rule-based definition from ATLAS or [Capr](https://ohdsi.github.io/Capr/), or a cohort built with [CohortConstructor](https://ohdsi.github.io/CohortConstructor/). As long as the result is the standard four-column cohort table, `extract_all(cohort_id = ...)` can use it.
 
 ## Care-site cohorts
 
@@ -114,27 +114,6 @@ cohort_summary(db$con, cohort_id = 1, cohort_schema = "results_analyst")
 delete_cohort(db$con, cohort_id = 1, cohort_schema = "results_analyst")
 ```
 
-## Cohorts from data frames
-
-If you already have cohort membership computed locally (from a CSV, a phenotype algorithm, or another tool), use `insert_cohort()` to upload it via the modern omopgenerics pathway:
-
-```{r, eval=FALSE}
-# Build a cohort data frame
-cohort_df <- data.frame(
-  cohort_definition_id = 1L,
-  subject_id = c(1001L, 1002L, 1003L),
-  cohort_start_date = as.Date("2015-01-01"),
-  cohort_end_date = as.Date("2020-12-31")
-)
-
-# Upload to the CDM (requires writeSchema)
-db$cdm <- insert_cohort(db$cdm, cohort_df, name = "my_cohort")
-
-# The cohort is now a table in the database, usable by Syrona and other OHDSI tools
-```
-
-Note: `insert_cohort()` validates that cohort dates fall within each person's observation period, as required by the OHDSI standard.
-
 ## Care-site cohort options
 
 `create_caresite_cohort()` has two optional parameters for fine-tuning:
@@ -183,9 +162,3 @@ The cohort table created by Syrona follows the standard OHDSI schema, so it is c
 -   **CohortDiagnostics** - for cohort validation and diagnostics
 -   **FeatureExtraction** - for baseline characterization
 -   **CohortConstructor** - for matching and cohort operations
-
-```{r, eval=FALSE}
-# Example: use CohortConstructor to create a matched control cohort
-library(CohortConstructor)
-db$cdm$matched <- matchCohorts(db$cdm$my_cohort, ratio = 2, name = "matched")
-```
