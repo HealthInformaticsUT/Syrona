@@ -111,7 +111,7 @@ path/to/syrona_output/
 
 -   `vignette("a01_connect")`: connect to PostgreSQL or DuckDB, and check your access
 -   `vignette("a02_extract")`: extract a dataset
--   `vignette("a03_populations")`: extract a cohort, a hospital or a list of patients
+-   `vignette("a03_cohorts")`: extract a cohort, a hospital or a list of patients
 -   `vignette("a04_compare")`: compare two datasets and open the dashboard
 -   `vignette("a05_methods")`: how the comparison is calculated
 -   `vignette("a06_vocabularies")`: how concepts are grouped into chapters

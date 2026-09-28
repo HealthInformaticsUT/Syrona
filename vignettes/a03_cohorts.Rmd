@@ -1,8 +1,8 @@
 ---
-title: "OHDSI Cohort Workflows"
+title: "Cohorts and hospitals"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{a03_cohorts}
+  %\VignetteIndexEntry{Cohorts and hospitals}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,72 +14,128 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Overview
+By default `extract_all()` counts everyone in the database. It can also count a cohort, the patients of one hospital, or your own list of patients.
 
-By default, `extract_all()` extracts data for all persons in the database. But often you want to compare specific subpopulations - patients from a particular hospital, a clinical trial cohort, or a phenotype definition.
+## Settings and connection
 
-Syrona supports OHDSI-standard cohort tables for this. A cohort table has 4 columns:
-
-| Column                 | Type    | Description     |
-|------------------------|---------|-----------------|
-| `cohort_definition_id` | INTEGER | Which cohort    |
-| `subject_id`           | INTEGER | person_id       |
-| `cohort_start_date`    | DATE    | When they enter |
-| `cohort_end_date`      | DATE    | When they exit  |
-
-When you pass a `cohort_id` to `extract_all()`, it restricts extraction to cohort members.
-
-## Defining a cohort
-
-Following the OHDSI convention, a cohort is *"a set of persons who satisfy one or more inclusion criteria for a duration of time"* ([The Book of OHDSI, Cohorts](https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html)). Each person's membership is bounded by a **cohort window**: `cohort_start_date` (entry / index date) to `cohort_end_date` (exit - typically the end of a persistence window or of the observation period).
-
-Syrona does not author rule-based phenotype definitions itself; it **reads** any OHDSI-standard cohort table, for example a rule-based definition from ATLAS or [Capr](https://ohdsi.github.io/Capr/), or a cohort built with [CohortConstructor](https://ohdsi.github.io/CohortConstructor/). As long as the result is the standard four-column cohort table, `extract_all(cohort_id = ...)` can use it. Comparing hospitals needs no cohort table at all (next section).
-
-## Hospitals (care sites)
-
-The most common use case: compare hospitals within the same OMOP CDM database. `extract_all(care_site_id = )` extracts one care site. Nothing is written to the database.
-
-```{r, eval=FALSE}
+```{r settings, eval=FALSE}
 library(syrona)
 
-cdm_schema <- "cdm"   # change to your CDM schema
-
-db <- syrona_connect_pg(
-  dbname = "omop",
-  user = "analyst",
-  cdm_schema = cdm_schema
-)
-
-# Find available care sites
-list_care_sites(db$con, cdm_schema = cdm_schema)
-#>   care_site_id    care_site_name  n_patients
-#> 1          101   Central Hospital      45000
-#> 2          205   University Clinic     28000
-#> 3          312   Regional Hospital     15000
-
-# Extract each hospital's data, then compare
-extract_all("Central_Hospital", db = db, care_site_id = 101)
-extract_all("University_Clinic", db = db, care_site_id = 205)
-compare_all("Central_Hospital", "University_Clinic")
+host           <- "localhost"
+port           <- 5432
+dbname         <- "omop"
+user           <- "your_user"
+cdm_schema     <- "cdm"
+results_schema <- "results"  # where ATLAS writes its cohorts
+data_dir       <- "path/to/syrona_output"
+options(syrona.data_dir = data_dir)
 ```
 
-### What a care-site dataset contains
+```{r, eval=FALSE, runner="postgres"}
+db <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
+                        password = Sys.getenv("OMOP_PASSWORD"), cdm_schema = cdm_schema)
+```
 
--   **Persons**: everyone with at least one visit at the care site, over their whole observation period (this is the denominator)
--   **Events**: only conditions, procedures and drugs recorded at a visit at that care site, linked through `visit_occurrence_id`
+```{r, eval=FALSE, runner="duckdb"}
+db <- syrona_connect("path/to/omop.duckdb")
+```
 
-A person who visited two hospitals is counted in both datasets, each time with only the events recorded at that hospital. This is the method of the published Syrona analysis.
+## A cohort generated in ATLAS
 
-### Check the visit links first
-
-Events with no `visit_occurrence_id`, or one that points to no visit, cannot be assigned to a care site and are left out. In some databases this is common, for example drugs in claims data. `extract_all()` shows a note for every domain with no linked events. To see the share of linked events before extracting:
+ATLAS writes its cohorts to the table `cohort` in the results schema. The cohort id is the ATLAS id, the name is shown in ATLAS.
 
 ```{r, eval=FALSE}
-DBI::dbGetQuery(db$con, "
-  SELECT count(v.visit_occurrence_id) * 1.0 / count(*) AS linked_share
-  FROM cdm.drug_exposure d
-  LEFT JOIN cdm.visit_occurrence v
-    ON d.visit_occurrence_id = v.visit_occurrence_id")
+# Entries and persons of cohort 1
+cohort_summary(db$con, cohort_id = 1, cohort_schema = results_schema)
+
+# One dataset per cohort
+extract_all("Dataset_A", db, cohort_id = 1, cohort_schema = results_schema)
+extract_all("Dataset_B", db, cohort_id = 2, cohort_schema = results_schema)
 ```
 
-Replace `cdm` with your CDM schema, and repeat with `condition_occurrence` and `procedure_occurrence`. A share close to 0 means that domain will be empty or nearly empty for every care site.
+A cohort table with another name is read with `cohort_table = "..."`.
+
+## One hospital
+
+A hospital dataset has the persons with at least one visit at that care site, and only the events recorded at those visits.
+
+```{r, eval=FALSE, runner="duckdb"}
+# The care sites with at least 100 patients (change with min_patients)
+list_care_sites(db$con, cdm_schema = cdm_schema)
+
+# One dataset per hospital
+extract_all("Hospital_A", db, care_site_id = 101)
+extract_all("Hospital_B", db, care_site_id = 102)
+```
+
+Events are linked to a hospital through their visit. Check first how many are linked, per domain:
+
+```{r, eval=FALSE, runner="duckdb"}
+# Share of drug events with a visit: close to 0 means no drug data per hospital
+DBI::dbGetQuery(db$con, paste0("
+  SELECT count(v.visit_occurrence_id) * 1.0 / count(*) AS linked
+  FROM ", cdm_schema, ".drug_exposure d
+  LEFT JOIN ", cdm_schema, ".visit_occurrence v ON d.visit_occurrence_id = v.visit_occurrence_id"))
+```
+
+## Your own cohort
+
+Syrona reads any cohort table in the OHDSI format. To make your own, for example from ATLAS JSON files or from a list of patients, connect with a write schema: a schema where you may create tables, your own one (not shared with other users). Syrona adds the prefix `syrona_` to every table written there.
+
+```{r, eval=FALSE}
+syrona_disconnect(db)
+```
+
+```{r, eval=FALSE, runner=FALSE}
+db <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
+                        password = Sys.getenv("OMOP_PASSWORD"), cdm_schema = cdm_schema,
+                        write_schema = "your_schema")
+```
+
+```{r, eval=FALSE, runner="duckdb"}
+# A DuckDB file must then be opened writable
+db <- syrona_connect("path/to/omop.duckdb", write_schema = "main", read_only = FALSE)
+```
+
+**From ATLAS JSON files.** Export the definitions from ATLAS into one folder. The ids follow the file names in alphabetical order. Generating needs Java and the packages CirceR and SqlRender: `install.packages(c("CirceR", "SqlRender"))`.
+
+```{r, eval=FALSE, runner=FALSE}
+cohort_set <- CDMConnector::readCohortSet("path/to/json_folder")
+db$cdm <- CDMConnector::generateCohortSet(db$cdm, cohort_set, name = "atlas")
+CDMConnector::settings(db$cdm$atlas)     # ids and names
+CDMConnector::cohortCount(db$cdm$atlas)  # ids and counts
+
+extract_all("Dataset_A", db, cohort_id = 1, cohort_table = "atlas")
+```
+
+**From a list of patients.** The ids must be OMOP `person_id`s. A wide date range keeps each person's whole observation period.
+
+```{r, eval=FALSE, runner="duckdb"}
+ids <- c(1, 2, 3, 4, 5)  # your person_ids
+my_list <- data.frame(
+  cohort_definition_id = 1L,
+  subject_id = ids,
+  cohort_start_date = as.Date("1900-01-01"),
+  cohort_end_date = as.Date("2100-12-31")
+)
+db$cdm <- CDMConnector::insertTable(db$cdm, name = "my_list", table = my_list)
+
+extract_all("My_patients", db, cohort_id = 1, cohort_table = "my_list")
+```
+
+```{r, eval=FALSE}
+syrona_disconnect(db)
+```
+
+## Rules
+
+- Say where a cohort is: `cohort_schema`, `cohort_table` or both. Syrona does not look for a table on its own.
+- A person's entries in a cohort must not overlap. Cohorts generated in ATLAS never do.
+- `cohort_id` and `care_site_id` cannot be combined.
+- The cohort or care site used is recorded in `_metadata.csv`. Counts below 5 are written as `<5`.
+
+## Coming from Syrona 0.2.1
+
+- `insert_cohort()` is removed: use a cohort in the database, or make your own as above.
+- `create_caresite_cohort()` and `delete_cohort()` are removed: use `care_site_id`. Results differ from 0.2.1, which counted all events between a person's first and last visit.
+- `extract_all(cohort_id = , cohort_schema = )` works as before.

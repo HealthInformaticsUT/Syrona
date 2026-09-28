@@ -14,7 +14,7 @@ articles:
     contents:
       - a00_get_started
       - a01_connect
-      - a01_extraction
+      - a02_extract
   - title: Analysis
     contents:
       - a02_comparison

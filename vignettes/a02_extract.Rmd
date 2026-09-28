@@ -1,0 +1,104 @@
+---
+title: "Extract"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Extract}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`extract_all()` counts, for every condition, procedure and drug (drugs as their ingredients), how many persons have it per year, sex and age group. It saves only these aggregated counts, as CSV files in your output folder.
+
+## Settings and connection
+
+```{r settings, eval=FALSE}
+library(syrona)
+
+host       <- "localhost"
+port       <- 5432
+dbname     <- "omop"
+user       <- "your_user"
+cdm_schema <- "cdm"
+data_dir   <- "path/to/syrona_output"  # results are saved here
+options(syrona.data_dir = data_dir)
+```
+
+```{r, eval=FALSE, runner="postgres"}
+db <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
+                        password = Sys.getenv("OMOP_PASSWORD"), cdm_schema = cdm_schema)
+```
+
+```{r, eval=FALSE, runner="duckdb"}
+db <- syrona_connect("path/to/omop.duckdb")
+```
+
+Connecting is explained in `vignette("a01_connect")`.
+
+## Extract
+
+```{r, eval=FALSE}
+# All three domains: conditions, procedures and drugs
+extract_all("Dataset_A", db)
+
+# One domain only, for example as a first quick test on a large database
+extract_all("Dataset_A_conditions", db, domains = "conditions")
+```
+
+Each dataset is saved in its own folder, `data/sources/<name>/`.
+
+## Extract again under the same name
+
+A saved dataset is never replaced by accident: extracting into an existing name stops before anything is done. To replace it:
+
+```{r, eval=FALSE}
+# Removes Syrona's files of Dataset_A first, other files in the folder stay
+extract_all("Dataset_A", db, overwrite = TRUE)
+```
+
+## Look at the result
+
+```{r, eval=FALSE}
+# The saved datasets
+list_datasets()
+
+# One dataset as a list of tables
+d <- load_dataset("Dataset_A")
+names(d)
+head(d$condition_prevalence)
+```
+
+## What is saved
+
+| Table | Content |
+|---|---|
+| `condition_prevalence` | persons with the concept, per year, sex and age group, with the denominator and the prevalence |
+| `condition_info` | each concept: name, code, vocabulary, number of persons |
+| `condition_chapters` | the chapter each concept belongs to, see `vignette("a06_vocabularies")` |
+| `condition_attributes` | related concepts (for example the body site) |
+| `condition_rare` | concepts with too few persons per stratum, counted only in total |
+| `procedure_*`, `drug_*` | the same for procedures and drugs (`drug_attributes` is empty) |
+| `demographics` | persons per birth year and sex |
+| `denominator` | persons observed per year, sex and age group |
+| `death_counts` | deaths per year, sex and age group |
+| `_metadata.csv` | when and how the dataset was extracted |
+
+**Age groups** are 10 years wide (0-9, 10-19, ...), with 80 and older as one group.
+
+**Small counts.** No saved count is between 1 and 4: rows with fewer than 5 persons are left out, and a concept with fewer than 5 persons in total is left out completely.
+
+## What the database must contain
+
+The OMOP tables `person`, `observation_period`, `condition_occurrence`, `procedure_occurrence`, `drug_exposure` and `death`, and the vocabulary tables `concept`, `concept_ancestor` and `concept_relationship`, all in `cdm_schema`. If your vocabulary tables are in a separate schema, ask your administrator for a schema that contains both.
+
+## Disconnect
+
+```{r, eval=FALSE}
+syrona_disconnect(db)
+```
