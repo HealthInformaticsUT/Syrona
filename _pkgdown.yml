@@ -12,7 +12,7 @@ articles:
   - title: Getting Started
     navbar: ~
     contents:
-      - a00_introduction
+      - a00_get_started
       - a01_extraction
   - title: Analysis
     contents:

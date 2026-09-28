@@ -1,0 +1,114 @@
+---
+title: "Get started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## What Syrona does
+
+Syrona compares two datasets in the OMOP Common Data Model, for example two databases, two hospitals or two cohorts. For each dataset it counts how common every condition, procedure and drug is, per year, sex and age group. It then compares the two datasets with prevalence ratios and pools them with a meta-analysis. The results can be explored in a dashboard.
+
+Syrona only reads the database. What it saves are aggregated counts, and no saved count is below 5.
+
+## Install
+
+```{r, eval=FALSE, runner=FALSE}
+install.packages("syrona")
+
+# Plus the driver for your database: one of
+install.packages("RPostgres")  # a PostgreSQL server
+install.packages("duckdb")     # a local DuckDB file
+```
+
+## Try it without a database
+
+Syrona comes with two small demo datasets.
+
+```{r, eval=FALSE}
+library(syrona)
+
+# Copy the demo datasets to a temporary folder
+demo_dir <- file.path(tempdir(), "syrona_demo")
+dir.create(demo_dir, showWarnings = FALSE)
+file.copy(system.file("extdata", "demo", "data", package = "syrona"), demo_dir, recursive = TRUE)
+options(syrona.data_dir = demo_dir)
+
+# Compare them (overwrite = TRUE lets you run this again)
+compare_all("demo_population", "demo_selected", overwrite = TRUE)
+
+# Explore the result
+run_app(data_dir = demo_dir)
+```
+
+## The whole path with your own data
+
+Fill in the settings, then run the rest as it is. The example compares two CDM schemas on one PostgreSQL server.
+
+```{r settings, eval=FALSE}
+library(syrona)
+
+# Settings (details: vignette("a01_connect"))
+host         <- "localhost"
+dbname       <- "omop"
+user         <- "your_user"
+cdm_schema_a <- "cdm_a"
+cdm_schema_b <- "cdm_b"
+data_dir     <- "path/to/syrona_output"  # results are saved here
+options(syrona.data_dir = data_dir)
+```
+
+```{r, eval=FALSE, runner="postgres"}
+# 1. Connect to each CDM (read-only)
+db_a <- syrona_connect_pg(host = host, dbname = dbname, user = user, cdm_schema = cdm_schema_a)
+db_b <- syrona_connect_pg(host = host, dbname = dbname, user = user, cdm_schema = cdm_schema_b)
+
+# 2. Extract: counts per concept, year, sex and age group
+extract_all("Dataset_A", db_a)
+extract_all("Dataset_B", db_b)
+
+# 3. Compare the two datasets
+compare_all("Dataset_A", "Dataset_B")
+
+# 4. Explore in the dashboard
+run_app(data_dir = data_dir)
+
+# 5. Disconnect
+syrona_disconnect(db_a)
+syrona_disconnect(db_b)
+```
+
+## Where the results are saved
+
+```
+path/to/syrona_output/
+  data/
+    sources/
+      Dataset_A/                   # one folder per extracted dataset
+        _metadata.csv
+        condition_prevalence.csv   # counts per concept, year, sex and age group
+        ...                        # the same for procedures and drugs
+      Dataset_B/
+    comparisons/
+      Dataset_A_vs_Dataset_B/      # one folder per comparison
+        condition_meta_summary.csv # one row per concept: the pooled result
+        ...
+```
+
+## Next
+
+- `vignette("a01_connect")`: connect to PostgreSQL or DuckDB, and check your access
+- `vignette("a02_extract")`: extract a dataset
+- `vignette("a03_populations")`: extract a cohort, a hospital or a list of patients
+- `vignette("a04_compare")`: compare two datasets and open the dashboard
+- `vignette("a05_methods")`: how the comparison is calculated
+- `vignette("a06_vocabularies")`: how concepts are grouped into chapters
