@@ -46,12 +46,10 @@ reference:
       - list_comparisons
 
   - title: Cohorts
-    desc: OHDSI cohort operations
+    desc: Cohorts and care sites
     contents:
-      - create_caresite_cohort
       - apply_cohort_filter
       - cohort_summary
-      - delete_cohort
       - list_care_sites
 
   - title: Dashboard

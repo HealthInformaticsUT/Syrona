@@ -27,32 +27,25 @@ Syrona supports OHDSI-standard cohort tables for this. A cohort table has 4 colu
 | `cohort_start_date`    | DATE    | When they enter |
 | `cohort_end_date`      | DATE    | When they exit  |
 
-When you pass a `cohort_id` to `extract_all()`, it restricts extraction to cohort members and clips all events to each person's cohort window.
+When you pass a `cohort_id` to `extract_all()`, it restricts extraction to cohort members.
 
 ## Defining a cohort
 
 Following the OHDSI convention, a cohort is *"a set of persons who satisfy one or more inclusion criteria for a duration of time"* ([The Book of OHDSI, Cohorts](https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html)). Each person's membership is bounded by a **cohort window**: `cohort_start_date` (entry / index date) to `cohort_end_date` (exit - typically the end of a persistence window or of the observation period).
 
-For Syrona, this **window is the key**: `extract_all(cohort_id = ...)` keeps only the cohort's `subject_id`s and clips each person's records *and* their observation-period denominator to `[cohort_start_date, cohort_end_date]`. The same person can therefore contribute different prevalence depending on the window you define - the window is how you scope a comparison in time (for example, restricting a care-site comparison to 2015–2022, or to a fixed follow-up interval after an index event).
+Syrona does not author rule-based phenotype definitions itself; it **reads** any OHDSI-standard cohort table, for example a rule-based definition from ATLAS or [Capr](https://ohdsi.github.io/Capr/), or a cohort built with [CohortConstructor](https://ohdsi.github.io/CohortConstructor/). As long as the result is the standard four-column cohort table, `extract_all(cohort_id = ...)` can use it. Comparing hospitals needs no cohort table at all (next section).
 
-Syrona does not author rule-based phenotype definitions itself; it **consumes** any OHDSI-standard cohort table. You have two options:
+## Hospitals (care sites)
 
-1.  **Use Syrona's built-in care-site generator** (below) - the one cohort type Syrona builds itself, populated server-side via `INSERT ... SELECT` (the SQL approach described in the Book of OHDSI).
-2.  **Bring a cohort from any OHDSI tool** - a rule-based definition from ATLAS or [Capr](https://ohdsi.github.io/Capr/), or a cohort built with [CohortConstructor](https://ohdsi.github.io/CohortConstructor/). As long as the result is the standard four-column cohort table, `extract_all(cohort_id = ...)` can use it.
-
-## Care-site cohorts
-
-The most common use case: compare hospitals within the same OMOP CDM database.
+The most common use case: compare hospitals within the same OMOP CDM database. `extract_all(care_site_id = )` extracts one care site. Nothing is written to the database.
 
 ```{r, eval=FALSE}
 library(syrona)
 
-# Connect with write access (needed to create cohort table)
 db <- syrona_connect_pg(
   dbname = "omop",
   user = "analyst",
-  cdm_schema = "ohdsi_cdm_202511",
-  write_schema = "results_analyst"
+  cdm_schema = "ohdsi_cdm_202511"
 )
 
 # Find available care sites
@@ -61,104 +54,30 @@ list_care_sites(db$con, cdm_schema = "ohdsi_cdm_202511")
 #> 1          101   Central Hospital      45000
 #> 2          205   University Clinic     28000
 #> 3          312   Regional Hospital     15000
-```
 
-### Create cohorts
-
-```{r, eval=FALSE}
-# Create a cohort for each hospital
-create_caresite_cohort(
-  con = db$con,
-  care_site_id = 101,
-  cohort_id = 1,
-  cohort_schema = "results_analyst",
-  cdm_schema = "ohdsi_cdm_202511"
-)
-
-create_caresite_cohort(
-  con = db$con,
-  care_site_id = 205,
-  cohort_id = 2,
-  cohort_schema = "results_analyst",
-  cdm_schema = "ohdsi_cdm_202511"
-)
-```
-
-Each person's cohort window runs from their first visit start date to their last visit end date at that care site. By default, these are clipped to observation period overlap (`restrict_to_observation = TRUE`).
-
-### Extract by cohort
-
-```{r, eval=FALSE}
-# Extract each hospital's data
-extract_all("Central_Hospital", db = db,
-            cohort_id = 1, cohort_schema = "results_analyst")
-
-extract_all("University_Clinic", db = db,
-            cohort_id = 2, cohort_schema = "results_analyst")
-
-# Then compare
+# Extract each hospital's data, then compare
+extract_all("Central_Hospital", db = db, care_site_id = 101)
+extract_all("University_Clinic", db = db, care_site_id = 205)
 compare_all("Central_Hospital", "University_Clinic")
 ```
 
-### Verify a cohort
+### What a care-site dataset contains
+
+-   **Persons**: everyone with at least one visit at the care site, over their whole observation period (this is the denominator)
+-   **Events**: only conditions, procedures and drugs recorded at a visit at that care site, linked through `visit_occurrence_id`
+
+A person who visited two hospitals is counted in both datasets, each time with only the events recorded at that hospital. This is the method of the published Syrona analysis.
+
+### Check the visit links first
+
+Events with no `visit_occurrence_id`, or one that points to no visit, cannot be assigned to a care site and are left out. In some databases this is common, for example drugs in claims data. `extract_all()` shows a note for every domain with no linked events. To see the share of linked events before extracting:
 
 ```{r, eval=FALSE}
-cohort_summary(db$con, cohort_id = 1, cohort_schema = "results_analyst")
-#>   cohort_definition_id n_entries n_persons  min_start    max_end
-#> 1                    1     45000     45000 2005-01-03 2023-11-28
+DBI::dbGetQuery(db$con, "
+  SELECT count(v.visit_occurrence_id) * 1.0 / count(*) AS linked_share
+  FROM ohdsi_cdm_202511.drug_exposure d
+  LEFT JOIN ohdsi_cdm_202511.visit_occurrence v
+    ON d.visit_occurrence_id = v.visit_occurrence_id")
 ```
 
-### Delete a cohort
-
-```{r, eval=FALSE}
-delete_cohort(db$con, cohort_id = 1, cohort_schema = "results_analyst")
-```
-
-## Care-site cohort options
-
-`create_caresite_cohort()` has two optional parameters for fine-tuning:
-
-### Collapse strategy
-
-```{r, eval=FALSE}
-# Default: one row per person (first visit start to last visit end)
-create_caresite_cohort(..., collapse_strategy = "person_span")
-
-# Alternative: one row per visit (multiple cohort entries per person)
-create_caresite_cohort(..., collapse_strategy = "visit_occurrence")
-```
-
-`person_span` is the default and recommended for Syrona extraction - it produces one cohort window per person, which is the standard expectation.
-
-`visit_occurrence` keeps each visit as a separate entry. This can be useful for visit-level analyses but means a person may have multiple overlapping windows.
-
-### Observation period clipping
-
-```{r, eval=FALSE}
-# Default: clip to observation period overlap
-create_caresite_cohort(..., restrict_to_observation = TRUE)
-
-# Skip clipping (use raw visit dates)
-create_caresite_cohort(..., restrict_to_observation = FALSE)
-```
-
-Clipping ensures that the cohort window doesn't extend beyond the person's known observation period. This prevents counting events that happened outside the data capture window.
-
-## How cohort filtering works
-
-When `extract_all()` receives a `cohort_id`, it calls `apply_cohort_filter()` which modifies the CDM table references:
-
--   **person**: filtered to cohort members only
--   **observation_period**: clipped to the intersection of observation period and cohort window (affects the ACHILLES-116 denominator)
--   **death**: restricted to deaths within the cohort window
--   **condition_occurrence, procedure_occurrence, drug_exposure**: events restricted to within the cohort window
-
-This means all downstream extraction functions (denominators, prevalence, chapters, attributes) automatically operate on the filtered population without any changes to their logic.
-
-## Compatibility with other OHDSI tools
-
-The cohort table created by Syrona follows the standard OHDSI schema, so it is compatible with:
-
--   **CohortDiagnostics** - for cohort validation and diagnostics
--   **FeatureExtraction** - for baseline characterization
--   **CohortConstructor** - for matching and cohort operations
+Repeat with `condition_occurrence` and `procedure_occurrence`. A share close to 0 means that domain will be empty or nearly empty for every care site.

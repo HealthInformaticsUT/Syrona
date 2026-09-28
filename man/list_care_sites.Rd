@@ -17,5 +17,6 @@ list_care_sites(con, cdm_schema, min_patients = 100)
 A tibble with \code{care_site_id}, \code{care_site_name}, \code{n_patients}.
 }
 \description{
-Useful for identifying \code{care_site_id} values before creating cohorts.
+Use it to choose a \code{care_site_id} for
+\code{extract_all(..., care_site_id = )}.
 }

@@ -41,7 +41,6 @@ Before you start, make sure you have:
   `data/comparisons/`. Defaults to `getwd()`.
 
 If you do not have a writable schema, ask your DB admin to create one.
-Without it, `create_caresite_cohort()` and some extractions will fail.
 
 ### Finding your schemas
 
@@ -155,8 +154,7 @@ If your CDM is a local DuckDB file, replace step 1 with:
 db <- syrona_connect("path/to/omop.duckdb")
 ```
 
-The file is opened writable, so you can create cohort tables in the same
-file. Everything else in this walkthrough works identically.
+Everything else in this walkthrough works identically.
 
 ## Step 2 - Explore care sites
 
@@ -178,51 +176,26 @@ list_care_sites(db$con, cdm_schema = "ohdsi_cdm_202511")
 Pick two `care_site_id` values you want to compare. For this walkthrough
 we'll use `101` (Central Hospital) and `205` (University Clinic).
 
-## Step 3 - Create two cohorts
+## Step 3 - Check the visit links
 
-A cohort tells Syrona which subset of persons to extract data for, and
-clips events to each person's window in that cohort. For care-site
-comparisons, the window runs from each person's first visit at that
-hospital to their last visit (clipped to their observation period).
-
-```{r, eval=FALSE}
-create_caresite_cohort(
-  con           = db$con,
-  care_site_id  = 101,
-  cohort_id     = 1,
-  cohort_schema = "results_your_user",
-  cdm_schema    = "ohdsi_cdm_202511"
-)
-#> v Cohort 1 (care_site 101): 45000 rows inserted.
-
-create_caresite_cohort(
-  con           = db$con,
-  care_site_id  = 205,
-  cohort_id     = 2,
-  cohort_schema = "results_your_user",
-  cdm_schema    = "ohdsi_cdm_202511"
-)
-#> v Cohort 2 (care_site 205): 28000 rows inserted.
-```
-
-### Verify
+Syrona assigns an event to a care site through its `visit_occurrence_id`.
+Events without a visit link are left out, so check the share of linked
+events per domain first:
 
 ```{r, eval=FALSE}
-cohort_summary(db$con, cohort_id = 1, cohort_schema = "results_your_user")
-#> # A tibble: 1 x 5
-#>   cohort_definition_id n_entries n_persons min_start  max_end
-#>                  <int>     <int>     <int> <date>     <date>
-#> 1                    1     45000     45000 2012-01-03 2019-12-28
-
-cohort_summary(db$con, cohort_id = 2, cohort_schema = "results_your_user")
+DBI::dbGetQuery(db$con, "
+  SELECT count(v.visit_occurrence_id) * 1.0 / count(*) AS linked_share
+  FROM ohdsi_cdm_202511.condition_occurrence c
+  LEFT JOIN ohdsi_cdm_202511.visit_occurrence v
+    ON c.visit_occurrence_id = v.visit_occurrence_id")
+#>   linked_share
+#> 1         0.97
 ```
 
-`n_persons` should match the `n_patients` you saw in `list_care_sites()`.
-If it does not, something went wrong - usually a wrong `care_site_id`,
-or `restrict_to_observation = TRUE` (the default) clipped people who
-have visits but no observation period overlap.
+Repeat with `procedure_occurrence` and `drug_exposure`. A share close to 0
+means that domain will be empty for every care site.
 
-## Step 4 - Extract the first cohort
+## Step 4 - Extract the first hospital
 
 `extract_all()` runs the full Phase 1 pipeline (denominators, demographics,
 death counts, plus prevalence + info + chapters + attributes for each
@@ -232,10 +205,9 @@ selected domain) and writes one folder of CSVs per dataset.
 extract_all(
   dataset_name  = "Central_Hospital",
   db            = db,
-  cohort_id     = 1,
-  cohort_schema = "results_your_user"
+  care_site_id  = 101
 )
-#> i Applying cohort filter (cohort_id = 1)...
+#> i Care site 101: 61230 visits, 45000 persons.
 #>
 #> -- Extracting dataset: Central_Hospital [conditions, procedures, drugs] --
 #>
@@ -252,14 +224,13 @@ extract_all(
 ```
 
 How long this takes depends on database size and network latency. A
-single care-site cohort with ~50k patients on a well-tuned PostgreSQL
+single care site with ~50k patients on a well-tuned PostgreSQL
 typically finishes in a few minutes per domain.
 
 If you only want to test the pipeline first, restrict to one domain:
 
 ```{r, eval=FALSE}
-extract_all("Central_Hospital", db = db, cohort_id = 1,
-            cohort_schema = "results_your_user",
+extract_all("Central_Hospital", db = db, care_site_id = 101,
             domains = "conditions")
 ```
 
@@ -289,16 +260,15 @@ nrow(d1$condition_info)            # number of distinct conditions
 sum(d1$demographics$patient_count) # total F+M persons
 ```
 
-## Step 5 - Extract the second cohort
+## Step 5 - Extract the second hospital
 
-Same call, different `cohort_id` and `dataset_name`:
+Same call, different `care_site_id` and `dataset_name`:
 
 ```{r, eval=FALSE}
 extract_all(
   dataset_name  = "University_Clinic",
   db            = db,
-  cohort_id     = 2,
-  cohort_schema = "results_your_user"
+  care_site_id  = 205
 )
 ```
 
@@ -389,10 +359,6 @@ cause is a wrong working directory - see Troubleshooting below.
 When you are done:
 
 ```{r, eval=FALSE}
-# Optional: drop the cohorts you created
-delete_cohort(db$con, cohort_id = 1, cohort_schema = "results_your_user")
-delete_cohort(db$con, cohort_id = 2, cohort_schema = "results_your_user")
-
 # Always disconnect from the database
 syrona_disconnect(db)
 ```
@@ -457,12 +423,10 @@ DBI::dbGetQuery(db$con,
    ORDER BY table_name")
 ```
 
-### "Cohort 1: 0 rows inserted"
+### "Care site 101 has no visits"
 
-Either the `care_site_id` does not exist, or none of its visits overlap
-with any observation period. Re-run `list_care_sites()` to confirm the
-ID, and try `restrict_to_observation = FALSE` to see if observation
-period clipping is the issue.
+The `care_site_id` has no rows in `visit_occurrence`. Re-run
+`list_care_sites()` to confirm the ID.
 
 ### `extract_all()` is very slow
 
@@ -490,5 +454,5 @@ Or set the environment variable `SYRONA_DATA_DIR` before starting R.
   per-domain extraction details
 - [a02_comparison](a02_comparison.html) - the meta-analysis cascade and
   output column reference
-- [a03_cohorts](a03_cohorts.html) - more cohort patterns, including
-  cohorts loaded from local data frames
+- [a03_cohorts](a03_cohorts.html) - cohorts from ATLAS and other OHDSI
+  tools, and what a care-site dataset contains

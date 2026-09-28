@@ -100,18 +100,19 @@ run_app()
 - **Procedures** - SNOMED concepts, chapters by method / by site
 - **Drugs** - rolled up to Ingredient level, ATC 1st level chapters
 
-## OHDSI cohort support
+## Cohorts and hospitals
 
-Extract subpopulations using standard OHDSI cohort tables:
+Extract a subpopulation instead of the whole database:
 
 ```r
-# Create a care-site cohort
-create_caresite_cohort(con, care_site_id = 101, cohort_id = 1,
-                       cohort_schema = "results", cdm_schema = "cdm")
+# One hospital (care site): persons with a visit there, events recorded there
+extract_all("Hospital_A", db = db, care_site_id = 101)
 
-# Extract only that cohort
-extract_all("Hospital_A", db = db, cohort_id = 1, cohort_schema = "results")
+# A cohort generated in ATLAS, read from the results schema
+extract_all("My_cohort", db = db, cohort_id = 2031, cohort_schema = "results")
 ```
+
+`list_care_sites(db$con, cdm_schema = "cdm")` lists the care sites. See the vignette *OHDSI Cohort Workflows*.
 
 ## Dependencies
 

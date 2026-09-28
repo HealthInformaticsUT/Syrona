@@ -4,10 +4,10 @@
 # DuckDB test works on a temporary copy of GiBleed.
 #
 #   get_test_db()        read-only DuckDB copy, for extraction tests
-#   get_test_db_write()  writable DuckDB copy with a "results" schema, for cohort tests
+#   get_test_db_write()  writable DuckDB copy with a "results" schema
 #   get_test_pg()        PostgreSQL as "reader" (read-only CDM) or "owner" (all rights)
 #   snapshot_schema()    every table in a schema with its row count
-#   add_caresite_fixture()  care sites 101 and 102 on a writable copy
+#   add_visit_link_fixture()  care sites 101 and 102, events linked to their visits
 #   KNOWN_GIBLEED        known answers for extract_all() on GiBleed
 #
 # Database tests are skipped on CRAN and when no test database is configured.
@@ -63,7 +63,7 @@ get_test_db <- function(prepare = NULL) {
 #' Writable DuckDB copy of GiBleed with a separate "results" schema,
 #' connected with syrona_connect(). For cohort tests.
 #' `prepare` is an optional function(con) run on the copy before connecting
-#' (for example add_caresite_fixture).
+#' (for example add_visit_link_fixture).
 get_test_db_write <- function(prepare = NULL) {
   tmp_path <- copy_gibleed()
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = tmp_path)
@@ -134,19 +134,6 @@ snapshot_schema <- function(con, schema) {
       DBI::dbQuoteIdentifier(con, DBI::Id(schema = schema, table = t))))$n)
   }, numeric(1))
   data.frame(table = tabs, rows = unname(rows))
-}
-
-# ── Care-site fixture ────────────────────────────────────────────────────────
-# GiBleed has no care sites. This adds site 101 (61 persons, 77 visits) and
-# site 102 (30 persons). Use as get_test_db_write(prepare = add_caresite_fixture).
-add_caresite_fixture <- function(con) {
-  DBI::dbExecute(con, "INSERT INTO care_site (care_site_id, care_site_name) VALUES (101, 'Site A'), (102, 'Site B')")
-  DBI::dbExecute(con, "UPDATE visit_occurrence SET care_site_id = 101 WHERE person_id IN
-                        (SELECT DISTINCT person_id FROM visit_occurrence ORDER BY person_id LIMIT 60)")
-  DBI::dbExecute(con, "UPDATE visit_occurrence SET care_site_id = 102 WHERE person_id IN
-                        (SELECT DISTINCT person_id FROM visit_occurrence ORDER BY person_id LIMIT 30 OFFSET 60)")
-  DBI::dbExecute(con, "UPDATE visit_occurrence SET care_site_id = 101 WHERE person_id = 2894")
-  invisible(TRUE)
 }
 
 # ── Known answers: extract_all() on GiBleed, save = FALSE ────────────────────

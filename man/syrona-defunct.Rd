@@ -3,9 +3,15 @@
 \name{syrona-defunct}
 \alias{syrona-defunct}
 \alias{insert_cohort}
+\alias{create_caresite_cohort}
+\alias{delete_cohort}
 \title{Defunct functions in syrona}
 \usage{
 insert_cohort(...)
+
+create_caresite_cohort(...)
+
+delete_cohort(...)
 }
 \arguments{
 \item{...}{Ignored.}
@@ -22,6 +28,10 @@ message that explains what to use instead.
   \item \code{insert_cohort()}: use a cohort that already exists in the
     database, e.g. one generated in ATLAS:
     \code{extract_all(name, db, cohort_id = , cohort_schema = )}.
+  \item \code{create_caresite_cohort()}: extract one care site with
+    \code{extract_all(name, db, care_site_id = )}.
+  \item \code{delete_cohort()}: Syrona creates no cohort tables, so there is
+    nothing of its own to delete.
 }
 }
 \keyword{internal}
