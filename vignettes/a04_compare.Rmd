@@ -1,0 +1,44 @@
+---
+title: "Compare and explore"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Compare and explore}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`compare_all()` compares two extracted datasets, see `vignette("a02_extract")`. It needs no database connection.
+
+## Settings
+
+```{r settings, eval=FALSE}
+library(syrona)
+
+data_dir <- "path/to/syrona_output"  # the folder with your extracted datasets
+options(syrona.data_dir = data_dir)
+```
+
+## Compare
+
+```{r, eval=FALSE}
+compare_all("Dataset_A", "Dataset_B")
+```
+
+The result is saved in `data/comparisons/Dataset_A_vs_Dataset_B/`. To compare the same two datasets again, add `overwrite = TRUE`.
+
+For each concept, `log2_pr` is the log2 prevalence ratio of Dataset_B to Dataset_A: 1 means twice as common in Dataset_B, -1 half as common. The final result per concept is in `condition_meta_summary` (and `procedure_`, `drug_`). How it is calculated: `vignette("a05_methods")`.
+
+## Explore
+
+```{r, eval=FALSE}
+run_app(data_dir = data_dir)
+```
+
+If the dashboard lists no comparisons, `data_dir` is not the folder that contains `data/comparisons/`.

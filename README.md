@@ -26,15 +26,14 @@ run_app(data_dir = dir)
 
 ### B. I have my own OMOP CDM and want to compare two cohorts
 
-Install the package and follow the end-to-end walkthrough:
+Install the package and start with the whole path in one page:
 
 ```r
 install.packages("syrona")
 ```
 
-Then read [`vignette("a04_walkthrough", package = "syrona")`](vignettes/a04_walkthrough.Rmd)
-which takes you from "I have a remote OMOP CDM" to "the dashboard is
-showing my comparison" with verification at every step.
+Then read [`vignette("a00_get_started", package = "syrona")`](vignettes/a00_get_started.Rmd):
+connect, extract, compare and explore, each step in its own vignette after that.
 
 ### C. I already have extracted syrona data
 

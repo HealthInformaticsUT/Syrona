@@ -15,10 +15,8 @@ articles:
       - a00_get_started
       - a01_connect
       - a02_extract
-  - title: Analysis
-    contents:
-      - a02_comparison
       - a03_cohorts
+      - a04_compare
 
 reference:
   - title: Connection
