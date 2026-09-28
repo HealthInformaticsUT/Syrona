@@ -42,14 +42,16 @@ The most common use case: compare hospitals within the same OMOP CDM database. `
 ```{r, eval=FALSE}
 library(syrona)
 
+cdm_schema <- "cdm"   # change to your CDM schema
+
 db <- syrona_connect_pg(
   dbname = "omop",
   user = "analyst",
-  cdm_schema = "ohdsi_cdm_202511"
+  cdm_schema = cdm_schema
 )
 
 # Find available care sites
-list_care_sites(db$con, cdm_schema = "ohdsi_cdm_202511")
+list_care_sites(db$con, cdm_schema = cdm_schema)
 #>   care_site_id    care_site_name  n_patients
 #> 1          101   Central Hospital      45000
 #> 2          205   University Clinic     28000
@@ -75,9 +77,9 @@ Events with no `visit_occurrence_id`, or one that points to no visit, cannot be 
 ```{r, eval=FALSE}
 DBI::dbGetQuery(db$con, "
   SELECT count(v.visit_occurrence_id) * 1.0 / count(*) AS linked_share
-  FROM ohdsi_cdm_202511.drug_exposure d
-  LEFT JOIN ohdsi_cdm_202511.visit_occurrence v
+  FROM cdm.drug_exposure d
+  LEFT JOIN cdm.visit_occurrence v
     ON d.visit_occurrence_id = v.visit_occurrence_id")
 ```
 
-Repeat with `condition_occurrence` and `procedure_occurrence`. A share close to 0 means that domain will be empty or nearly empty for every care site.
+Replace `cdm` with your CDM schema, and repeat with `condition_occurrence` and `procedure_occurrence`. A share close to 0 means that domain will be empty or nearly empty for every care site.

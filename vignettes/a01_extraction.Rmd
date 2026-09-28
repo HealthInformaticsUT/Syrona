@@ -38,13 +38,15 @@ Syrona connects through `CDMConnector`. A production OMOP CDM is normally a Post
 ```{r, eval=FALSE}
 library(syrona)
 
+cdm_schema <- "cdm"   # change to your CDM schema
+
 # Direct connection
 db <- syrona_connect_pg(
   host = "db-server.example.com",
   dbname = "omop",
   user = "analyst",
-  cdm_schema = "cdm",
-  write_schema = "results_analyst"
+  cdm_schema = cdm_schema,
+  write_schema = "results"
 )
 
 # Via SSH tunnel (start tunnel first: ssh -L 5432:localhost:5432 user@server)
@@ -52,8 +54,8 @@ db <- syrona_connect_pg(
   host = "localhost",
   dbname = "omop",
   user = "analyst",
-  cdm_schema = "ohdsi_cdm_202511",
-  write_schema = "results_analyst"
+  cdm_schema = cdm_schema,
+  write_schema = "results"
 )
 ```
 

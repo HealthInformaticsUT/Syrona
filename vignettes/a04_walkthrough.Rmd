@@ -45,7 +45,7 @@ If you do not have a writable schema, ask your DB admin to create one.
 ### Finding your schemas
 
 OMOP databases typically have multiple schemas - for example, different
-CDM versions (`ohdsi_cdm_202410`, `ohdsi_cdm_202503`) or per-user
+CDM versions (`cdm_2024`, `cdm_2025`) or per-user
 results schemas. You may not have access to all of them.
 
 To discover what is available, connect to the database with `psql` via
@@ -79,7 +79,7 @@ ask your DB admin to grant you one.
 
 **Why are there multiple CDM schemas?** Each schema contains the same
 OMOP CDM table structure but with different data - for instance,
-different data refresh dates (`ohdsi_cdm_202410` vs `ohdsi_cdm_202503`),
+different data refresh dates (`cdm_2024` vs `cdm_2025`),
 different hospital sites, or different access levels. Your user account
 may have read access to some but not all of them. A "permission denied
 for schema" error usually means that schema exists but your account has
@@ -104,13 +104,15 @@ Then, in R:
 ```{r, eval=FALSE}
 library(syrona)
 
+cdm_schema <- "cdm"   # change to your CDM schema, see "Finding your schemas"
+
 db <- syrona_connect_pg(
   host         = "localhost",        # via the SSH tunnel
   port         = 5432,
   dbname       = "omop",
   user         = "your_user",
-  cdm_schema   = "ohdsi_cdm_202511", # ask your DB admin if unsure
-  write_schema = "results_your_user" # must be writable
+  cdm_schema   = cdm_schema,
+  write_schema = "results"           # must be writable
 )
 ```
 
@@ -119,11 +121,14 @@ If you do not pass `password`, `syrona_connect_pg()` will look in your
 set in `~/.Renviron`). Setting up `.pgpass` is the cleanest way to keep
 credentials out of your R history.
 
+The SQL examples in this walkthrough use the schema name `cdm`. Replace it
+with your CDM schema.
+
 ### Verify
 
 ```{r, eval=FALSE}
 # A quick row count on person - confirms your connection and schema access
-DBI::dbGetQuery(db$con, "SELECT COUNT(*) FROM ohdsi_cdm_202511.person")
+DBI::dbGetQuery(db$con, "SELECT COUNT(*) FROM cdm.person")
 ```
 
 **Note:** `DBI::dbListTables(db$con)` will likely return `character(0)`
@@ -134,7 +139,7 @@ use:
 ```{r, eval=FALSE}
 DBI::dbGetQuery(db$con,
   "SELECT table_name FROM information_schema.tables
-   WHERE table_schema = 'ohdsi_cdm_202511'
+   WHERE table_schema = 'cdm'
    ORDER BY table_name")
 ```
 
@@ -163,7 +168,7 @@ patients (configurable via `min_patients`). Use it to pick two
 populations to compare:
 
 ```{r, eval=FALSE}
-list_care_sites(db$con, cdm_schema = "ohdsi_cdm_202511")
+list_care_sites(db$con, cdm_schema = cdm_schema)
 #> # A tibble: 8 x 3
 #>   care_site_id care_site_name        n_patients
 #>          <int> <chr>                      <int>
@@ -185,8 +190,8 @@ events per domain first:
 ```{r, eval=FALSE}
 DBI::dbGetQuery(db$con, "
   SELECT count(v.visit_occurrence_id) * 1.0 / count(*) AS linked_share
-  FROM ohdsi_cdm_202511.condition_occurrence c
-  LEFT JOIN ohdsi_cdm_202511.visit_occurrence v
+  FROM cdm.condition_occurrence c
+  LEFT JOIN cdm.visit_occurrence v
     ON c.visit_occurrence_id = v.visit_occurrence_id")
 #>   linked_share
 #> 1         0.97
@@ -407,19 +412,19 @@ admin to grant:
 ```sql
 GRANT USAGE ON SCHEMA cdm TO your_user;
 GRANT SELECT ON ALL TABLES IN SCHEMA cdm TO your_user;
-GRANT ALL ON SCHEMA results_your_user TO your_user;
+GRANT ALL ON SCHEMA results TO your_user;
 ```
 
 ### `dbListTables()` returns empty
 
 This is expected. `DBI::dbListTables()` only lists tables in the
 default `public` schema. OMOP tables live in a named schema like
-`ohdsi_cdm_202511`. Use an explicit query instead:
+`cdm`. Use an explicit query instead:
 
 ```{r, eval=FALSE}
 DBI::dbGetQuery(db$con,
   "SELECT table_name FROM information_schema.tables
-   WHERE table_schema = 'ohdsi_cdm_202511'
+   WHERE table_schema = 'cdm'
    ORDER BY table_name")
 ```
 

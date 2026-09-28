@@ -59,13 +59,15 @@ remotes::install_github("HealthInformaticsUT/Syrona")
 ```{r, eval=FALSE}
 library(syrona)
 
+cdm_schema <- "cdm"   # change to your CDM schema
+
 # PostgreSQL (the typical production CDM; e.g. via SSH tunnel).
 # Omit `password` and set PGPASSWORD in ~/.Renviron, or use ~/.pgpass.
 db <- syrona_connect_pg(
   dbname = "omop",
   user = "analyst",
-  cdm_schema = "cdm",
-  write_schema = "results_analyst"
+  cdm_schema = cdm_schema,
+  write_schema = "results"
 )
 
 # Or a local DuckDB file
