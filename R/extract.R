@@ -167,6 +167,16 @@ apply_care_site_filter <- function(db, care_site_id,
   db
 }
 
+# ── Temporary tables ────────────────────────────────────────────────────────
+
+# Small lookup lists (years, concept ids) are copied into temporary tables so
+# the joins run in the database. Each name is unique to the call, so no
+# existing table can be replaced, and only that table is removed afterwards.
+# tempfile() gives the unique part without touching the random number seed.
+.temp_table_name <- function(label) {
+  paste0("syrona_tmp_", label, "_", basename(tempfile("")))
+}
+
 # ── Shared extractors ───────────────────────────────────────────────────────
 
 #' Extract the ACHILLES-116 denominator: persons observed per year x sex x age group.
@@ -183,7 +193,8 @@ extract_denominators <- function(cdm) {
 
   years_df <- tibble::tibble(obs_year = seq(year_range$min_year, year_range$max_year))
   con <- CDMConnector::cdmCon(cdm)
-  years_tbl <- dplyr::copy_to(con, years_df, name = "syrona_years", overwrite = TRUE)
+  tmp_name <- .temp_table_name("years")
+  years_tbl <- dplyr::copy_to(con, years_df, name = tmp_name, temporary = TRUE)
 
   denom <- cdm$observation_period |>
     dplyr::inner_join(cdm$person, by = "person_id") |>
@@ -215,7 +226,7 @@ extract_denominators <- function(cdm) {
     ) |>
     dplyr::select("year", "sex", "age_group", "denominator")
 
-  try(DBI::dbRemoveTable(con, "syrona_years"), silent = TRUE)
+  try(DBI::dbRemoveTable(con, tmp_name), silent = TRUE)
   denom
 }
 
@@ -378,7 +389,8 @@ extract_condition_chapters <- function(cdm, condition_ids) {
   con <- CDMConnector::cdmCon(cdm)
 
   ids_df <- tibble::tibble(concept_id = as.integer(condition_ids))
-  ids_tbl <- dplyr::copy_to(con, ids_df, name = "syrona_cond_ids", overwrite = TRUE)
+  tmp_name <- .temp_table_name("cond_ids")
+  ids_tbl <- dplyr::copy_to(con, ids_df, name = tmp_name, temporary = TRUE)
 
   # Helper: get L1 + L2 chapter assignments for a given root
   get_chapters_for_root <- function(root_id, chapter_type, exclude_id = NULL) {
@@ -535,7 +547,7 @@ extract_condition_chapters <- function(cdm, condition_ids) {
   cli::cli_alert_info("ICD-10 chapters...")
   icd10_chap <- get_icd10_chapters()
 
-  try(DBI::dbRemoveTable(con, "syrona_cond_ids"), silent = TRUE)
+  try(DBI::dbRemoveTable(con, tmp_name), silent = TRUE)
 
   coerce_ids <- function(df) {
     df |> dplyr::mutate(
@@ -556,7 +568,8 @@ extract_condition_chapters <- function(cdm, condition_ids) {
 extract_condition_attributes <- function(cdm, condition_ids) {
   con <- CDMConnector::cdmCon(cdm)
   ids_df <- tibble::tibble(concept_id = as.integer(condition_ids))
-  ids_tbl <- dplyr::copy_to(con, ids_df, name = "syrona_cond_ids_attr", overwrite = TRUE)
+  tmp_name <- .temp_table_name("cond_ids_attr")
+  ids_tbl <- dplyr::copy_to(con, ids_df, name = tmp_name, temporary = TRUE)
 
   all_attrs <- cdm$concept_relationship |>
     dplyr::inner_join(ids_tbl, by = c("concept_id_1" = "concept_id")) |>
@@ -571,7 +584,7 @@ extract_condition_attributes <- function(cdm, condition_ids) {
     ) |>
     dplyr::collect()
 
-  try(DBI::dbRemoveTable(con, "syrona_cond_ids_attr"), silent = TRUE)
+  try(DBI::dbRemoveTable(con, tmp_name), silent = TRUE)
 
   rel_map <- stats::setNames(names(CONDITION_RELATIONSHIPS), unname(CONDITION_RELATIONSHIPS))
 
@@ -674,7 +687,8 @@ extract_procedure_info <- function(cdm) {
 extract_procedure_chapters <- function(cdm, procedure_ids) {
   con <- CDMConnector::cdmCon(cdm)
   ids_df <- tibble::tibble(concept_id = as.integer(procedure_ids))
-  ids_tbl <- dplyr::copy_to(con, ids_df, name = "syrona_proc_ids", overwrite = TRUE)
+  tmp_name <- .temp_table_name("proc_ids")
+  ids_tbl <- dplyr::copy_to(con, ids_df, name = tmp_name, temporary = TRUE)
 
   get_chapters_for_root <- function(root_id, chapter_type) {
     l1_chapters <- cdm$concept_ancestor |>
@@ -732,7 +746,7 @@ extract_procedure_chapters <- function(cdm, procedure_ids) {
   cli::cli_alert_info("Procedure chapters by site...")
   by_site <- get_chapters_for_root(PROCEDURE_CHAPTER_ROOTS$by_site, "by_site")
 
-  try(DBI::dbRemoveTable(con, "syrona_proc_ids"), silent = TRUE)
+  try(DBI::dbRemoveTable(con, tmp_name), silent = TRUE)
 
   coerce_ids <- function(df) {
     df |> dplyr::mutate(
@@ -753,7 +767,8 @@ extract_procedure_chapters <- function(cdm, procedure_ids) {
 extract_procedure_attributes <- function(cdm, procedure_ids) {
   con <- CDMConnector::cdmCon(cdm)
   ids_df <- tibble::tibble(concept_id = as.integer(procedure_ids))
-  ids_tbl <- dplyr::copy_to(con, ids_df, name = "syrona_proc_ids_attr", overwrite = TRUE)
+  tmp_name <- .temp_table_name("proc_ids_attr")
+  ids_tbl <- dplyr::copy_to(con, ids_df, name = tmp_name, temporary = TRUE)
 
   all_attrs <- cdm$concept_relationship |>
     dplyr::inner_join(ids_tbl, by = c("concept_id_1" = "concept_id")) |>
@@ -768,7 +783,7 @@ extract_procedure_attributes <- function(cdm, procedure_ids) {
     ) |>
     dplyr::collect()
 
-  try(DBI::dbRemoveTable(con, "syrona_proc_ids_attr"), silent = TRUE)
+  try(DBI::dbRemoveTable(con, tmp_name), silent = TRUE)
 
   rel_map <- stats::setNames(names(PROCEDURE_RELATIONSHIPS), unname(PROCEDURE_RELATIONSHIPS))
 
@@ -909,7 +924,8 @@ extract_drug_info <- function(cdm) {
 extract_drug_chapters <- function(cdm, drug_ids) {
   con <- CDMConnector::cdmCon(cdm)
   ids_df <- tibble::tibble(concept_id = as.integer(drug_ids))
-  ids_tbl <- dplyr::copy_to(con, ids_df, name = "syrona_drug_ids", overwrite = TRUE)
+  tmp_name <- .temp_table_name("drug_ids")
+  ids_tbl <- dplyr::copy_to(con, ids_df, name = tmp_name, temporary = TRUE)
 
   atc_chapters <- cdm$concept |>
     dplyr::filter(.data$vocabulary_id == ATC_CHAPTER_VOCAB,
@@ -951,7 +967,7 @@ extract_drug_chapters <- function(cdm, drug_ids) {
     mapped <- dplyr::bind_rows(mapped, unmapped_rows)
   }
 
-  try(DBI::dbRemoveTable(con, "syrona_drug_ids"), silent = TRUE)
+  try(DBI::dbRemoveTable(con, tmp_name), silent = TRUE)
   mapped |> dplyr::arrange(.data$chapter_type, .data$chapter_name, .data$concept_id)
 }
 
