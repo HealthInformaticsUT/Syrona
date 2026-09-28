@@ -80,7 +80,7 @@ db <- syrona_connect("path/to/omop.duckdb")
 tables <- extract_all("Dataset_A", db = db)
 
 # Or a single domain (faster for large databases)
-tables <- extract_all("Dataset_A", db = db, domains = "conditions")
+tables <- extract_all("Dataset_A_conditions", db = db, domains = "conditions")
 ```
 
 ### 3. Compare two datasets

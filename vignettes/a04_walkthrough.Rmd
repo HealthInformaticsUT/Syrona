@@ -230,12 +230,16 @@ How long this takes depends on database size and network latency. A
 single care site with ~50k patients on a well-tuned PostgreSQL
 typically finishes in a few minutes per domain.
 
-If you only want to test the pipeline first, restrict to one domain:
+If you only want to test the pipeline first, restrict to one domain and
+use a test name:
 
 ```{r, eval=FALSE}
-extract_all("Central_Hospital", db = db, care_site_id = 101,
+extract_all("Central_Hospital_test", db = db, care_site_id = 101,
             domains = "conditions")
 ```
+
+Extracting again under a name that already exists stops with a message.
+Add `overwrite = TRUE` to replace it.
 
 ### Verify
 

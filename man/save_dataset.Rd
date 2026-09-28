@@ -9,7 +9,8 @@ save_dataset(
   dataset_name,
   db_path = NA_character_,
   care_site_id = NULL,
-  cohort = NULL
+  cohort = NULL,
+  overwrite = FALSE
 )
 }
 \arguments{
@@ -24,6 +25,9 @@ save_dataset(
 \item{cohort}{The cohort used, as a named list (\code{cohort_id}, \code{cohort_schema},
 \code{cohort_table}, \code{cohort_entries}, \code{cohort_persons}), or \code{NULL}.
 Stored in metadata when used.}
+
+\item{overwrite}{If \code{TRUE}, Syrona's files already in the folder are
+removed first. Other files in the folder are kept.}
 }
 \description{
 Save extracted tables to CSV.

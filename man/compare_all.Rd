@@ -8,7 +8,8 @@ compare_all(
   d1_name,
   d2_name,
   domains = c("conditions", "procedures", "drugs"),
-  save = TRUE
+  save = TRUE,
+  overwrite = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,10 @@ compare_all(
 \item{domains}{Character vector of domains to compare.}
 
 \item{save}{If \code{TRUE} (default), writes CSV output.}
+
+\item{overwrite}{If this comparison was saved before: \code{FALSE} (default)
+stops before anything is compared, \code{TRUE} replaces it. Only the files
+Syrona writes are removed, other files in the folder are kept.}
 }
 \value{
 Named list of domain results (invisible).
@@ -37,7 +42,9 @@ file.copy(system.file("extdata", "demo", package = "syrona"),
 dir <- file.path(base, "demo")
 old <- options(syrona.data_dir = dir)
 # One domain keeps the example quick; drop `domains` to compare all three.
-res <- compare_all("demo_population", "demo_selected", domains = "conditions")
+# overwrite = TRUE lets the example run again in the same session.
+res <- compare_all("demo_population", "demo_selected", domains = "conditions",
+                   overwrite = TRUE)
 res$condition_meta_summary
 options(old)
 # Then explore interactively: run_app(data_dir = dir)

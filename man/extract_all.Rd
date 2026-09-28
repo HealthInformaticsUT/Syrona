@@ -12,7 +12,8 @@ extract_all(
   cohort_schema = NULL,
   save = TRUE,
   care_site_id = NULL,
-  cohort_table = NULL
+  cohort_table = NULL,
+  overwrite = FALSE
 )
 }
 \arguments{
@@ -44,6 +45,11 @@ visit link are left out. Cannot be combined with \code{cohort_id}.
 table in that schema, without it a cohort in the cdm reference (for example
 one generated with \code{CDMConnector::generateCohortSet()}). See
 \code{\link{apply_cohort_filter}}.}
+
+\item{overwrite}{If a dataset with this name was saved before: \code{FALSE}
+(default) stops before anything is extracted, \code{TRUE} replaces it.
+Only the files Syrona writes are removed, other files in the folder are
+kept.}
 }
 \value{
 Named list of tibbles matching the Syrona schema (invisible).

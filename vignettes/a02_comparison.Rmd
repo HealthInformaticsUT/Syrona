@@ -48,9 +48,21 @@ This loads both datasets, runs the 4-step pipeline for each domain present in bo
 
 ### Single domain
 
+Instead of all domains, one or two:
+
 ```{r, eval=FALSE}
 compare_all("Hospital_A", "Hospital_B", domains = "conditions")
 ```
+
+### Comparing again
+
+A saved comparison is not replaced by accident: comparing a pair that was already compared stops before anything is computed. To replace it, for example after extracting one of the datasets again, add `overwrite = TRUE`:
+
+```{r, eval=FALSE}
+compare_all("Hospital_A", "Hospital_B", overwrite = TRUE)
+```
+
+This removes the files Syrona wrote for `Hospital_A_vs_Hospital_B` first, so no file from the earlier comparison (for example `drug_meta_summary.csv`) is left behind for the dashboard. Other files you keep in that folder stay. `save = FALSE` returns the results without saving and needs no `overwrite`.
 
 ## Step-by-step usage
 

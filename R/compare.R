@@ -346,6 +346,9 @@ compare_domain <- function(d1, d2, prev_table, domain_label) {
 #' @param d2_name Name of dataset 2 (comparison).
 #' @param domains Character vector of domains to compare.
 #' @param save If \code{TRUE} (default), writes CSV output.
+#' @param overwrite If this comparison was saved before: \code{FALSE} (default)
+#'   stops before anything is compared, \code{TRUE} replaces it. Only the files
+#'   Syrona writes are removed, other files in the folder are kept.
 #' @return Named list of domain results (invisible).
 #' @examples
 #' \donttest{
@@ -357,7 +360,9 @@ compare_domain <- function(d1, d2, prev_table, domain_label) {
 #' dir <- file.path(base, "demo")
 #' old <- options(syrona.data_dir = dir)
 #' # One domain keeps the example quick; drop `domains` to compare all three.
-#' res <- compare_all("demo_population", "demo_selected", domains = "conditions")
+#' # overwrite = TRUE lets the example run again in the same session.
+#' res <- compare_all("demo_population", "demo_selected", domains = "conditions",
+#'                    overwrite = TRUE)
 #' res$condition_meta_summary
 #' options(old)
 #' # Then explore interactively: run_app(data_dir = dir)
@@ -365,8 +370,14 @@ compare_domain <- function(d1, d2, prev_table, domain_label) {
 #' @export
 compare_all <- function(d1_name, d2_name,
                         domains = c("conditions", "procedures", "drugs"),
-                        save = TRUE) {
+                        save = TRUE, overwrite = FALSE) {
   domains <- match.arg(domains, c("conditions", "procedures", "drugs"), several.ok = TRUE)
+  if (save && !isTRUE(overwrite) && length(.existing_comparison_files(d1_name, d2_name)) > 0) {
+    cli::cli_abort(c(
+      "Comparison {.val {paste0(d1_name, \"_vs_\", d2_name)}} already exists at {.path {(.comparison_dir(d1_name, d2_name))}}.",
+      "i" = "Add {.code overwrite = TRUE} to replace it."
+    ))
+  }
   cli::cli_h2("Comparing {d1_name} vs {d2_name}")
 
   cli::cli_alert("Loading datasets...")
@@ -404,7 +415,7 @@ compare_all <- function(d1_name, d2_name,
   }
 
   if (save) {
-    save_comparison(all_tables, d1_name, d2_name)
+    save_comparison(all_tables, d1_name, d2_name, overwrite = isTRUE(overwrite))
   }
 
   for (domain in names(domain_map)) {
@@ -419,15 +430,40 @@ compare_all <- function(d1_name, d2_name,
 
 # ── Save / load helpers ─────────────────────────────────────────────────────
 
+# Folder of a saved comparison
+.comparison_dir <- function(d1_name, d2_name) {
+  file.path(getOption("syrona.data_dir", "."), COMPARISONS_DIR, paste0(d1_name, "_vs_", d2_name))
+}
+
+# Every file save_comparison() can write. Only these are ever removed.
+.comparison_files <- function() {
+  domain_tables <- c("yearly", "meta_summary", "meta_agegroups", "meta_by_sex")
+  paste0(c("_metadata",
+           paste0(rep(c("condition", "procedure", "drug"), each = length(domain_tables)),
+                  "_", domain_tables)), ".csv")
+}
+
+# Syrona's files already in a comparison folder
+.existing_comparison_files <- function(d1_name, d2_name) {
+  intersect(list.files(.comparison_dir(d1_name, d2_name)), .comparison_files())
+}
+
 #' Save comparison tables to CSV.
 #' @param tables Named list of tibbles.
 #' @param d1_name Dataset 1 name.
 #' @param d2_name Dataset 2 name.
+#' @param overwrite If \code{TRUE}, Syrona's files already in the folder are
+#'   removed first. Other files in the folder are kept.
 #' @keywords internal
-save_comparison <- function(tables, d1_name, d2_name) {
-  dir_name <- paste0(d1_name, "_vs_", d2_name)
-  base <- getOption("syrona.data_dir", ".")
-  out_dir <- file.path(base, COMPARISONS_DIR, dir_name)
+save_comparison <- function(tables, d1_name, d2_name, overwrite = FALSE) {
+  out_dir <- .comparison_dir(d1_name, d2_name)
+  existing <- .existing_comparison_files(d1_name, d2_name)
+  if (length(existing) > 0) {
+    if (!overwrite) {
+      cli::cli_abort("Comparison {.path {out_dir}} already exists.")
+    }
+    unlink(file.path(out_dir, existing))
+  }
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
   nrow_or <- function(name) if (!is.null(tables[[name]])) nrow(tables[[name]]) else 0L

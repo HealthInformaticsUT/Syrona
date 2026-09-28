@@ -83,14 +83,24 @@ This extracts conditions, procedures, and drugs. Results are saved to `data/sour
 
 ```{r, eval=FALSE}
 # Conditions only (fastest)
-tables <- extract_all("Dataset_A", db = db, domains = "conditions")
+tables <- extract_all("Dataset_A_conditions", db = db, domains = "conditions")
 
 # Drugs only
-tables <- extract_all("Dataset_A", db = db, domains = "drugs")
+tables <- extract_all("Dataset_A_drugs", db = db, domains = "drugs")
 
 # Conditions + procedures (no drugs)
-tables <- extract_all("Dataset_A", db = db, domains = c("conditions", "procedures"))
+tables <- extract_all("Dataset_A_no_drugs", db = db, domains = c("conditions", "procedures"))
 ```
+
+### Extracting again under the same name
+
+A saved dataset is not replaced by accident: extracting into a name that already exists stops before anything is extracted. To replace it, add `overwrite = TRUE`:
+
+```{r, eval=FALSE}
+tables <- extract_all("Dataset_A", db = db, domains = "conditions", overwrite = TRUE)
+```
+
+This removes the files Syrona wrote for `Dataset_A` first, so no file from the earlier extraction (for example `drug_prevalence.csv`) is left behind. Other files you keep in that folder stay.
 
 ### Shorthand: pass a DuckDB path directly
 

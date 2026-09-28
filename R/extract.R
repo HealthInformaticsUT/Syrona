@@ -1165,19 +1165,45 @@ apply_k_anonymity <- function(tables, k = K_ANONYMITY) {
 
 # ── Save / load helpers ─────────────────────────────────────────────────────
 
+# Folder of a saved dataset
+.dataset_dir <- function(dataset_name) {
+  file.path(getOption("syrona.data_dir", "."), SOURCES_DIR, dataset_name)
+}
+
+# Every file save_dataset() can write. Only these are ever removed.
+.dataset_files <- function() {
+  domain_tables <- c("prevalence", "info", "chapters", "attributes", "rare")
+  paste0(c("_metadata", "demographics", "death_counts", "denominator",
+           paste0(rep(c("condition", "procedure", "drug"), each = length(domain_tables)),
+                  "_", domain_tables)), ".csv")
+}
+
+# Syrona's files already in a dataset folder
+.existing_dataset_files <- function(dataset_name) {
+  intersect(list.files(.dataset_dir(dataset_name)), .dataset_files())
+}
+
 #' Save extracted tables to CSV.
 #' @param tables Named list of tibbles.
 #' @param dataset_name Short label for the dataset.
 #' @param db_path Database path (stored in metadata).
 #' @param care_site_id The care site used, or \code{NULL} (stored in metadata when used).
+#' @param overwrite If \code{TRUE}, Syrona's files already in the folder are
+#'   removed first. Other files in the folder are kept.
 #' @param cohort The cohort used, as a named list (\code{cohort_id}, \code{cohort_schema},
 #'   \code{cohort_table}, \code{cohort_entries}, \code{cohort_persons}), or \code{NULL}.
 #'   Stored in metadata when used.
 #' @keywords internal
 save_dataset <- function(tables, dataset_name, db_path = NA_character_,
-                         care_site_id = NULL, cohort = NULL) {
-  base <- getOption("syrona.data_dir", ".")
-  out_dir <- file.path(base, SOURCES_DIR, dataset_name)
+                         care_site_id = NULL, cohort = NULL, overwrite = FALSE) {
+  out_dir <- .dataset_dir(dataset_name)
+  existing <- .existing_dataset_files(dataset_name)
+  if (length(existing) > 0) {
+    if (!overwrite) {
+      cli::cli_abort("Dataset {.val {dataset_name}} already exists at {.path {out_dir}}.")
+    }
+    unlink(file.path(out_dir, existing))
+  }
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
   nrow_or <- function(name) if (!is.null(tables[[name]])) nrow(tables[[name]]) else 0L
@@ -1326,12 +1352,17 @@ list_datasets <- function() {
 #'   table in that schema, without it a cohort in the cdm reference (for example
 #'   one generated with \code{CDMConnector::generateCohortSet()}). See
 #'   \code{\link{apply_cohort_filter}}.
+#' @param overwrite If a dataset with this name was saved before: \code{FALSE}
+#'   (default) stops before anything is extracted, \code{TRUE} replaces it.
+#'   Only the files Syrona writes are removed, other files in the folder are
+#'   kept.
 #' @return Named list of tibbles matching the Syrona schema (invisible).
 #' @export
 extract_all <- function(dataset_name, db,
                         domains = c("conditions", "procedures", "drugs"),
                         cohort_id = NULL, cohort_schema = NULL,
-                        save = TRUE, care_site_id = NULL, cohort_table = NULL) {
+                        save = TRUE, care_site_id = NULL, cohort_table = NULL,
+                        overwrite = FALSE) {
   stopifnot(
     is.character(dataset_name), length(dataset_name) == 1, nchar(dataset_name) > 0,
     !grepl("[/\\\\]", dataset_name)
@@ -1365,6 +1396,13 @@ extract_all <- function(dataset_name, db,
     cli::cli_abort(c(
       "{.arg cohort_schema} and {.arg cohort_table} need a {.arg cohort_id}.",
       "i" = "For example {.code extract_all(\"My_cohort\", db, cohort_id = 2031, cohort_schema = \"results\")}."
+    ))
+  }
+
+  if (save && !isTRUE(overwrite) && length(.existing_dataset_files(dataset_name)) > 0) {
+    cli::cli_abort(c(
+      "Dataset {.val {dataset_name}} already exists at {.path {(.dataset_dir(dataset_name))}}.",
+      "i" = "Use another {.arg dataset_name}, or add {.code overwrite = TRUE} to replace it."
     ))
   }
 
@@ -1445,7 +1483,8 @@ extract_all <- function(dataset_name, db,
   tables$denominator <- denom_df
 
   if (save) {
-    save_dataset(tables, dataset_name, db_path, care_site_id, attr(db, "cohort_used"))
+    save_dataset(tables, dataset_name, db_path, care_site_id, attr(db, "cohort_used"),
+                 overwrite = isTRUE(overwrite))
   }
 
   msgs <- sprintf("Dataset '%s':", dataset_name)

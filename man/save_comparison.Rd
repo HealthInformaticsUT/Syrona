@@ -4,7 +4,7 @@
 \alias{save_comparison}
 \title{Save comparison tables to CSV.}
 \usage{
-save_comparison(tables, d1_name, d2_name)
+save_comparison(tables, d1_name, d2_name, overwrite = FALSE)
 }
 \arguments{
 \item{tables}{Named list of tibbles.}
@@ -12,6 +12,9 @@ save_comparison(tables, d1_name, d2_name)
 \item{d1_name}{Dataset 1 name.}
 
 \item{d2_name}{Dataset 2 name.}
+
+\item{overwrite}{If \code{TRUE}, Syrona's files already in the folder are
+removed first. Other files in the folder are kept.}
 }
 \description{
 Save comparison tables to CSV.
