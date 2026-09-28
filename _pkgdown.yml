@@ -17,6 +17,9 @@ articles:
       - a02_extract
       - a03_cohorts
       - a04_compare
+  - title: Reference
+    contents:
+      - a05_methods
 
 reference:
   - title: Connection

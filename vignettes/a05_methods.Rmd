@@ -1,0 +1,67 @@
+---
+title: "Methods"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Methods}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+How Syrona counts and compares. A reference: none of this is needed to run Syrona.
+
+## Counting (extract)
+
+For each stratum of calendar year, sex and age group:
+
+- **Denominator**: the persons whose observation period covers any part of that year (as ACHILLES analysis 116).
+- **Numerator**: the persons with at least one record of the concept starting in that year, inside their observation period (as ACHILLES analysis 404 for conditions).
+- **Prevalence** = numerator / denominator.
+- **Deaths**: the persons who died in that year, inside their observation period (as ACHILLES analysis 504).
+
+Each person is counted once per stratum. Age is the calendar year minus the year of birth, in groups of 10 years, with 80 and older as one group. Sex is female (concept 8532) or male (8507); persons with another gender concept are not counted. Drugs are counted as their ingredients.
+
+Before saving, strata with fewer than 5 persons are left out, and a concept with fewer than 5 persons in total is left out completely.
+
+## Comparing one stratum
+
+Only strata present in both datasets, with a prevalence above 0 in both, are compared. With prevalences p1 (Dataset_A) and p2 (Dataset_B) and denominators n1 and n2:
+
+```
+log2_pr = log2(p2 / p1)
+se      = sqrt((1 - p1) / (p1 * n1) + (1 - p2) / (p2 * n2)) / ln(2)
+95% CI  = log2_pr +/- 1.96 * se
+```
+
+`fold_diff` is `2^log2_pr`. A result is significant (`sig = TRUE`) when the confidence interval does not include 0.
+
+## Pooling
+
+The strata of a concept are pooled in three steps, each a meta-analysis of the step before:
+
+```
+*_yearly          concept x year x sex x age group   one ratio per stratum
+*_meta_agegroups  concept x sex x age group          pooled over the years
+*_meta_by_sex     concept x sex                      pooled over the age groups
+*_meta_summary    concept                            pooled over both sexes (sex = "Both")
+```
+
+Each pooling uses:
+
+1. One stratum: taken as it is (`meta_model_type = "Pass-Through"`).
+2. Several strata: a random-effects meta-analysis with the Paule-Mandel estimate of the between-strata variance (`meta::metagen()`, `"Random-Effects"`).
+3. If that fails: a fixed-effect meta-analysis (`"Fixed-Effect"`).
+4. If that fails too: that group is left out.
+
+## Heterogeneity
+
+The pooled rows also show how much the strata differ:
+
+| Column | Meaning |
+|---|---|
+| `n_strata` | number of strata pooled |
+| `tau2` | between-strata variance |
+| `I2` | share of the variation due to real differences between strata, in % |
+| `Q`, `pval_Q` | Cochran's Q test: a small `pval_Q` means the strata differ |
+| `lower_predict`, `upper_predict` | prediction interval: where a new stratum would likely fall |
+
+A large `I2` means the pooled ratio hides differences, for example between age groups.
