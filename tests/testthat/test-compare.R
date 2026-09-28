@@ -83,3 +83,26 @@ test_that("run_meta handles empty input", {
   result2 <- run_meta(te = c(NaN, Inf), se_te = c(0.1, 0.2), studlab = c("a", "b"))
   expect_null(result2)
 })
+
+test_that("a dataset with only women is compared and loaded with sex as text", {
+  base <- file.path(tempdir(), paste0("female_", basename(tempfile(""))))
+  dir.create(base, recursive = TRUE)
+  file.copy(system.file("extdata", "demo", "data", package = "syrona"), base, recursive = TRUE)
+  old <- options(syrona.data_dir = base)
+  on.exit({ options(old); unlink(base, recursive = TRUE) })
+
+  # Keep only the women in every table of one dataset
+  src <- file.path(base, "data", "sources", "demo_selected")
+  for (f in list.files(src, pattern = "\\.csv$", full.names = TRUE)) {
+    x <- utils::read.csv(f, colClasses = "character")
+    if ("sex" %in% names(x)) utils::write.csv(x[x$sex == "F", ], f, row.names = FALSE)
+  }
+
+  d <- suppressMessages(load_dataset("demo_selected"))
+  expect_type(d$condition_prevalence$sex, "character")
+
+  expect_no_error(suppressMessages(compare_all("demo_population", "demo_selected", domains = "conditions")))
+  cmp <- suppressMessages(load_comparison("demo_population", "demo_selected"))
+  expect_type(cmp$condition_yearly$sex, "character")
+  expect_true(all(cmp$condition_yearly$sex == "F"))
+})

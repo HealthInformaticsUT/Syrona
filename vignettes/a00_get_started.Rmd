@@ -89,7 +89,7 @@ syrona_disconnect(db_b)
 
 ## Where the results are saved
 
-```
+```         
 path/to/syrona_output/
   data/
     sources/
@@ -106,9 +106,9 @@ path/to/syrona_output/
 
 ## Next
 
-- `vignette("a01_connect")`: connect to PostgreSQL or DuckDB, and check your access
-- `vignette("a02_extract")`: extract a dataset
-- `vignette("a03_populations")`: extract a cohort, a hospital or a list of patients
-- `vignette("a04_compare")`: compare two datasets and open the dashboard
-- `vignette("a05_methods")`: how the comparison is calculated
-- `vignette("a06_vocabularies")`: how concepts are grouped into chapters
+-   `vignette("a01_connect")`: connect to PostgreSQL or DuckDB, and check your access
+-   `vignette("a02_extract")`: extract a dataset
+-   `vignette("a03_populations")`: extract a cohort, a hospital or a list of patients
+-   `vignette("a04_compare")`: compare two datasets and open the dashboard
+-   `vignette("a05_methods")`: how the comparison is calculated
+-   `vignette("a06_vocabularies")`: how concepts are grouped into chapters

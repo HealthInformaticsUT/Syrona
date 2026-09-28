@@ -1180,6 +1180,19 @@ apply_k_anonymity <- function(tables, k = K_ANONYMITY) {
 
 # ── Save / load helpers ─────────────────────────────────────────────────────
 
+# Read one saved CSV. readr::read_csv is ~5-10x faster than utils::read.csv on
+# these files. Numeric columns come back as double, fine for dplyr joins.
+# `sex` is always text: a column with only "F" would otherwise be read as FALSE.
+.read_syrona_csv <- function(file) {
+  header <- names(readr::read_csv(file, n_max = 0, show_col_types = FALSE, progress = FALSE))
+  types <- if ("sex" %in% header) {
+    readr::cols(sex = readr::col_character(), .default = readr::col_guess())
+  } else {
+    readr::cols(.default = readr::col_guess())
+  }
+  readr::read_csv(file, col_types = types, progress = FALSE)
+}
+
 # Folder of a saved dataset
 .dataset_dir <- function(dataset_name) {
   file.path(getOption("syrona.data_dir", "."), SOURCES_DIR, dataset_name)
@@ -1312,11 +1325,7 @@ load_dataset <- function(dataset_name) {
   tables <- list()
   for (f in csv_files) {
     name <- tools::file_path_sans_ext(basename(f))
-    # readr::read_csv is ~5-10x faster than utils::read.csv on these files.
-    # Numeric columns come back as double (readr default). That is fine:
-    # dplyr joins compare numerically, and the existing code does not rely
-    # on storage.mode.
-    tbl <- readr::read_csv(f, show_col_types = FALSE, progress = FALSE)
+    tbl <- .read_syrona_csv(f)
     if (nrow(tbl) == 0 && name %in% names(col_types)) {
       for (col in names(col_types[[name]])) {
         if (col %in% names(tbl)) {
