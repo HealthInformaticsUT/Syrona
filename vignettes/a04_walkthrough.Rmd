@@ -264,7 +264,7 @@ You can also load the extracted dataset back into R immediately:
 ```{r, eval=FALSE}
 d1 <- load_dataset("Central_Hospital")
 nrow(d1$condition_info)            # number of distinct conditions
-sum(d1$demographics$patient_count) # total F+M persons
+sum(d1$demographics$patient_count) # persons, approximately: birth-year cells below 5 are left out
 ```
 
 ## Step 5 - Extract the second hospital

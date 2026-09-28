@@ -15,6 +15,7 @@ apply_k_anonymity(tables, k = K_ANONYMITY)
 Named list of tibbles with k-anonymity applied.
 }
 \description{
-Apply k-anonymity suppression to all extracted source tables.
+Rows with fewer than \code{k} persons are left out: concepts and prevalence
+strata, death counts, demographics and denominator cells.
 }
 \keyword{internal}

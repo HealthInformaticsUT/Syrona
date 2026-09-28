@@ -153,8 +153,10 @@ After extraction, `apply_k_anonymity()` suppresses small-cell counts (default k=
 1.  Concepts with fewer than k total patients are dropped entirely
 2.  Individual prevalence rows (strata) with fewer than k patients are suppressed
 3.  Concepts that lose all prevalence rows to suppression are moved to a `*_rare` table (keeps aggregate counts but no stratified data)
+4.  Death count, demographics (birth year x sex) and denominator (year x sex x age group) rows with fewer than k persons are left out
+5.  In `_metadata.csv`, a cohort with fewer than k entries or persons is written as `<5`
 
-This ensures no individual can be identified from the output tables.
+No saved file contains a count between 1 and 4. The comparison uses the prevalence tables, so its results do not depend on the demographics and denominator rows that are left out. The dashboard's total number of persons is the sum of the kept demographics rows, so it is slightly lower than the true total when rows were left out.
 
 ## Loading and listing datasets
 

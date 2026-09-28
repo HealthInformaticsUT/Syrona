@@ -146,15 +146,16 @@ test_that("the cohort used is recorded in _metadata.csv, only when a cohort is u
   old <- options(syrona.data_dir = base)
   on.exit({ options(old); unlink(base, recursive = TRUE) }, add = TRUE)
 
-  suppressMessages(extract_all("With_cohort", db, domains = "conditions", cohort_id = 99, cohort_schema = "results"))
+  # main.cohort: cohort 7 has 250 persons, one entry each
+  suppressMessages(extract_all("With_cohort", db, domains = "conditions", cohort_id = 7, cohort_schema = "main"))
   suppressMessages(extract_all("Without_cohort", db, domains = "conditions"))
 
   with_cohort <- utils::read.csv(file.path(base, "data", "sources", "With_cohort", "_metadata.csv"))
   without_cohort <- utils::read.csv(file.path(base, "data", "sources", "Without_cohort", "_metadata.csv"))
-  expect_equal(with_cohort$cohort_id, 99)
-  expect_equal(with_cohort$cohort_schema, "results")
+  expect_equal(with_cohort$cohort_id, 7)
+  expect_equal(with_cohort$cohort_schema, "main")
   expect_equal(with_cohort$cohort_table, "cohort")
-  expect_equal(with_cohort$cohort_entries, 3)
-  expect_equal(with_cohort$cohort_persons, 2)
+  expect_equal(with_cohort$cohort_entries, 250)
+  expect_equal(with_cohort$cohort_persons, 250)
   expect_false(any(grepl("^cohort_", names(without_cohort))))
 })

@@ -1105,7 +1105,19 @@ suppress_domain <- function(info, prevalence, chapters, attributes,
        attributes = attributes, rare = rare)
 }
 
+# Rows whose count is below k are left out
+.drop_small_cells <- function(x, count_col, label, k) {
+  if (is.null(x)) return(NULL)
+  kept <- x[x[[count_col]] >= k, , drop = FALSE]
+  n_dropped <- nrow(x) - nrow(kept)
+  if (n_dropped > 0) cli::cli_alert_info("{label}: {n_dropped} row{?s} with fewer than {k} persons suppressed.")
+  kept
+}
+
 #' Apply k-anonymity suppression to all extracted source tables.
+#'
+#' Rows with fewer than \code{k} persons are left out: concepts and prevalence
+#' strata, death counts, demographics and denominator cells.
 #' @param tables Named list of tibbles (before k-anonymity).
 #' @param k Minimum cell count (default K_ANONYMITY = 5).
 #' @return Named list of tibbles with k-anonymity applied.
@@ -1150,7 +1162,7 @@ apply_k_anonymity <- function(tables, k = K_ANONYMITY) {
     result$drug_rare       <- drug$rare
   }
 
-  result$demographics <- tables$demographics
+  result$demographics <- .drop_small_cells(tables$demographics, "patient_count", "demographics", k)
 
   deaths <- tables$death_counts
   n_death_before <- nrow(deaths)
@@ -1159,6 +1171,9 @@ apply_k_anonymity <- function(tables, k = K_ANONYMITY) {
     cli::cli_alert_info("deaths: {n_death_before - nrow(deaths)} rows suppressed.")
   }
   result$death_counts <- deaths
+  if (!is.null(tables$denominator)) {
+    result$denominator <- .drop_small_cells(tables$denominator, "denominator", "denominator", k)
+  }
 
   result
 }
@@ -1224,6 +1239,10 @@ save_dataset <- function(tables, dataset_name, db_path = NA_character_,
   )
   if (!is.null(care_site_id)) metadata$care_site_id <- care_site_id
   for (nm in names(cohort)) metadata[[nm]] <- cohort[[nm]]
+  # Cohort counts below k are written as "<k"
+  for (nm in intersect(c("cohort_entries", "cohort_persons"), names(metadata))) {
+    if (metadata[[nm]] < K_ANONYMITY) metadata[[nm]] <- paste0("<", K_ANONYMITY)
+  }
   utils::write.csv(metadata, file.path(out_dir, "_metadata.csv"), row.names = FALSE)
 
   for (name in names(tables)) {
@@ -1479,8 +1498,8 @@ extract_all <- function(dataset_name, db,
   }
 
   cli::cli_alert("Applying k-anonymity suppression...")
+  tables_raw$denominator <- denom_df
   tables <- apply_k_anonymity(tables_raw)
-  tables$denominator <- denom_df
 
   if (save) {
     save_dataset(tables, dataset_name, db_path, care_site_id, attr(db, "cohort_used"),

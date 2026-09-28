@@ -134,6 +134,7 @@ snapshot_schema <- function(con, schema) {
 
 # ── Known answers: extract_all() on GiBleed, save = FALSE ────────────────────
 # Rows per returned table, recorded with syrona 0.2.1 on DuckDB and PostgreSQL.
+# demographics and denominator without their cells below k = 5 (0.2.1: 151 and 1203).
 KNOWN_GIBLEED <- list(
   condition_prevalence = 2926, condition_info = 78, condition_chapters = 78,
   condition_attributes = 0, condition_rare = 38,
@@ -141,7 +142,7 @@ KNOWN_GIBLEED <- list(
   procedure_attributes = 0, procedure_rare = 27,
   drug_prevalence = 3073, drug_info = 81, drug_chapters = 81,
   drug_attributes = 0, drug_rare = 42,
-  demographics = 151, death_counts = 0, denominator = 1203
+  demographics = 118, death_counts = 0, denominator = 1173
 )
 
 #' Check every table of an extract_all() result against KNOWN_GIBLEED.
