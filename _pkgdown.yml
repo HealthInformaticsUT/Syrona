@@ -13,6 +13,7 @@ articles:
     navbar: ~
     contents:
       - a00_get_started
+      - a01_connect
       - a01_extraction
   - title: Analysis
     contents:

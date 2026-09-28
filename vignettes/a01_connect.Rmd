@@ -1,0 +1,80 @@
+---
+title: "Connect"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Connect}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Syrona reads an OMOP CDM from PostgreSQL or from a DuckDB file. It only reads: it needs read access to the CDM schema and, on PostgreSQL, the right to create temporary tables.
+
+## Settings
+
+```{r settings, eval=FALSE}
+library(syrona)
+
+host       <- "localhost"  # the database server (localhost through an SSH tunnel)
+port       <- 5432         # the port (with a tunnel: its local port)
+dbname     <- "omop"       # the database
+user       <- "your_user"  # your database user
+cdm_schema <- "cdm"        # the schema with the OMOP tables
+```
+
+The password is kept out of the script, in `~/.Renviron` (restart R after editing it):
+
+```
+OMOP_PASSWORD=your_password
+```
+
+## PostgreSQL
+
+```{r, eval=FALSE, runner="postgres"}
+db <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
+                        password = Sys.getenv("OMOP_PASSWORD"), cdm_schema = cdm_schema)
+```
+
+## DuckDB
+
+The file is opened read-only.
+
+```{r, eval=FALSE, runner="duckdb"}
+# The OMOP tables are in the schema "main". If not, add cdm_schema = "..."
+db <- syrona_connect("path/to/omop.duckdb")
+```
+
+## Check the connection
+
+```{r, eval=FALSE}
+# The OMOP tables Syrona found
+names(db$cdm)
+
+# The number of persons
+db$cdm$person |> dplyr::tally()
+```
+
+On PostgreSQL, also check the right to create temporary tables:
+
+```{r, eval=FALSE, runner="postgres"}
+# Must be TRUE
+DBI::dbGetQuery(db$con, "SELECT has_database_privilege(current_database(), 'TEMP') AS can_temp")
+```
+
+## Disconnect
+
+```{r, eval=FALSE}
+syrona_disconnect(db)
+```
+
+## If it does not connect
+
+- **"Connection refused"**: the SSH tunnel is not open, or `port` is not its local port.
+- **"password authentication failed"**: `OMOP_PASSWORD` is missing or wrong, or R was not restarted.
+- **"permission denied" or an error about temporary tables**: your user lacks a right to read the CDM schema or to create temporary tables (see "Check the connection"). Your database administrator can grant it.
