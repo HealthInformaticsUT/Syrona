@@ -40,10 +40,6 @@ copy_gibleed <- function() {
   tmp_path
 }
 
-# ── Connection settings in one place ─────────────────────────────────────────
-# Read-only, without a write schema.
-READ_ONLY_ARGS <- list(read_only = TRUE, write_schema = NULL)
-
 #' Read-only DuckDB copy of GiBleed, connected with syrona_connect().
 #' Returns a list with con, cdm, tmp_path.
 #' `prepare` is an optional function(con) run on a writable copy first
@@ -55,7 +51,7 @@ get_test_db <- function(prepare = NULL) {
     prepare(con)
     DBI::dbDisconnect(con, shutdown = TRUE)
   }
-  db <- do.call(syrona_connect, c(list(db_path = tmp_path), READ_ONLY_ARGS))
+  db <- syrona_connect(tmp_path)
   db$tmp_path <- tmp_path
   db
 }
@@ -114,7 +110,7 @@ get_test_pg <- function(role = c("reader", "owner"), cdm_schema = NULL) {
   syrona_connect_pg(
     host = s$host, dbname = s$dbname, user = s$user, password = s$password,
     cdm_schema = if (is.null(cdm_schema)) s$cdm_schema else cdm_schema,
-    write_schema = if (role == "owner") s$write_schema else NULL
+    write_schema = if (role == "owner") s$write_schema
   )
 }
 

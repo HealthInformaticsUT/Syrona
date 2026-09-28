@@ -7,8 +7,8 @@
 syrona_connect(
   db_path,
   cdm_schema = "main",
-  write_schema = cdm_schema,
-  read_only = FALSE
+  write_schema = NULL,
+  read_only = TRUE
 )
 }
 \arguments{
@@ -16,13 +16,15 @@ syrona_connect(
 
 \item{cdm_schema}{Schema containing OMOP CDM tables (default \code{"main"}).}
 
-\item{write_schema}{Schema for writing temp/cohort tables.
-Defaults to \code{cdm_schema}. Set to a different schema if the CDM
-schema is read-only (common in production setups).}
+\item{write_schema}{Schema where tables written through the cdm reference
+go, for example cohorts generated from ATLAS JSON with
+\code{CDMConnector::generateCohortSet()}. Default \code{NULL}: no write
+schema, nothing can be written. Every table written there gets the prefix
+\code{"syrona_"}. Extraction with \code{extract_all()} never needs it.}
 
-\item{read_only}{Logical. Open DuckDB in read-only mode? Default
-\code{FALSE}. Setting it to \code{TRUE} makes the connection fail,
-because CDMConnector needs to write a probe table.}
+\item{read_only}{Logical. Open the DuckDB file read-only? Default
+\code{TRUE}. Set to \code{FALSE} only together with a
+\code{write_schema}.}
 }
 \value{
 A list with components:
@@ -32,9 +34,6 @@ A list with components:
   }
 }
 \description{
-Opens a DuckDB file and creates a CDMConnector reference. The file is
-opened writable, because CDMConnector validates a CDM by writing a small
-probe table, so a read-only DuckDB connection cannot create a CDM reference.
-Syrona only writes temporary and cohort tables; your OMOP data is not
-modified.
+Opens a DuckDB file and creates a CDMConnector reference. By default the
+file is opened read-only and nothing is written to it.
 }

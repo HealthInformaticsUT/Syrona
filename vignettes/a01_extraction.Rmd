@@ -45,8 +45,7 @@ db <- syrona_connect_pg(
   host = "db-server.example.com",
   dbname = "omop",
   user = "analyst",
-  cdm_schema = cdm_schema,
-  write_schema = "results"
+  cdm_schema = cdm_schema
 )
 
 # Via SSH tunnel (start tunnel first: ssh -L 5432:localhost:5432 user@server)
@@ -54,14 +53,13 @@ db <- syrona_connect_pg(
   host = "localhost",
   dbname = "omop",
   user = "analyst",
-  cdm_schema = cdm_schema,
-  write_schema = "results"
+  cdm_schema = cdm_schema
 )
 ```
 
 **Credentials.** You can pass `password = "..."` directly, but it is cleaner to omit it and let RPostgres read the password from a `~/.pgpass` file or the `PGPASSWORD` environment variable - for example, set `PGPASSWORD=...` in your `~/.Renviron`. This keeps the password out of your R scripts and command history.
 
-The `write_schema` parameter tells CDMConnector where it can create temporary tables. This is required for cohort operations and some extraction queries. On PostgreSQL, this is typically a user-specific results schema.
+Syrona only reads the CDM. It needs read access to the CDM schema and, on PostgreSQL, the right to create temporary tables (`TEMP`). No writable schema is needed. The `write_schema` argument is only for cohorts generated from ATLAS JSON (see the cohorts vignette).
 
 ### DuckDB (local files)
 
@@ -69,7 +67,7 @@ The `write_schema` parameter tells CDMConnector where it can create temporary ta
 db <- syrona_connect("path/to/omop.duckdb")
 ```
 
-The file is opened writable, because CDMConnector validates the CDM by writing a small probe table. Syrona only writes temporary and cohort tables; your OMOP data is not modified. If the file is shared, work on a copy.
+The file is opened read-only, so nothing in it can change. Several R sessions can open the same file read-only at the same time.
 
 ## Running extraction
 

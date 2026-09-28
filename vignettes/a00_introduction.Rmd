@@ -66,8 +66,7 @@ cdm_schema <- "cdm"   # change to your CDM schema
 db <- syrona_connect_pg(
   dbname = "omop",
   user = "analyst",
-  cdm_schema = cdm_schema,
-  write_schema = "results"
+  cdm_schema = cdm_schema
 )
 
 # Or a local DuckDB file

@@ -11,7 +11,7 @@ syrona_connect_pg(
   user,
   password = NULL,
   cdm_schema = "public",
-  write_schema = cdm_schema
+  write_schema = NULL
 )
 }
 \arguments{
@@ -28,12 +28,16 @@ syrona_connect_pg(
 
 \item{cdm_schema}{Schema with OMOP CDM tables (e.g. \code{"cdm"}).}
 
-\item{write_schema}{Schema for cohort/temp tables (e.g. \code{"results_maarja"}).}
+\item{write_schema}{Schema where tables written through the cdm reference
+go (e.g. \code{"results"}). Default \code{NULL}: no write schema. Every
+table written there gets the prefix \code{"syrona_"}. Extraction with
+\code{extract_all()} never needs it.}
 }
 \value{
 Same structure as \code{syrona_connect}.
 }
 \description{
 For remote databases, typically accessed via SSH tunnel:
-\code{ssh -L 5432:localhost:5432 user@server}.
+\code{ssh -L 5432:localhost:5432 user@server}. Read access to the CDM
+schema and the right to create temporary tables are enough.
 }

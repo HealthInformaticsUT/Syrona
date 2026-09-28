@@ -31,16 +31,14 @@ Before you start, make sure you have:
   install.packages("syrona")
   ```
 - **Read access** to an OMOP CDM database (PostgreSQL or DuckDB).
-- **A writable schema** if your CDM is on PostgreSQL. Cohort tables and
-  some extraction queries need a place to write temp tables. This is
-  typically called `results_<your_user>` and is separate from the
-  read-only `cdm_schema`. If you do not know whether you have a writable
-  schema, see "Finding your schemas" below.
+- **The right to create temporary tables** (`TEMP`) if your CDM is on
+  PostgreSQL. Syrona writes nothing else to the database, so no writable
+  schema is needed. To check, see "Finding your schemas" below.
 - **SSH access** to the database host if it lives behind a firewall.
 - **A working directory** where Syrona can write `data/sources/` and
   `data/comparisons/`. Defaults to `getwd()`.
 
-If you do not have a writable schema, ask your DB admin to create one.
+If you do not have the `TEMP` right, ask your DB admin to grant it.
 
 ### Finding your schemas
 
@@ -64,18 +62,19 @@ Then, inside the `psql` prompt:
 -- See your username
 SELECT current_user;
 
--- Check which schemas you can read (USAGE) and write to (CREATE)
+-- Check which schemas you can read (USAGE)
 SELECT nspname,
-       has_schema_privilege(current_user, nspname, 'USAGE')  AS can_use,
-       has_schema_privilege(current_user, nspname, 'CREATE') AS can_create
+       has_schema_privilege(current_user, nspname, 'USAGE') AS can_use
 FROM pg_namespace
 WHERE nspname NOT LIKE 'pg_%'
 ORDER BY nspname;
+
+-- Check that you can create temporary tables
+SELECT has_database_privilege(current_database(), 'TEMP') AS can_temp;
 ```
 
-Use a schema where `can_use` is `t` as your `cdm_schema`, and one where
-`can_create` is `t` as your `write_schema`. If no schema is writable,
-ask your DB admin to grant you one.
+Use a schema where `can_use` is `t` as your `cdm_schema`. `can_temp`
+must be `t`. If it is not, ask your DB admin to grant it.
 
 **Why are there multiple CDM schemas?** Each schema contains the same
 OMOP CDM table structure but with different data - for instance,
@@ -111,8 +110,7 @@ db <- syrona_connect_pg(
   port         = 5432,
   dbname       = "omop",
   user         = "your_user",
-  cdm_schema   = cdm_schema,
-  write_schema = "results"           # must be writable
+  cdm_schema   = cdm_schema
 )
 ```
 
@@ -397,22 +395,21 @@ access to some of them. To find which schemas you can access:
 ```{r, eval=FALSE}
 DBI::dbGetQuery(db$con,
   "SELECT nspname,
-          has_schema_privilege(current_user, nspname, 'USAGE') AS can_use,
-          has_schema_privilege(current_user, nspname, 'CREATE') AS can_create
+          has_schema_privilege(current_user, nspname, 'USAGE') AS can_use
    FROM pg_namespace
    WHERE nspname NOT LIKE 'pg_%'
    ORDER BY nspname")
+DBI::dbGetQuery(db$con,
+  "SELECT has_database_privilege(current_database(), 'TEMP') AS can_temp")
 ```
 
 Use a schema where `can_use` is `TRUE` as your `cdm_schema`. If you
-need write access (for cohort tables), use one where `can_create` is
-`TRUE` as your `write_schema`. If nothing is writable, ask your DB
-admin to grant:
+cannot read it, or `can_temp` is `FALSE`, ask your DB admin to grant:
 
 ```sql
 GRANT USAGE ON SCHEMA cdm TO your_user;
 GRANT SELECT ON ALL TABLES IN SCHEMA cdm TO your_user;
-GRANT ALL ON SCHEMA results TO your_user;
+GRANT TEMPORARY ON DATABASE omop TO your_user;
 ```
 
 ### `dbListTables()` returns empty
