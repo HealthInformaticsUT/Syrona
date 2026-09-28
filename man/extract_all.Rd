@@ -11,7 +11,8 @@ extract_all(
   cohort_id = NULL,
   cohort_schema = NULL,
   save = TRUE,
-  care_site_id = NULL
+  care_site_id = NULL,
+  cohort_table = NULL
 )
 }
 \arguments{
@@ -26,7 +27,9 @@ Options: \code{"conditions"}, \code{"procedures"}, \code{"drugs"}.}
 \item{cohort_id}{Integer \code{cohort_definition_id} to filter by.
 If \code{NULL} (default), extracts the full dataset.}
 
-\item{cohort_schema}{Schema containing the cohort table.}
+\item{cohort_schema}{Schema containing the cohort table. With
+\code{cohort_schema} only, the table \code{cohort} in that schema is read
+(where ATLAS writes its cohorts).}
 
 \item{save}{If \code{TRUE} (default), saves CSV to \code{data/sources/<dataset_name>/}.}
 
@@ -36,6 +39,11 @@ over their whole observation period, and only the events recorded at a
 visit there (linked through \code{visit_occurrence_id}). Events with no
 visit link are left out. Cannot be combined with \code{cohort_id}.
 \code{\link{list_care_sites}} lists the care sites.}
+
+\item{cohort_table}{Name of the cohort table. With \code{cohort_schema} the
+table in that schema, without it a cohort in the cdm reference (for example
+one generated with \code{CDMConnector::generateCohortSet()}). See
+\code{\link{apply_cohort_filter}}.}
 }
 \value{
 Named list of tibbles matching the Syrona schema (invisible).

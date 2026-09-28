@@ -12,24 +12,81 @@
 
 # ── Cohort filtering ────────────────────────────────────────────────────────
 
+# The cohort table as a lazy table, read where it is (see apply_cohort_filter)
+.read_cohort_table <- function(db, cohort_schema, cohort_table, call) {
+  if (is.null(cohort_schema) && is.null(cohort_table)) {
+    cli::cli_abort(c(
+      "Name where the cohort is: {.arg cohort_schema}, {.arg cohort_table} or both.",
+      "i" = "A cohort generated in ATLAS: {.code cohort_schema = \"results\"} (reads {.val results.cohort}).",
+      "i" = "A cohort in the cdm reference: {.code cohort_table = \"my_cohort\"}."
+    ), call = call)
+  }
+  if (is.null(cohort_schema)) {
+    if (is.null(db$cdm[[cohort_table]])) {
+      cli::cli_abort(c(
+        "{.val {cohort_table}} is not in the cdm reference.",
+        "i" = "For a table in a database schema add {.arg cohort_schema}."
+      ), call = call)
+    }
+    return(db$cdm[[cohort_table]])
+  }
+  cohort_table <- cohort_table %||% "cohort"
+  ref <- CDMConnector::inSchema(cohort_schema, cohort_table, dbms = CDMConnector::dbms(db$con))
+  where <- paste0(cohort_schema, ".", cohort_table)
+  if (!DBI::dbExistsTable(db$con, ref)) {
+    cli::cli_abort(c(
+      "Cohort table {.val {where}} not found.",
+      "i" = "Check {.arg cohort_schema} and {.arg cohort_table}.",
+      "i" = "A cohort in the cdm reference (for example generated with CDMConnector) is read with {.arg cohort_table} alone."
+    ), call = call)
+  }
+  tryCatch(
+    dplyr::tbl(db$con, ref),
+    error = function(e) cli::cli_abort("Cohort table {.val {where}} cannot be read.", parent = e, call = call)
+  )
+}
+
 #' Apply OHDSI cohort filtering to CDM table references.
 #'
 #' Modifies \code{db$cdm} table references to filter by a standard OHDSI
 #' cohort table. Filters person, observation_period, death, and event tables
 #' to cohort members and their cohort windows.
 #'
+#' The cohort is read where it is, nothing is written:
+#' \itemize{
+#'   \item \code{cohort_schema} and \code{cohort_table}: that table.
+#'   \item \code{cohort_schema} only: the table \code{cohort} in that schema
+#'     (where ATLAS and CohortGenerator write their cohorts).
+#'   \item \code{cohort_table} only: that cohort in the cdm reference, for
+#'     example one generated with \code{CDMConnector::generateCohortSet()}.
+#' }
+#' The cohort must have the four OHDSI columns, entries for \code{cohort_id},
+#' and no overlapping entries for a person.
+#'
 #' @param db Connection list (from \code{syrona_connect}).
 #' @param cohort_id Integer \code{cohort_definition_id} to filter by.
-#' @param cohort_schema Schema containing the cohort table (\code{NULL} = default).
+#' @param cohort_schema Schema containing the cohort table.
+#' @param cohort_table Name of the cohort table. With \code{cohort_schema}
+#'   the table in that schema (default \code{"cohort"}), without it a cohort
+#'   in the cdm reference.
 #' @return Modified \code{db} list with filtered CDM table references.
 #' @export
-apply_cohort_filter <- function(db, cohort_id, cohort_schema = NULL) {
-  con <- db$con
+apply_cohort_filter <- function(db, cohort_id, cohort_schema = NULL, cohort_table = NULL) {
+  .apply_cohort_filter(db, cohort_id, cohort_schema, cohort_table, call = rlang::current_env())
+}
 
-  if (!is.null(cohort_schema)) {
-    cohort_tbl <- dplyr::tbl(con, dbplyr::in_schema(cohort_schema, "cohort"))
-  } else {
-    cohort_tbl <- dplyr::tbl(con, "cohort")
+# The filter itself. `call` is the user-facing function named in errors.
+.apply_cohort_filter <- function(db, cohort_id, cohort_schema, cohort_table, call) {
+  cohort_tbl <- .read_cohort_table(db, cohort_schema, cohort_table, call)
+  where <- if (is.null(cohort_schema)) cohort_table else paste0(cohort_schema, ".", cohort_table %||% "cohort")
+
+  missing_cols <- setdiff(c("cohort_definition_id", "subject_id", "cohort_start_date", "cohort_end_date"),
+                          colnames(cohort_tbl))
+  if (length(missing_cols) > 0) {
+    cli::cli_abort(c(
+      "{.val {where}} is not an OHDSI cohort table.",
+      "x" = "Missing column{?s}: {.field {missing_cols}}."
+    ), call = call)
   }
 
   cohort_tbl <- cohort_tbl |>
@@ -37,8 +94,30 @@ apply_cohort_filter <- function(db, cohort_id, cohort_schema = NULL) {
 
   n_cohort <- cohort_tbl |> dplyr::tally() |> dplyr::pull(n)
   if (n_cohort == 0) {
-    cli::cli_abort("Cohort {.val {cohort_id}} has 0 entries. Check cohort_definition_id and cohort_schema.")
+    cli::cli_abort(c(
+      "Cohort {.val {cohort_id}} has no entries in {.val {where}}.",
+      "i" = "Check {.arg cohort_id} and where the cohort table is."
+    ), call = call)
   }
+
+  # An entry that ends on or after the next entry's start overlaps it
+  n_overlap <- cohort_tbl |>
+    dplyr::group_by(.data$subject_id) |>
+    dbplyr::window_order(.data$cohort_start_date, .data$cohort_end_date) |>
+    dplyr::mutate(next_start = dplyr::lead(.data$cohort_start_date)) |>
+    dplyr::ungroup() |>
+    dplyr::filter(.data$cohort_end_date >= .data$next_start) |>
+    dplyr::summarise(n = dplyr::n_distinct(.data$subject_id)) |>
+    dplyr::pull(n)
+  if (n_overlap > 0) {
+    cli::cli_abort(c(
+      "Cohort {.val {cohort_id}} has overlapping entries for {n_overlap} person{?s}.",
+      "i" = "Each person's entries must not overlap. Merge overlapping entries into one before extracting. Cohorts generated in ATLAS never overlap."
+    ), call = call)
+  }
+  n_persons <- cohort_tbl |>
+    dplyr::summarise(n = dplyr::n_distinct(.data$subject_id, na.rm = TRUE)) |>
+    dplyr::pull(n)
   cli::cli_alert_info("Cohort {.val {cohort_id}}: {n_cohort} person-entries found.")
 
   cohort_dates <- cohort_tbl |>
@@ -95,6 +174,14 @@ apply_cohort_filter <- function(db, cohort_id, cohort_schema = NULL) {
       .data$drug_exposure_start_date <= .data$cohort_end_date
     )
 
+  # Which cohort was used, for _metadata.csv
+  attr(db, "cohort_used") <- list(
+    cohort_id = cohort_id,
+    cohort_schema = cohort_schema %||% NA_character_,
+    cohort_table = if (is.null(cohort_schema)) cohort_table else cohort_table %||% "cohort",
+    cohort_entries = as.numeric(n_cohort),
+    cohort_persons = as.numeric(n_persons)
+  )
   db
 }
 
@@ -1082,9 +1169,13 @@ apply_k_anonymity <- function(tables, k = K_ANONYMITY) {
 #' @param tables Named list of tibbles.
 #' @param dataset_name Short label for the dataset.
 #' @param db_path Database path (stored in metadata).
+#' @param care_site_id The care site used, or \code{NULL} (stored in metadata when used).
+#' @param cohort The cohort used, as a named list (\code{cohort_id}, \code{cohort_schema},
+#'   \code{cohort_table}, \code{cohort_entries}, \code{cohort_persons}), or \code{NULL}.
+#'   Stored in metadata when used.
 #' @keywords internal
 save_dataset <- function(tables, dataset_name, db_path = NA_character_,
-                         care_site_id = NULL) {
+                         care_site_id = NULL, cohort = NULL) {
   base <- getOption("syrona.data_dir", ".")
   out_dir <- file.path(base, SOURCES_DIR, dataset_name)
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
@@ -1106,6 +1197,7 @@ save_dataset <- function(tables, dataset_name, db_path = NA_character_,
     k_anonymity = K_ANONYMITY
   )
   if (!is.null(care_site_id)) metadata$care_site_id <- care_site_id
+  for (nm in names(cohort)) metadata[[nm]] <- cohort[[nm]]
   utils::write.csv(metadata, file.path(out_dir, "_metadata.csv"), row.names = FALSE)
 
   for (name in names(tables)) {
@@ -1220,7 +1312,9 @@ list_datasets <- function() {
 #'   Options: \code{"conditions"}, \code{"procedures"}, \code{"drugs"}.
 #' @param cohort_id Integer \code{cohort_definition_id} to filter by.
 #'   If \code{NULL} (default), extracts the full dataset.
-#' @param cohort_schema Schema containing the cohort table.
+#' @param cohort_schema Schema containing the cohort table. With
+#'   \code{cohort_schema} only, the table \code{cohort} in that schema is read
+#'   (where ATLAS writes its cohorts).
 #' @param save If \code{TRUE} (default), saves CSV to \code{data/sources/<dataset_name>/}.
 #' @param care_site_id One \code{care_site_id} (a hospital or clinic). If given,
 #'   the dataset covers the persons with at least one visit at that care site,
@@ -1228,12 +1322,16 @@ list_datasets <- function() {
 #'   visit there (linked through \code{visit_occurrence_id}). Events with no
 #'   visit link are left out. Cannot be combined with \code{cohort_id}.
 #'   \code{\link{list_care_sites}} lists the care sites.
+#' @param cohort_table Name of the cohort table. With \code{cohort_schema} the
+#'   table in that schema, without it a cohort in the cdm reference (for example
+#'   one generated with \code{CDMConnector::generateCohortSet()}). See
+#'   \code{\link{apply_cohort_filter}}.
 #' @return Named list of tibbles matching the Syrona schema (invisible).
 #' @export
 extract_all <- function(dataset_name, db,
                         domains = c("conditions", "procedures", "drugs"),
                         cohort_id = NULL, cohort_schema = NULL,
-                        save = TRUE, care_site_id = NULL) {
+                        save = TRUE, care_site_id = NULL, cohort_table = NULL) {
   stopifnot(
     is.character(dataset_name), length(dataset_name) == 1, nchar(dataset_name) > 0,
     !grepl("[/\\\\]", dataset_name)
@@ -1256,6 +1354,20 @@ extract_all <- function(dataset_name, db,
     }
   }
 
+  if (!is.null(cohort_id) && is.null(cohort_schema) && is.null(cohort_table)) {
+    cli::cli_abort(c(
+      "Name where the cohort is: {.arg cohort_schema}, {.arg cohort_table} or both.",
+      "i" = "A cohort generated in ATLAS: {.code cohort_schema = \"results\"} (reads {.val results.cohort}).",
+      "i" = "A cohort in the cdm reference: {.code cohort_table = \"my_cohort\"}."
+    ))
+  }
+  if (is.null(cohort_id) && (!is.null(cohort_schema) || !is.null(cohort_table))) {
+    cli::cli_abort(c(
+      "{.arg cohort_schema} and {.arg cohort_table} need a {.arg cohort_id}.",
+      "i" = "For example {.code extract_all(\"My_cohort\", db, cohort_id = 2031, cohort_schema = \"results\")}."
+    ))
+  }
+
   own_connection <- FALSE
   if (is.character(db)) {
     db_path <- db
@@ -1272,7 +1384,7 @@ extract_all <- function(dataset_name, db,
 
   if (!is.null(cohort_id)) {
     cli::cli_alert_info("Applying cohort filter (cohort_id = {cohort_id})...")
-    db <- apply_cohort_filter(db, cohort_id, cohort_schema)
+    db <- .apply_cohort_filter(db, cohort_id, cohort_schema, cohort_table, call = rlang::current_env())
   }
 
   cdm <- db$cdm
@@ -1333,7 +1445,7 @@ extract_all <- function(dataset_name, db,
   tables$denominator <- denom_df
 
   if (save) {
-    save_dataset(tables, dataset_name, db_path, care_site_id)
+    save_dataset(tables, dataset_name, db_path, care_site_id, attr(db, "cohort_used"))
   }
 
   msgs <- sprintf("Dataset '%s':", dataset_name)

@@ -4,14 +4,18 @@
 \alias{apply_cohort_filter}
 \title{Apply OHDSI cohort filtering to CDM table references.}
 \usage{
-apply_cohort_filter(db, cohort_id, cohort_schema = NULL)
+apply_cohort_filter(db, cohort_id, cohort_schema = NULL, cohort_table = NULL)
 }
 \arguments{
 \item{db}{Connection list (from \code{syrona_connect}).}
 
 \item{cohort_id}{Integer \code{cohort_definition_id} to filter by.}
 
-\item{cohort_schema}{Schema containing the cohort table (\code{NULL} = default).}
+\item{cohort_schema}{Schema containing the cohort table.}
+
+\item{cohort_table}{Name of the cohort table. With \code{cohort_schema}
+the table in that schema (default \code{"cohort"}), without it a cohort
+in the cdm reference.}
 }
 \value{
 Modified \code{db} list with filtered CDM table references.
@@ -20,4 +24,16 @@ Modified \code{db} list with filtered CDM table references.
 Modifies \code{db$cdm} table references to filter by a standard OHDSI
 cohort table. Filters person, observation_period, death, and event tables
 to cohort members and their cohort windows.
+}
+\details{
+The cohort is read where it is, nothing is written:
+\itemize{
+  \item \code{cohort_schema} and \code{cohort_table}: that table.
+  \item \code{cohort_schema} only: the table \code{cohort} in that schema
+    (where ATLAS and CohortGenerator write their cohorts).
+  \item \code{cohort_table} only: that cohort in the cdm reference, for
+    example one generated with \code{CDMConnector::generateCohortSet()}.
+}
+The cohort must have the four OHDSI columns, entries for \code{cohort_id},
+and no overlapping entries for a person.
 }

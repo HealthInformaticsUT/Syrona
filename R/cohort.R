@@ -7,16 +7,6 @@
 #   cohort_start_date     DATE
 #   cohort_end_date       DATE
 
-# ── Internal helpers ────────────────────────────────────────────────────────
-
-.qualify_table <- function(schema = NULL, table) {
-  if (is.null(schema) || identical(schema, "") || identical(schema, "main")) {
-    table
-  } else {
-    paste0(schema, ".", table)
-  }
-}
-
 # ── Cohort utilities ────────────────────────────────────────────────────────
 
 #' List care sites with patient counts.
@@ -45,23 +35,31 @@ list_care_sites <- function(con, cdm_schema, min_patients = 100) {
 
 #' Get summary statistics for a cohort.
 #'
+#' Reads the cohort table where it is, read-only. For a cohort in the cdm
+#' reference use \code{CDMConnector::cohortCount()}.
+#'
 #' @param con DBI connection.
 #' @param cohort_id Integer \code{cohort_definition_id}.
-#' @param cohort_schema Schema containing the cohort table (\code{NULL} = default).
+#' @param cohort_schema Schema containing the cohort table.
+#' @param cohort_table Name of the cohort table (default \code{"cohort"}).
 #' @return A tibble with \code{n_entries}, \code{n_persons}, \code{min_start}, \code{max_end}.
 #' @export
-cohort_summary <- function(con, cohort_id, cohort_schema = NULL) {
-  cohort_table <- .qualify_table(cohort_schema, "cohort")
-  sql <- sprintf(
-    "SELECT cohort_definition_id,
-            COUNT(*)                   AS n_entries,
-            COUNT(DISTINCT subject_id) AS n_persons,
-            MIN(cohort_start_date)     AS min_start,
-            MAX(cohort_end_date)       AS max_end
-     FROM %s
-     WHERE cohort_definition_id = %d
-     GROUP BY cohort_definition_id",
-    cohort_table, as.integer(cohort_id)
-  )
-  DBI::dbGetQuery(con, sql) |> tibble::as_tibble()
+cohort_summary <- function(con, cohort_id, cohort_schema = NULL, cohort_table = "cohort") {
+  if (is.null(cohort_schema)) {
+    cli::cli_abort(c(
+      "Name the schema of the cohort table with {.arg cohort_schema}.",
+      "i" = "A cohort generated in ATLAS: {.code cohort_schema = \"results\"}."
+    ))
+  }
+  .read_cohort_table(list(con = con), cohort_schema, cohort_table, call = rlang::current_env()) |>
+    dplyr::filter(.data$cohort_definition_id == !!cohort_id) |>
+    dplyr::group_by(.data$cohort_definition_id) |>
+    dplyr::summarise(
+      n_entries = dplyr::n(),
+      n_persons = dplyr::n_distinct(.data$subject_id, na.rm = TRUE),
+      min_start = min(.data$cohort_start_date, na.rm = TRUE),
+      max_end   = max(.data$cohort_end_date, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    dplyr::collect()
 }

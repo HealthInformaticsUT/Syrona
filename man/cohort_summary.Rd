@@ -4,18 +4,21 @@
 \alias{cohort_summary}
 \title{Get summary statistics for a cohort.}
 \usage{
-cohort_summary(con, cohort_id, cohort_schema = NULL)
+cohort_summary(con, cohort_id, cohort_schema = NULL, cohort_table = "cohort")
 }
 \arguments{
 \item{con}{DBI connection.}
 
 \item{cohort_id}{Integer \code{cohort_definition_id}.}
 
-\item{cohort_schema}{Schema containing the cohort table (\code{NULL} = default).}
+\item{cohort_schema}{Schema containing the cohort table.}
+
+\item{cohort_table}{Name of the cohort table (default \code{"cohort"}).}
 }
 \value{
 A tibble with \code{n_entries}, \code{n_persons}, \code{min_start}, \code{max_end}.
 }
 \description{
-Get summary statistics for a cohort.
+Reads the cohort table where it is, read-only. For a cohort in the cdm
+reference use \code{CDMConnector::cohortCount()}.
 }

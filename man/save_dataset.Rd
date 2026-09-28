@@ -8,7 +8,8 @@ save_dataset(
   tables,
   dataset_name,
   db_path = NA_character_,
-  care_site_id = NULL
+  care_site_id = NULL,
+  cohort = NULL
 )
 }
 \arguments{
@@ -17,6 +18,12 @@ save_dataset(
 \item{dataset_name}{Short label for the dataset.}
 
 \item{db_path}{Database path (stored in metadata).}
+
+\item{care_site_id}{The care site used, or \code{NULL} (stored in metadata when used).}
+
+\item{cohort}{The cohort used, as a named list (\code{cohort_id}, \code{cohort_schema},
+\code{cohort_table}, \code{cohort_entries}, \code{cohort_persons}), or \code{NULL}.
+Stored in metadata when used.}
 }
 \description{
 Save extracted tables to CSV.
