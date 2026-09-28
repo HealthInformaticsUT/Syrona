@@ -20,6 +20,7 @@ articles:
   - title: Reference
     contents:
       - a05_methods
+      - a06_vocabularies
 
 reference:
   - title: Connection

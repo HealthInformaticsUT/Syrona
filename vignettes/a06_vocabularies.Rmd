@@ -1,0 +1,43 @@
+---
+title: "Vocabularies and chapters"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vocabularies and chapters}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+How Syrona groups concepts into chapters, as shown in the dashboard. A reference: none of this is needed to run Syrona. Everything comes from the vocabulary tables of your CDM (`concept`, `concept_ancestor`, `concept_relationship`).
+
+## Conditions
+
+Standard SNOMED concepts are counted. Each condition gets three groupings (`chapter_type` in `condition_chapters`):
+
+| Grouping | How |
+|---|---|
+| `body_system` | the SNOMED hierarchy under *Disorder of body system* (concept 4180628) |
+| `disease_category` | the SNOMED hierarchy under *Disease* (4274025), without the body-system branch |
+| `icd10_chapter` | the ICD-10 code the condition is mapped from (`Mapped from` to ICD10 or ICD10CM): its first three characters give the ICD-10 chapter, I to XXII. Without a mapping: `(Unmapped)` |
+
+The SNOMED groupings have two levels: the direct children of the anchor concept, and their children. A condition can be in several chapters, because SNOMED concepts can have several parents.
+
+Attributes (`condition_attributes`) are SNOMED relationships: finding site, associated morphology, clinical course, causative agent, occurrence and pathology.
+
+## Procedures
+
+Standard concepts of any vocabulary are counted. Two groupings, each with two levels:
+
+| Grouping | How |
+|---|---|
+| `by_method` | the SNOMED hierarchy under *Procedure by method* (4029205) |
+| `by_site` | the SNOMED hierarchy under *Procedure by site* (4180627) |
+
+Attributes are the direct procedure site and the method.
+
+## Drugs
+
+Every drug record is rolled up to its ingredients (standard `Ingredient` concepts of RxNorm or RxNorm Extension, through `concept_ancestor`), so a combination product counts for each of its ingredients. Each ingredient gets its ATC 1st level group, the 14 anatomical main groups (for example *Cardiovascular system*). Without an ATC link: `(Unmapped)`. Drugs have no attributes.
+
+## What the vocabulary must contain
+
+The vocabularies SNOMED, RxNorm, ATC and ICD10, as downloaded from [Athena](https://athena.ohdsi.org). Without ICD10, every condition is `(Unmapped)` in the ICD-10 chapters; without ATC, every drug is `(Unmapped)`.
