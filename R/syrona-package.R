@@ -8,6 +8,8 @@
 #' @keywords internal
 #' @importFrom rlang .data
 #' @importFrom rlang `%||%`
+#' @importFrom DT datatable
+#' @importFrom shinycssloaders withSpinner
 "_PACKAGE"
 
 # Non-standard-evaluation symbols flagged by R CMD check:

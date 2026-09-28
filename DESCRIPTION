@@ -35,14 +35,13 @@ Imports:
     grDevices,
     stats,
     readr (>= 2.0.0),
-    meta (>= 6.0.0)
+    meta (>= 6.0.0),
+    DT,
+    shinycssloaders
 Suggests:
     testthat (>= 3.0.0),
     duckdb (>= 0.9.0),
     RPostgres,
-    CohortConstructor (>= 0.6.0),
-    DT,
-    shinycssloaders,
     knitr,
     rmarkdown
 Config/testthat/edition: 3
