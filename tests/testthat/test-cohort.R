@@ -105,6 +105,13 @@ test_that("a cohort that cannot be used stops with a clear message before extrac
   on.exit(cleanup_test_db(db))
 
   expect_error(apply_cohort_filter(db, 99, cohort_schema = "results", cohort_table = "nope"), "not found")
+  # The cohort_table hint only when a cohort_table was named
+  no_table <- tryCatch(apply_cohort_filter(db, 99, cohort_schema = "nope"), error = conditionMessage)
+  expect_match(no_table, "not found")
+  expect_no_match(no_table, "cohort_table` alone")
+  expect_match(no_table, "not the CDM schema")
+  with_table <- tryCatch(apply_cohort_filter(db, 99, cohort_schema = "results", cohort_table = "nope"), error = conditionMessage)
+  expect_match(with_table, "cohort_table` alone")
   expect_error(apply_cohort_filter(db, 99, cohort_schema = "results", cohort_table = "bad"), "cohort_end_date")
   expect_error(apply_cohort_filter(db, 12345, cohort_schema = "results"), "no entries")
   expect_error(apply_cohort_filter(db, 97, cohort_schema = "results"), "overlapping")

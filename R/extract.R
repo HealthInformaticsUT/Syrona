@@ -30,15 +30,18 @@
     }
     return(db$cdm[[cohort_table]])
   }
+  table_named <- !is.null(cohort_table)
   cohort_table <- cohort_table %||% "cohort"
   ref <- CDMConnector::inSchema(cohort_schema, cohort_table, dbms = CDMConnector::dbms(db$con))
   where <- paste0(cohort_schema, ".", cohort_table)
   if (!DBI::dbExistsTable(db$con, ref)) {
-    cli::cli_abort(c(
-      "Cohort table {.val {where}} not found.",
-      "i" = "Check {.arg cohort_schema} and {.arg cohort_table}.",
-      "i" = "A cohort in the cdm reference (for example generated with CDMConnector) is read with {.arg cohort_table} alone."
-    ), call = call)
+    hint <- if (table_named) {
+      c("i" = "Check {.arg cohort_schema} and {.arg cohort_table}.",
+        "i" = "A cohort in the cdm reference (for example generated with CDMConnector) is read with {.arg cohort_table} alone.")
+    } else {
+      c("i" = "Check {.arg cohort_schema}: the schema where ATLAS writes its cohorts, not the CDM schema.")
+    }
+    cli::cli_abort(c("Cohort table {.val {where}} not found.", hint), call = call)
   }
   tryCatch(
     dplyr::tbl(db$con, ref),
