@@ -35,6 +35,12 @@ install.packages("syrona")
 Then read [`vignette("a00_get_started", package = "syrona")`](vignettes/a00_get_started.Rmd):
 connect, extract, compare and explore, each step in its own vignette after that.
 
+Or start from the ready script with the whole path and all options:
+
+```r
+file.copy(system.file("scripts", "CodeToRun.R", package = "syrona"), "path/to/my_folder")
+```
+
 ### C. I already have extracted syrona data
 
 Install the package, point at your data directory, launch:

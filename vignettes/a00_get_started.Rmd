@@ -25,6 +25,9 @@ Syrona only reads the database. What it saves are aggregated counts, and no save
 ```{r, eval=FALSE, runner=FALSE}
 install.packages("syrona")
 
+# Or the development version from GitHub (see the README if this fails)
+# remotes::install_github("HealthInformaticsUT/Syrona")
+
 # Plus the driver for your database: one of
 install.packages("RPostgres")  # a PostgreSQL server
 install.packages("duckdb")     # a local DuckDB file
@@ -88,6 +91,14 @@ run_app(data_dir = data_dir)
 # 5. Disconnect
 syrona_disconnect(db_a)
 syrona_disconnect(db_b)
+```
+
+## The whole path as one script
+
+`CodeToRun.R` holds the whole path with all options, ready to fill in. Copy it to your own folder:
+
+```{r, eval=FALSE}
+file.copy(system.file("scripts", "CodeToRun.R", package = "syrona"), "path/to/my_folder")
 ```
 
 ## Where the results are saved

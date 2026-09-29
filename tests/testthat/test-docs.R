@@ -1,4 +1,4 @@
-# Every R code chunk in the vignettes must be valid R code.
+# Every R code chunk in the vignettes, and CodeToRun.R, must be valid R code.
 # The vignette chunks are not run when the vignettes are built (eval = FALSE).
 
 # The R chunks of an R Markdown file, as a list of code strings
@@ -27,4 +27,11 @@ test_that("every R chunk in every vignette is valid R code", {
       expect_no_error(parse(text = chunks[[i]]), message = sprintf("%s, R chunk %d", basename(f), i))
     }
   }
+})
+
+test_that("CodeToRun.R is valid R code", {
+  src <- test_path("..", "..", "inst", "scripts", "CodeToRun.R")
+  file <- if (file.exists(src)) src else system.file("scripts", "CodeToRun.R", package = "syrona")
+  expect_true(file.exists(file))
+  expect_no_error(parse(file))
 })
