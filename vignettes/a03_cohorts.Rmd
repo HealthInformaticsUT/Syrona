@@ -33,7 +33,7 @@ options(syrona.data_dir = data_dir)
 
 ```{r, eval=FALSE, runner="postgres"}
 db <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                        password = Sys.getenv("OMOP_PASSWORD"), cdm_schema = cdm_schema)
+                        password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema)
 ```
 
 ```{r, eval=FALSE, runner="duckdb"}
@@ -88,7 +88,7 @@ syrona_disconnect(db)
 
 ```{r, eval=FALSE, runner=FALSE}
 db <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                        password = Sys.getenv("OMOP_PASSWORD"), cdm_schema = cdm_schema,
+                        password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema,
                         write_schema = "your_schema")
 ```
 

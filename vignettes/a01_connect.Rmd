@@ -31,14 +31,14 @@ cdm_schema <- "cdm"        # the schema with the OMOP tables
 The password is kept out of the script, in `~/.Renviron` (restart R after editing it):
 
 ```         
-OMOP_PASSWORD=your_password
+DB_PASSWORD=your_password
 ```
 
 ## PostgreSQL
 
 ```{r, eval=FALSE, runner="postgres"}
 db <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                        password = Sys.getenv("OMOP_PASSWORD"), cdm_schema = cdm_schema)
+                        password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema)
 ```
 
 ## DuckDB
@@ -76,5 +76,5 @@ syrona_disconnect(db)
 ## If it does not connect
 
 -   **"Connection refused"**: the SSH tunnel is not open, or `port` is not its local port.
--   **"password authentication failed"**: `OMOP_PASSWORD` is missing or wrong, or R was not restarted.
+-   **"password authentication failed"**: `DB_PASSWORD` is missing or wrong, or R was not restarted.
 -   **"permission denied" or an error about temporary tables**: your user lacks a right to read the CDM schema or to create temporary tables (see "Check the connection"). Your database administrator can grant it.

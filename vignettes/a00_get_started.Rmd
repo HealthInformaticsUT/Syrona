@@ -64,7 +64,7 @@ library(syrona)
 host         <- "localhost"
 port         <- 5432
 dbname       <- "omop"
-user         <- "your_user"   # password: OMOP_PASSWORD in ~/.Renviron
+user         <- "your_user"   # password: DB_PASSWORD in ~/.Renviron
 cdm_schema_a <- "cdm_a"
 cdm_schema_b <- "cdm_b"
 data_dir     <- "path/to/syrona_output"  # results are saved here
@@ -74,9 +74,9 @@ options(syrona.data_dir = data_dir)
 ```{r, eval=FALSE, runner="postgres"}
 # 1. Connect to each CDM (read-only)
 db_a <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                          password = Sys.getenv("OMOP_PASSWORD"), cdm_schema = cdm_schema_a)
+                          password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema_a)
 db_b <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                          password = Sys.getenv("OMOP_PASSWORD"), cdm_schema = cdm_schema_b)
+                          password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema_b)
 
 # 2. Extract: counts per concept, year, sex and age group
 extract_all("Dataset_A", db_a)

@@ -7,7 +7,7 @@ library(syrona)
 
 # ---- 0. Settings: the only part to change ------------------------------------
 
-# PostgreSQL server (the password is read from OMOP_PASSWORD in ~/.Renviron)
+# PostgreSQL server (the password is read from DB_PASSWORD in ~/.Renviron)
 host   <- "localhost"   # localhost through an SSH tunnel
 port   <- 5432          # with a tunnel: its local port
 dbname <- "omop"
@@ -32,9 +32,9 @@ options(syrona.data_dir = data_dir)
 # ---- 1. Connect (read-only) ---------------------------------------------------
 
 db_a <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                          password = Sys.getenv("OMOP_PASSWORD"), cdm_schema = cdm_schema_a)
+                          password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema_a)
 db_b <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                          password = Sys.getenv("OMOP_PASSWORD"), cdm_schema = cdm_schema_b)
+                          password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema_b)
 
 # DuckDB files instead:
 # db_a <- syrona_connect("path/to/database_a.duckdb")
