@@ -46,7 +46,8 @@ dir.create(demo_dir, showWarnings = FALSE)
 file.copy(system.file("extdata", "demo", "data", package = "syrona"), demo_dir, recursive = TRUE)
 options(syrona.data_dir = demo_dir)
 
-# Compare them (overwrite = TRUE lets you run this again)
+# Compare them. overwrite = TRUE replaces the result files saved by an earlier run
+# of this comparison (in demo_dir, not in any database)
 compare_all("demo_population", "demo_selected", overwrite = TRUE)
 
 # Explore the result
@@ -64,7 +65,8 @@ library(syrona)
 host         <- "localhost"
 port         <- 5432
 dbname       <- "omop"
-user         <- "your_user"   # password: DB_PASSWORD in ~/.Renviron
+user         <- "your_user"
+password     <- Sys.getenv("DB_PASSWORD")  # from ~/.Renviron
 cdm_schema_a <- "cdm_a"
 cdm_schema_b <- "cdm_b"
 data_dir     <- getwd()  # results are saved here: the working directory, or another folder
@@ -73,10 +75,22 @@ options(syrona.data_dir = data_dir)
 
 ```{r, eval=FALSE, runner="postgres"}
 # 1. Connect to each CDM (read-only)
-db_a <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                          password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema_a)
-db_b <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                          password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema_b)
+db_a <- syrona_connect_pg(
+  host       = host,
+  port       = port,
+  dbname     = dbname,
+  user       = user,
+  password   = password,
+  cdm_schema = cdm_schema_a
+)
+db_b <- syrona_connect_pg(
+  host       = host,
+  port       = port,
+  dbname     = dbname,
+  user       = user,
+  password   = password,
+  cdm_schema = cdm_schema_b
+)
 
 # 2. Extract: counts per concept, year, sex and age group
 extract_all("Dataset_A", db_a)

@@ -25,6 +25,7 @@ host           <- "localhost"
 port           <- 5432
 dbname         <- "omop"
 user           <- "your_user"
+password       <- Sys.getenv("DB_PASSWORD")  # from ~/.Renviron
 cdm_schema     <- "cdm"
 cohort_schema  <- "results"  # where ATLAS writes its cohorts
 data_dir       <- getwd()   # results are saved here: the working directory, or another folder
@@ -32,8 +33,14 @@ options(syrona.data_dir = data_dir)
 ```
 
 ```{r, eval=FALSE, runner="postgres"}
-db <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                        password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema)
+db <- syrona_connect_pg(
+  host       = host,
+  port       = port,
+  dbname     = dbname,
+  user       = user,
+  password   = password,
+  cdm_schema = cdm_schema
+)
 ```
 
 ```{r, eval=FALSE, runner="duckdb"}
@@ -42,7 +49,23 @@ db <- syrona_connect("path/to/omop.duckdb")
 
 ## A cohort generated in ATLAS
 
-ATLAS writes its cohorts to the table `cohort` in the results schema. The cohort id is the ATLAS id, the name is shown in ATLAS.
+ATLAS writes its cohorts to the table `cohort` in the results schema, not in the CDM schema. The cohort id is the ATLAS id, the name is shown in ATLAS.
+
+To find the results schema: in ATLAS under Configuration, Sources, or with this search for your cohort ids:
+
+```{r, eval=FALSE}
+# Every schema with a table "cohort", and its entries for cohorts 1 and 2
+schemas <- DBI::dbGetQuery(db$con,
+  "SELECT table_schema FROM information_schema.tables WHERE table_name = 'cohort'")$table_schema
+for (s in schemas) {
+  n <- tryCatch(
+    as.numeric(DBI::dbGetQuery(db$con, paste0(
+      "SELECT count(*) AS n FROM ", s, ".cohort WHERE cohort_definition_id IN (1, 2)"))$n),
+    error = function(e) NA)  # NA: you cannot read this schema
+  cat(s, n, "\n")
+}
+# Use the schema with entries as cohort_schema
+```
 
 ```{r, eval=FALSE}
 # Entries and persons of cohort 1
@@ -87,9 +110,15 @@ syrona_disconnect(db)
 ```
 
 ```{r, eval=FALSE, runner=FALSE}
-db <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                        password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema,
-                        write_schema = "your_schema")
+db <- syrona_connect_pg(
+  host         = host,
+  port         = port,
+  dbname       = dbname,
+  user         = user,
+  password     = password,
+  cdm_schema   = cdm_schema,
+  write_schema = "your_schema"
+)
 ```
 
 ```{r, eval=FALSE, runner="duckdb"}

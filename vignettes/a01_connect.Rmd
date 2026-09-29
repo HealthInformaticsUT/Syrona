@@ -25,6 +25,7 @@ host       <- "localhost"  # the database server (localhost through an SSH tunne
 port       <- 5432         # the port (with a tunnel: its local port)
 dbname     <- "omop"       # the database
 user       <- "your_user"  # your database user
+password   <- Sys.getenv("DB_PASSWORD")  # from ~/.Renviron, see below
 cdm_schema <- "cdm"        # the schema with the OMOP tables
 ```
 
@@ -37,8 +38,14 @@ DB_PASSWORD=your_password
 ## PostgreSQL
 
 ```{r, eval=FALSE, runner="postgres"}
-db <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                        password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema)
+db <- syrona_connect_pg(
+  host       = host,
+  port       = port,
+  dbname     = dbname,
+  user       = user,
+  password   = password,
+  cdm_schema = cdm_schema
+)
 ```
 
 ## DuckDB

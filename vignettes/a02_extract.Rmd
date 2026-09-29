@@ -25,14 +25,21 @@ host       <- "localhost"
 port       <- 5432
 dbname     <- "omop"
 user       <- "your_user"
+password   <- Sys.getenv("DB_PASSWORD")  # from ~/.Renviron
 cdm_schema <- "cdm"
 data_dir   <- getwd()  # results are saved here: the working directory, or another folder
 options(syrona.data_dir = data_dir)
 ```
 
 ```{r, eval=FALSE, runner="postgres"}
-db <- syrona_connect_pg(host = host, port = port, dbname = dbname, user = user,
-                        password = Sys.getenv("DB_PASSWORD"), cdm_schema = cdm_schema)
+db <- syrona_connect_pg(
+  host       = host,
+  port       = port,
+  dbname     = dbname,
+  user       = user,
+  password   = password,
+  cdm_schema = cdm_schema
+)
 ```
 
 ```{r, eval=FALSE, runner="duckdb"}
@@ -55,10 +62,10 @@ Each dataset is saved in its own folder, `data/sources/<name>/`.
 
 ## Extract again under the same name
 
-A saved dataset is never replaced by accident: extracting into an existing name stops before anything is done. To replace it:
+The result files of a dataset (in `data/sources/<name>/`) are never replaced by accident: extracting into a name that is already saved stops before anything is done. This only concerns the same name, a new name is always saved, and it never concerns the database. To replace the saved files:
 
 ```{r, eval=FALSE}
-# Removes Syrona's files of Dataset_A first, other files in the folder stay
+# Removes the saved result files of Dataset_A first, other files in that folder stay
 extract_all("Dataset_A", db, overwrite = TRUE)
 ```
 

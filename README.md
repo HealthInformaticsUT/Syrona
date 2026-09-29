@@ -69,8 +69,13 @@ data_dir <- getwd()   # results are saved here: the working directory, or anothe
 options(syrona.data_dir = data_dir)
 
 # 1. Connect to an OMOP CDM database (read-only)
-db <- syrona_connect_pg(host = "localhost", dbname = "omop", user = "your_user",
-                        password = Sys.getenv("DB_PASSWORD"), cdm_schema = "cdm")
+db <- syrona_connect_pg(
+  host       = "localhost",
+  dbname     = "omop",
+  user       = "your_user",
+  password   = Sys.getenv("DB_PASSWORD"),
+  cdm_schema = "cdm"
+)
 # or a local DuckDB file
 db <- syrona_connect("path/to/omop.duckdb")
 

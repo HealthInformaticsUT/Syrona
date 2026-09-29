@@ -31,7 +31,7 @@ options(syrona.data_dir = data_dir)
 compare_all("Dataset_A", "Dataset_B")
 ```
 
-The result is saved in `data/comparisons/Dataset_A_vs_Dataset_B/`. To compare the same two datasets again, add `overwrite = TRUE`.
+The result is saved in `data/comparisons/Dataset_A_vs_Dataset_B/`. Comparing the same two datasets again stops, so their saved result files are not replaced by accident. To replace them, add `overwrite = TRUE`. A comparison of other datasets is always saved.
 
 For each concept, `log2_pr` is the log2 prevalence ratio of Dataset_B to Dataset_A: 1 means twice as common in Dataset_B, -1 half as common. The final result per concept is in `condition_meta_summary` (and `procedure_`, `drug_`). How it is calculated: `vignette("a05_methods")`.
 
