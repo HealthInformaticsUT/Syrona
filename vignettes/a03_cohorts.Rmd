@@ -26,7 +26,7 @@ port           <- 5432
 dbname         <- "omop"
 user           <- "your_user"
 cdm_schema     <- "cdm"
-results_schema <- "results"  # where ATLAS writes its cohorts
+cohort_schema  <- "results"  # where ATLAS writes its cohorts
 data_dir       <- "path/to/syrona_output"
 options(syrona.data_dir = data_dir)
 ```
@@ -46,11 +46,11 @@ ATLAS writes its cohorts to the table `cohort` in the results schema. The cohort
 
 ```{r, eval=FALSE}
 # Entries and persons of cohort 1
-cohort_summary(db$con, cohort_id = 1, cohort_schema = results_schema)
+cohort_summary(db$con, cohort_id = 1, cohort_schema = cohort_schema)
 
 # One dataset per cohort
-extract_all("Dataset_A", db, cohort_id = 1, cohort_schema = results_schema)
-extract_all("Dataset_B", db, cohort_id = 2, cohort_schema = results_schema)
+extract_all("Dataset_A", db, cohort_id = 1, cohort_schema = cohort_schema)
+extract_all("Dataset_B", db, cohort_id = 2, cohort_schema = cohort_schema)
 ```
 
 A cohort table with another name is read with `cohort_table = "..."`.

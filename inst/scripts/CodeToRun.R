@@ -18,7 +18,7 @@ cdm_schema_a <- "cdm"
 cdm_schema_b <- "cdm"
 
 # The schema where ATLAS writes its cohorts (only for option B below)
-results_schema <- "results"
+cohort_schema <- "results"
 
 # The folder where the results are saved
 data_dir <- "path/to/syrona_output"
@@ -49,11 +49,11 @@ db_b$cdm$person |> dplyr::tally()
 # More ways (ATLAS JSON, a list of patients): vignette("a03_cohorts", package = "syrona")
 
 extract_all("Dataset_A", db_a, overwrite = overwrite)                                                  # A
-# extract_all("Dataset_A", db_a, cohort_id = 1, cohort_schema = results_schema, overwrite = overwrite)  # B
+# extract_all("Dataset_A", db_a, cohort_id = 1, cohort_schema = cohort_schema, overwrite = overwrite)  # B
 # extract_all("Dataset_A", db_a, care_site_id = 101, overwrite = overwrite)                            # C
 
 extract_all("Dataset_B", db_b, overwrite = overwrite)                                                  # A
-# extract_all("Dataset_B", db_b, cohort_id = 2, cohort_schema = results_schema, overwrite = overwrite)  # B
+# extract_all("Dataset_B", db_b, cohort_id = 2, cohort_schema = cohort_schema, overwrite = overwrite)  # B
 # extract_all("Dataset_B", db_b, care_site_id = 102, overwrite = overwrite)                            # C
 
 # ---- 3. Compare ---------------------------------------------------------------

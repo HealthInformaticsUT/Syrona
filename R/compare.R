@@ -345,7 +345,10 @@ compare_domain <- function(d1, d2, prev_table, domain_label) {
 #' @param d1_name Name of dataset 1 (reference).
 #' @param d2_name Name of dataset 2 (comparison).
 #' @param domains Character vector of domains to compare.
-#' @param save If \code{TRUE} (default), writes CSV output.
+#' @param save If \code{TRUE} (default), saves CSV to
+#'   \code{data/comparisons/<d1_name>_vs_<d2_name>/} under
+#'   \code{getOption("syrona.data_dir")} (default: the working directory).
+#'   The folders are created if needed.
 #' @param overwrite If this comparison was saved before: \code{FALSE} (default)
 #'   stops before anything is compared, \code{TRUE} replaces it. Only the files
 #'   Syrona writes are removed, other files in the folder are kept.

@@ -3,9 +3,9 @@
 #' Run the Syrona dashboard
 #'
 #' Launches the Shiny dashboard for exploring prevalence comparisons.
-#' The app looks for \code{data/sources/} and \code{data/comparisons/}
-#' relative to your current working directory. Run this from the directory
-#' that contains your \code{data/} folder.
+#' The app reads \code{data/sources/} and \code{data/comparisons/} under
+#' \code{data_dir}: the same folder you set with
+#' \code{options(syrona.data_dir = )} when extracting and comparing.
 #'
 #' @param data_dir Path to the directory containing \code{data/sources/} and
 #'   \code{data/comparisons/}. Defaults to the current working directory.

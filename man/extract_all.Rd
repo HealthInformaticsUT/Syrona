@@ -32,7 +32,9 @@ If \code{NULL} (default), extracts the full dataset.}
 \code{cohort_schema} only, the table \code{cohort} in that schema is read
 (where ATLAS writes its cohorts).}
 
-\item{save}{If \code{TRUE} (default), saves CSV to \code{data/sources/<dataset_name>/}.}
+\item{save}{If \code{TRUE} (default), saves CSV to \code{data/sources/<dataset_name>/}
+under \code{getOption("syrona.data_dir")} (default: the working directory).
+The folders are created if needed.}
 
 \item{care_site_id}{One \code{care_site_id} (a hospital or clinic). If given,
 the dataset covers the persons with at least one visit at that care site,

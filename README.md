@@ -1,4 +1,4 @@
-# syrona
+# Syrona
 
 Stratified prevalence comparison across OMOP CDM datasets.
 
@@ -10,17 +10,16 @@ Pick the scenario that matches you - each links to the relevant vignette.
 
 ### A. I just want to see the dashboard with demo data
 
-Install from CRAN. The demo data ships inside the package, so no clone is
-needed:
+Install from CRAN. The demo data ships inside the package, so no clone is needed:
 
-```r
+``` r
 install.packages("syrona")
 library(syrona)
 
 dir <- file.path(tempdir(), "demo")
 file.copy(system.file("extdata", "demo", package = "syrona"), tempdir(), recursive = TRUE)
 options(syrona.data_dir = dir)
-compare_all("demo_population", "demo_selected")
+compare_all("demo_population", "demo_selected", overwrite = TRUE)  # overwrite: run it again
 run_app(data_dir = dir)
 ```
 
@@ -28,56 +27,50 @@ run_app(data_dir = dir)
 
 Install the package and start with the whole path in one page:
 
-```r
+``` r
 install.packages("syrona")
 ```
 
-Then read [`vignette("a00_get_started", package = "syrona")`](vignettes/a00_get_started.Rmd):
-connect, extract, compare and explore, each step in its own vignette after that.
+Then read [`vignette("a00_get_started", package = "syrona")`](vignettes/a00_get_started.Rmd): connect, extract, compare and explore, each step in its own vignette after that.
 
 Or start from the ready script with the whole path and all options:
 
-```r
+``` r
 file.copy(system.file("scripts", "CodeToRun.R", package = "syrona"), "path/to/my_folder")
 ```
 
-### C. I already have extracted syrona data
+### C. I already have data extracted with Syrona
 
-Install the package, point at your data directory, launch:
+Point the dashboard at the folder that contains `data/` (see "Where the results are saved"):
 
-```r
+``` r
 install.packages("syrona")
 library(syrona)
-options(syrona.data_dir = "/path/to/your/syrona/data")
-run_app()
+run_app(data_dir = "path/to/syrona_output")
 ```
-
-Your data directory must contain `sources/` (extracted datasets) and
-optionally `comparisons/` (pre-computed comparison results).
 
 ### Development version
 
 The latest version from GitHub:
 
-```r
+``` r
 # install.packages("remotes")
 remotes::install_github("HealthInformaticsUT/Syrona")
 ```
 
-If this fails with `HTTP error 401 / Bad credentials`, an expired
-`GITHUB_PAT` in your `.Renviron` is being sent to GitHub. The repository is
-public and needs no token: run `usethis::edit_r_environ()`, delete the
-`GITHUB_PAT=...` line, save, and restart R.
+If this fails with `HTTP error 401 / Bad credentials`, an expired `GITHUB_PAT` in your `.Renviron` is being sent to GitHub. The repository is public and needs no token: run `usethis::edit_r_environ()`, delete the `GITHUB_PAT=...` line, save, and restart R.
 
 ## Quick reference
 
-```r
+``` r
 library(syrona)
+options(syrona.data_dir = "path/to/syrona_output")   # results are saved here
 
-# 1. Connect to an OMOP CDM database
-db <- syrona_connect("path/to/omop.duckdb")           # local DuckDB
-# or
-db <- syrona_connect_pg(host = "localhost", ...)       # PostgreSQL via SSH tunnel
+# 1. Connect to an OMOP CDM database (read-only)
+db <- syrona_connect_pg(host = "localhost", dbname = "omop", user = "your_user",
+                        password = Sys.getenv("DB_PASSWORD"), cdm_schema = "cdm")
+# or a local DuckDB file
+db <- syrona_connect("path/to/omop.duckdb")
 
 # 2. Extract stratified prevalence tables
 extract_all("Dataset_A", db = db)
@@ -88,28 +81,41 @@ syrona_disconnect(db)
 compare_all("Dataset_A", "Dataset_B")
 
 # 4. Explore in the dashboard
-run_app()
+run_app(data_dir = "path/to/syrona_output")
 ```
+
+## Where the results are saved
+
+Syrona creates the folders itself, under the folder set with `options(syrona.data_dir = ...)` (default: the working directory). Nothing has to exist in advance:
+
+```         
+path/to/syrona_output/
+  data/
+    sources/Dataset_A/                 created by extract_all()
+    comparisons/Dataset_A_vs_Dataset_B/  created by compare_all()
+```
+
+Only if you received extracted or compared files from elsewhere, put them into this structure yourself, then open them with `run_app(data_dir = "path/to/syrona_output")`.
 
 ## What it does
 
-1. **Extract** (Phase 1) - query an OMOP CDM via CDMConnector + dplyr to produce prevalence by concept x year x sex x age group, concept metadata, chapter assignments, and SNOMED attributes. k-anonymity suppression applied automatically.
+1.  **Extract** (Phase 1) - query an OMOP CDM via CDMConnector + dplyr to produce prevalence by concept x year x sex x age group, concept metadata, chapter assignments, and SNOMED attributes. k-anonymity suppression applied automatically.
 
-2. **Compare** (Phase 2) - pair two datasets, match strata, compute log2 prevalence ratios with confidence intervals.
+2.  **Compare** (Phase 2) - pair two datasets, match strata, compute log2 prevalence ratios with confidence intervals.
 
-3. **Meta-analyze** (Phase 3) - synthesize per-stratum estimates via random-effects meta-analysis (Paule-Mandel tau) across years, age groups, and sexes.
+3.  **Meta-analyze** (Phase 3) - synthesize per-stratum estimates via random-effects meta-analysis (Paule-Mandel tau) across years, age groups, and sexes.
 
 ## Domains
 
-- **Conditions** - SNOMED concepts, chapters via body system / disease category / ICD-10
-- **Procedures** - SNOMED concepts, chapters by method / by site
-- **Drugs** - rolled up to Ingredient level, ATC 1st level chapters
+-   **Conditions** - SNOMED concepts, dashboard filtering: chapters via body system / disease category / ICD-10
+-   **Procedures** - SNOMED concepts, dashboard filtering: chapters by method / by site
+-   **Drugs** - rolled up to Ingredient level, dashboard filtering: ATC 1st level chapters
 
 ## Cohorts and hospitals
 
 Extract a subpopulation instead of the whole database:
 
-```r
+``` r
 # One hospital (care site): persons with a visit there, events recorded there
 extract_all("Hospital_A", db = db, care_site_id = 101)
 
@@ -117,10 +123,4 @@ extract_all("Hospital_A", db = db, care_site_id = 101)
 extract_all("My_cohort", db = db, cohort_id = 2031, cohort_schema = "results")
 ```
 
-`list_care_sites(db$con, cdm_schema = "cdm")` lists the care sites. See the vignette *OHDSI Cohort Workflows*.
-
-## Dependencies
-
-- [CDMConnector](https://CRAN.R-project.org/package=CDMConnector) (>= 2.0.0)
-- [meta](https://CRAN.R-project.org/package=meta) (for meta-analysis)
-- [duckdb](https://CRAN.R-project.org/package=duckdb) (for local databases)
+`list_care_sites(db$con, cdm_schema = "cdm")` lists the care sites. See `vignette("a03_cohorts", package = "syrona")`.

@@ -19,7 +19,10 @@ compare_all(
 
 \item{domains}{Character vector of domains to compare.}
 
-\item{save}{If \code{TRUE} (default), writes CSV output.}
+\item{save}{If \code{TRUE} (default), saves CSV to
+\code{data/comparisons/<d1_name>_vs_<d2_name>/} under
+\code{getOption("syrona.data_dir")} (default: the working directory).
+The folders are created if needed.}
 
 \item{overwrite}{If this comparison was saved before: \code{FALSE} (default)
 stops before anything is compared, \code{TRUE} replaces it. Only the files

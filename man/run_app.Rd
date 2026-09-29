@@ -22,9 +22,9 @@ No return value, called for its side effect of launching the Shiny
 }
 \description{
 Launches the Shiny dashboard for exploring prevalence comparisons.
-The app looks for \code{data/sources/} and \code{data/comparisons/}
-relative to your current working directory. Run this from the directory
-that contains your \code{data/} folder.
+The app reads \code{data/sources/} and \code{data/comparisons/} under
+\code{data_dir}: the same folder you set with
+\code{options(syrona.data_dir = )} when extracting and comparing.
 }
 \examples{
 # Copy the bundled demo, generate the comparison, then launch the dashboard.

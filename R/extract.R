@@ -1369,7 +1369,9 @@ list_datasets <- function() {
 #' @param cohort_schema Schema containing the cohort table. With
 #'   \code{cohort_schema} only, the table \code{cohort} in that schema is read
 #'   (where ATLAS writes its cohorts).
-#' @param save If \code{TRUE} (default), saves CSV to \code{data/sources/<dataset_name>/}.
+#' @param save If \code{TRUE} (default), saves CSV to \code{data/sources/<dataset_name>/}
+#'   under \code{getOption("syrona.data_dir")} (default: the working directory).
+#'   The folders are created if needed.
 #' @param care_site_id One \code{care_site_id} (a hospital or clinic). If given,
 #'   the dataset covers the persons with at least one visit at that care site,
 #'   over their whole observation period, and only the events recorded at a
