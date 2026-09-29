@@ -20,8 +20,9 @@ cdm_schema_b <- "cdm"
 # The schema where ATLAS writes its cohorts (only for option B below)
 cohort_schema <- "results"
 
-# The folder where the results are saved
-data_dir <- "path/to/syrona_output"
+# Where the results are saved: Syrona creates data/sources/ and data/comparisons/ here.
+# Default: your working directory. For another place: data_dir <- "path/to/folder"
+data_dir <- getwd()
 
 # FALSE: stop if a dataset or comparison with the same name was saved before.
 # TRUE: replace it.

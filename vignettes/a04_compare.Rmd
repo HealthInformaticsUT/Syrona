@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 ```{r settings, eval=FALSE}
 library(syrona)
 
-data_dir <- "path/to/syrona_output"  # the folder with your extracted datasets
+data_dir <- getwd()  # the folder with your extracted datasets (the one used when extracting)
 options(syrona.data_dir = data_dir)
 ```
 

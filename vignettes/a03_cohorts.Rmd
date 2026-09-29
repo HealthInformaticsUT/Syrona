@@ -27,7 +27,7 @@ dbname         <- "omop"
 user           <- "your_user"
 cdm_schema     <- "cdm"
 cohort_schema  <- "results"  # where ATLAS writes its cohorts
-data_dir       <- "path/to/syrona_output"
+data_dir       <- getwd()   # results are saved here: the working directory, or another folder
 options(syrona.data_dir = data_dir)
 ```
 

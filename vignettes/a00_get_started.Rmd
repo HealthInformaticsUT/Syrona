@@ -67,7 +67,7 @@ dbname       <- "omop"
 user         <- "your_user"   # password: DB_PASSWORD in ~/.Renviron
 cdm_schema_a <- "cdm_a"
 cdm_schema_b <- "cdm_b"
-data_dir     <- "path/to/syrona_output"  # results are saved here
+data_dir     <- getwd()  # results are saved here: the working directory, or another folder
 options(syrona.data_dir = data_dir)
 ```
 
@@ -104,7 +104,7 @@ file.copy(system.file("scripts", "CodeToRun.R", package = "syrona"), "path/to/my
 ## Where the results are saved
 
 ```         
-path/to/syrona_output/
+<data_dir>/                        # by default your working directory
   data/
     sources/
       Dataset_A/                   # one folder per extracted dataset

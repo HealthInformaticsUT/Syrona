@@ -26,7 +26,7 @@ port       <- 5432
 dbname     <- "omop"
 user       <- "your_user"
 cdm_schema <- "cdm"
-data_dir   <- "path/to/syrona_output"  # results are saved here
+data_dir   <- getwd()  # results are saved here: the working directory, or another folder
 options(syrona.data_dir = data_dir)
 ```
 

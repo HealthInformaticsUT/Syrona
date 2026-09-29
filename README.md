@@ -64,7 +64,8 @@ If this fails with `HTTP error 401 / Bad credentials`, an expired `GITHUB_PAT` i
 
 ``` r
 library(syrona)
-options(syrona.data_dir = "path/to/syrona_output")   # results are saved here
+data_dir <- getwd()   # results are saved here: the working directory, or another folder
+options(syrona.data_dir = data_dir)
 
 # 1. Connect to an OMOP CDM database (read-only)
 db <- syrona_connect_pg(host = "localhost", dbname = "omop", user = "your_user",
@@ -81,7 +82,7 @@ syrona_disconnect(db)
 compare_all("Dataset_A", "Dataset_B")
 
 # 4. Explore in the dashboard
-run_app(data_dir = "path/to/syrona_output")
+run_app(data_dir = data_dir)
 ```
 
 ## Where the results are saved
@@ -89,7 +90,7 @@ run_app(data_dir = "path/to/syrona_output")
 Syrona creates the folders itself, under the folder set with `options(syrona.data_dir = ...)` (default: the working directory). Nothing has to exist in advance:
 
 ```         
-path/to/syrona_output/
+<data_dir>/                            by default your working directory
   data/
     sources/Dataset_A/                 created by extract_all()
     comparisons/Dataset_A_vs_Dataset_B/  created by compare_all()
