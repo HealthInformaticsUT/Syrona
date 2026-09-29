@@ -49,9 +49,10 @@ library(syrona)
 run_app(data_dir = "path/to/syrona_output")
 ```
 
-### Development version
+### From GitHub
 
-The latest version from GitHub:
+The latest release from GitHub (the main branch: the same as CRAN, or newer
+while a release waits for CRAN):
 
 ``` r
 # install.packages("remotes")

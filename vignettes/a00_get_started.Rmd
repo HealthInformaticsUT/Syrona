@@ -25,7 +25,7 @@ Syrona only reads the database. What it saves are aggregated counts, and no save
 ```{r, eval=FALSE, runner=FALSE}
 install.packages("syrona")
 
-# Or the development version from GitHub (see the README if this fails)
+# Or the latest release from GitHub (see the README if this fails)
 # remotes::install_github("HealthInformaticsUT/Syrona")
 
 # Plus the driver for your database: one of
