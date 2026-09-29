@@ -1,17 +1,25 @@
-# syrona 0.2.2
+# syrona 0.3.0
 
-## Bug fixes
-* `syrona_connect()` now defaults to `read_only = FALSE`. The previous default
-  of `TRUE` always failed, because CDMConnector validates a CDM by writing a
-  probe table. This also fixes `extract_all()` when `db` is a DuckDB file path.
+## Breaking changes
 
-## Documentation
-* README and vignettes install from CRAN; the GitHub install is listed as the
-  development version.
-* README demo instructions use the bundled demo data instead of a repository
-  clone.
-* Removed the `read_only = TRUE` examples and the claim that connections are
-  read-only by default.
+* Connections are read-only by default: no write schema, and DuckDB files are opened read-only.
+* `insert_cohort()`, `create_caresite_cohort()` and `delete_cohort()` are removed. Use a cohort in the database, or `extract_all(care_site_id = )`.
+* A cohort is read only where you name it (`cohort_schema`, `cohort_table`), and a cohort with overlapping entries is refused.
+* A saved dataset or comparison is only replaced with `overwrite = TRUE`.
+
+## New
+
+* `extract_all(care_site_id = )` call made easier.
+* `cohort_table` reads any OHDSI cohort table, including cohorts generated from ATLAS JSON.
+* `CodeToRun.R` runs the whole path as one script.
+* Vignettes written clearer.
+
+## Fixes
+
+* Cohorts in a database schema can be read on DuckDB.
+* A dataset with only women can be compared.
+* Temporary tables cannot replace a table of yours with the same name.
+* The dashboard's packages are installed with Syrona.
 
 # syrona 0.2.1
 

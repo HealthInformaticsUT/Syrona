@@ -405,6 +405,8 @@ fluidPage(
           "Clinical concepts are coded using standard vocabularies:",
           tags$strong("SNOMED CT"), "for conditions and procedures, and",
           tags$strong("RxNorm"), "(mapped to", tags$strong("ATC"), ") for drugs."),
+        p("A dataset is a whole database, a cohort, or the patients of one hospital.",
+          "A hospital dataset counts only the events recorded at that hospital's visits."),
         p("For each concept, Syrona counts how many patients have it in each year,",
           "broken down by sex (female/male) and age group (10-year brackets from 0\u20139 to 80+).",
           "These counts form the basis of all calculations."),
@@ -424,7 +426,8 @@ fluidPage(
           tags$li(tags$span(class = "term", "Body system"),
                   " \u2014 SNOMED CT hierarchy under", tags$em("Disorder of body system"),
                   " (concept 4180628).",
-                  " Chapters are the first level of descendants in the", tags$code("concept_ancestor"), "table."),
+                  " Chapters are the first level of descendants in the", tags$code("concept_ancestor"), "table,",
+                  " subchapters the second level."),
           tags$li(tags$span(class = "term", "Disease category"),
                   " \u2014 SNOMED CT hierarchy under", tags$em("Disease"),
                   " (concept 4274025), excluding body-system chapters.",
@@ -445,7 +448,9 @@ fluidPage(
 
         h4("Procedures"),
         p("Clinical procedures recorded in the", tags$code("procedure_occurrence"), "table.",
-          "Each SNOMED CT procedure concept is counted per patient per stratum.",
+          "Each standard procedure concept is counted per patient per stratum, usually SNOMED CT.",
+          "Chapters and attributes come from SNOMED CT, so procedures in other vocabularies",
+          "(for example ICD-9 procedure codes in US data) are compared but have no chapter.",
           "Procedures are classified using two SNOMED hierarchy-based systems:"),
         tags$ul(
           tags$li(tags$span(class = "term", "By method"),
@@ -475,7 +480,7 @@ fluidPage(
 
         h4("Drugs"),
         p("Drug exposures recorded in the", tags$code("drug_exposure"), "table.",
-          "Drug concepts are rolled up to the", tags$strong("RxNorm Ingredient"), "level",
+          "Drug concepts are rolled up to the", tags$strong("Ingredient"), "level (RxNorm or RxNorm Extension)",
           "using the", tags$code("concept_ancestor"), "table,",
           "so that branded products, clinical drugs, and different dose forms",
           "are aggregated to a single ingredient concept.",
@@ -561,8 +566,9 @@ fluidPage(
             ),
             tags$tr(
               tags$td("k-anonymity"),
-              tags$td("Privacy protection: any stratum with fewer than 5 patients is suppressed."),
-              tags$td("Some rare concepts may be excluded entirely.")
+              tags$td("Privacy protection: any stratum with fewer than 5 patients is suppressed,",
+                      "and so is any birth year and sex with fewer than 5 persons."),
+              tags$td("Some rare concepts may be excluded entirely. The population pyramid lacks the smallest birth years.")
             )
           )
         ),
@@ -593,6 +599,7 @@ fluidPage(
                   " Opens automatically when clicking a concept on the Heatmap."),
           tags$li(tags$span(class = "term", "Population"),
                   " \u2014 Population pyramids showing the sex and birth year distribution of each dataset.",
+                  " Birth years with fewer than 5 persons of a sex are left out.",
                   " This tab is domain-independent.")
         ),
         p(tags$em("Data tables:")),
@@ -604,7 +611,9 @@ fluidPage(
                   " \u2014 Full stratified table: one row per concept \u00d7 year \u00d7 sex \u00d7 age group.",
                   " Use column filters to drill down."),
           tags$li(tags$span(class = "term", "Patient Counts"),
-                  " \u2014 Raw patient counts and percentages per dataset, before any ratio calculation.")
+                  " \u2014 Raw patient counts and percentages per dataset, before any ratio calculation.",
+                  " Percentages use the persons in the population pyramid, so they can be slightly higher",
+                  " than with the full population.")
         ),
         p(tags$em("Reference:")),
         tags$ul(
