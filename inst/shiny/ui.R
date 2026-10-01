@@ -395,7 +395,7 @@ fluidPage(
           "For every clinical concept recorded in both datasets, it calculates how much more (or less)",
           "common that concept is in one dataset compared to the other.",
           "This helps identify systematic differences in prevalence between populations,",
-          "hospitals, or cohorts."),
+          "datasets, or cohorts."),
 
         h3("Where does the data come from?"),
         p("Each dataset is extracted from a health database that follows the",
@@ -405,8 +405,7 @@ fluidPage(
           "Clinical concepts are coded using standard vocabularies:",
           tags$strong("SNOMED CT"), "for conditions and procedures, and",
           tags$strong("RxNorm"), "(mapped to", tags$strong("ATC"), ") for drugs."),
-        p("A dataset is a whole database, a cohort, or the patients of one hospital.",
-          "A hospital dataset counts only the events recorded at that hospital's visits."),
+        p("A dataset is a whole database or a cohort."),
         p("For each concept, Syrona counts how many patients have it in each year,",
           "broken down by sex (female/male) and age group (10-year brackets from 0\u20139 to 80+).",
           "These counts form the basis of all calculations."),

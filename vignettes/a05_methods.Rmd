@@ -60,7 +60,7 @@ The pooled rows also show how much the strata differ:
 |---|---|
 | `n_strata` | number of strata pooled |
 | `tau2` | between-strata variance |
-| `I2` | share of the variation due to real differences between strata, in % |
+| `I2` | share of the variation due to real differences between strata, from 0 to 1 (0.97 = 97 %) |
 | `Q`, `pval_Q` | Cochran's Q test: a small `pval_Q` means the strata differ |
 | `lower_predict`, `upper_predict` | prediction interval: where a new stratum would likely fall |
 
