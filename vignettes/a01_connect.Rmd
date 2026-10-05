@@ -57,6 +57,8 @@ The file is opened read-only.
 db <- syrona_connect("path/to/omop.duckdb")
 ```
 
+If the DuckDB file is on a remote server, run R on that server and use the file's path there. Copy the file to your own computer only if the data may leave the server.
+
 ## Check the connection
 
 ```{r, eval=FALSE}

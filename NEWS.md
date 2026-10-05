@@ -1,4 +1,4 @@
-# syrona 0.3.0
+# syrona (development version)
 
 ## Breaking changes
 

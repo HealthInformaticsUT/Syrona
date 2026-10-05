@@ -52,7 +52,8 @@ db_b <- syrona_connect_pg(
   cdm_schema = cdm_schema_b
 )
 
-# DuckDB files instead:
+# DuckDB files instead. The path is on the machine where R runs. For a file on a
+# remote server, run this script in R on that server:
 # db_a <- syrona_connect("path/to/database_a.duckdb")
 # db_b <- syrona_connect("path/to/database_b.duckdb")
 
